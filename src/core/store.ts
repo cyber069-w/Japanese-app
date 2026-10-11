@@ -2,12 +2,19 @@
  * App-wide state: settings, SRS cards, daily log and loaded content.
  * A tiny observable store (no library) + a React hook. Every change is
  * written through to IndexedDB.
+ *
+ * For sync (core/sync.ts) the store also keeps:
+ *   ownDays     this device's daily log (IndexedDB "days")
+ *   remoteDays  the other devices' logs, per device id – state.days adds all up
+ *   stamps      when settings / word lists / kanji list / profile last changed here
+ *   resets      when each module was last reset
  */
 import { useSyncExternalStore } from 'react';
 import bundledPack from 'virtual:private-pack';
 import { storage, type DayLog } from './db';
 import { review, type CardState, type Grade } from './srs';
 import type { Content, Profile, Settings, VocabEntry } from './types';
+import { DEVICE_SETTINGS, NO_STAMPS, combineDays, mergeSync, syncedSettings, type Stamps, type SyncData } from './syncMerge';
 import { dayKey } from '../lib/date';
 
 export interface PrivatePack {
@@ -57,6 +64,28 @@ let state: AppState = {
 let pack: PrivatePack | null = null;
 let kanjiList: string[] = [];
 let profile: Profile | null = null;
+let ownDays: Record<string, DayLog> = {};
+let remoteDays: Record<string, DayLog[]> = {};
+let stamps: Stamps = NO_STAMPS;
+let resets: Record<string, number> = {};
+
+// ---- local changes (sync listens to these) ----
+const changeListeners = new Set<() => void>();
+/** Called after every change made on this device (not after applying synced data). */
+export function onLocalChange(l: () => void) {
+  changeListeners.add(l);
+  return () => {
+    changeListeners.delete(l);
+  };
+}
+const changed = () => changeListeners.forEach((l) => l());
+
+function stamp(key: keyof Stamps) {
+  stamps = { ...stamps, [key]: Date.now() };
+  void storage.set('stamps', stamps);
+}
+
+const allDays = () => combineDays({ '': Object.values(ownDays), ...remoteDays });
 
 const listeners = new Set<() => void>();
 export const getState = () => state;
@@ -88,7 +117,7 @@ function composeContent(): Content {
 // ---------------------------------------------------------------------------
 
 export async function initStore() {
-  const [settings, cardList, dayList, userVocab, storedPack, storedKanji, storedProfile] = await Promise.all([
+  const [settings, cardList, dayList, userVocab, storedPack, storedKanji, storedProfile, storedRemote, storedStamps, storedResets] = await Promise.all([
     storage.get<Partial<Settings>>('settings'),
     storage.allCards(),
     storage.allDays(),
@@ -96,18 +125,25 @@ export async function initStore() {
     storage.get<PrivatePack>('pack'),
     storage.get<string[]>('kanjiList'),
     storage.get<Profile>('profile'),
+    storage.get<Record<string, DayLog[]>>('remoteDays'),
+    storage.get<Stamps>('stamps'),
+    storage.get<Record<string, number>>('resets'),
   ]);
   let packStatus: PackStatus = 'none';
   if (storedPack) { pack = storedPack; packStatus = 'unlocked'; }
   else if (bundledPack) { pack = bundledPack as PrivatePack; packStatus = 'bundled'; }
   kanjiList = storedKanji ?? [];
   profile = storedProfile ?? null;
+  ownDays = Object.fromEntries(dayList.map((d) => [d.date, d]));
+  remoteDays = storedRemote ?? {};
+  stamps = { ...NO_STAMPS, ...storedStamps };
+  resets = storedResets ?? {};
   state = {
     ...state,
     ready: true,
     settings: { ...DEFAULT_SETTINGS, ...settings },
     cards: Object.fromEntries(cardList.map((c) => [c.id, c])),
-    days: Object.fromEntries(dayList.map((d) => [d.date, d])),
+    days: allDays(),
     userVocab: userVocab ?? [],
     packStatus,
   };
@@ -130,7 +166,7 @@ export function recordAnswer(id: string, moduleId: string, grade: Grade, ms: num
     void storage.putCard(card);
   }
   const key = dayKey(now);
-  const prev: DayLog = state.days[key] ?? { date: key, reviews: 0, correct: 0, ms: 0, modules: {} };
+  const prev: DayLog = ownDays[key] ?? { date: key, reviews: 0, correct: 0, ms: 0, modules: {} };
   const pm = prev.modules[moduleId] ?? { reviews: 0, correct: 0, ms: 0 };
   const day: DayLog = {
     ...prev,
@@ -140,7 +176,9 @@ export function recordAnswer(id: string, moduleId: string, grade: Grade, ms: num
     modules: { ...prev.modules, [moduleId]: { reviews: pm.reviews + 1, correct: pm.correct + (ok ? 1 : 0), ms: pm.ms + activeMs } },
   };
   void storage.putDay(day);
-  setState({ cards, days: { ...state.days, [key]: day }, version: state.version + 1 });
+  ownDays = { ...ownDays, [key]: day };
+  setState({ cards, days: allDays(), version: state.version + 1 });
+  changed();
 }
 
 // ---------------------------------------------------------------------------
@@ -151,6 +189,11 @@ export function updateSettings(patch: Partial<Settings>) {
   const settings = { ...state.settings, ...patch };
   void storage.set('settings', settings);
   setState({ settings });
+  // theme, voice speed and sound belong to this device only
+  if (Object.keys(patch).some((k) => !(DEVICE_SETTINGS as readonly string[]).includes(k))) {
+    stamp('settings');
+    changed();
+  }
 }
 
 export function setSelection(moduleId: string, groups: string[]) {
@@ -161,12 +204,16 @@ export async function setUserVocab(list: VocabEntry[]) {
   await storage.set('userVocab', list);
   state = { ...state, userVocab: list };
   setState({ content: composeContent() });
+  stamp('userVocab');
+  changed();
 }
 
 export async function setKanjiList(list: string[]) {
   kanjiList = list;
   await storage.set('kanjiList', list);
   setState({ content: composeContent() });
+  stamp('kanjiList');
+  changed();
 }
 
 export async function setProfile(p: Profile | null) {
@@ -174,6 +221,8 @@ export async function setProfile(p: Profile | null) {
   setState({ content: composeContent() });
   if (p) await storage.set('profile', p);
   else await storage.del('profile');
+  stamp('profile');
+  changed();
 }
 
 export async function installPack(p: PrivatePack) {
@@ -194,7 +243,10 @@ export async function resetModule(moduleId: string) {
   await storage.deleteCards(ids);
   const cards = { ...state.cards };
   ids.forEach((id) => delete cards[id]);
+  resets = { ...resets, [moduleId]: Date.now() };
+  await storage.set('resets', resets);
   setState({ cards, version: state.version + 1 });
+  changed();
 }
 
 /** Replace cards/days/settings after an import. */
@@ -210,13 +262,85 @@ export async function applyImport(data: {
   await storage.putDays(data.days);
   const cards = { ...state.cards };
   data.cards.forEach((c) => (cards[c.id] = c));
-  const days = { ...state.days };
-  data.days.forEach((d) => (days[d.date] = d));
+  ownDays = { ...ownDays };
+  data.days.forEach((d) => (ownDays[d.date] = d));
   if (data.settings) updateSettings(data.settings);
   if (data.userVocab) await setUserVocab(data.userVocab);
   if (data.kanjiList) await setKanjiList(data.kanjiList);
   if (data.profile) await setProfile(data.profile);
-  setState({ cards, days, version: state.version + 1 });
+  setState({ cards, days: allDays(), version: state.version + 1 });
+  changed();
+}
+
+// ---------------------------------------------------------------------------
+// Sync
+// ---------------------------------------------------------------------------
+
+/** Everything that syncs, as this device sees it. */
+export function exportSyncData(deviceId: string): SyncData {
+  return {
+    app: 'nihongo-app',
+    v: 1,
+    cards: Object.values(state.cards),
+    days: { ...remoteDays, [deviceId]: Object.values(ownDays) },
+    devices: {},
+    settings: syncedSettings(state.settings),
+    userVocab: state.userVocab,
+    kanjiList,
+    profile,
+    stamps,
+    resets,
+  };
+}
+
+const sameCard = (a: CardState | undefined, b: CardState) => !!a && a.last === b.last && a.due === b.due && a.seen === b.seen;
+
+/**
+ * Take over the merged data from a sync. Anything changed here while the sync
+ * was running is merged in again, so no answer gets lost.
+ */
+export async function applySyncData(merged: SyncData, deviceId: string, deviceName: string) {
+  const final = mergeSync(exportSyncData(deviceId), merged, deviceId, deviceName, Date.now());
+
+  const cards: Record<string, CardState> = {};
+  const put: CardState[] = [];
+  for (const c of final.cards) {
+    cards[c.id] = c;
+    if (!sameCard(state.cards[c.id], c)) put.push(c);
+  }
+  const gone = Object.keys(state.cards).filter((id) => !cards[id]);
+  if (put.length) await storage.putCards(put);
+  if (gone.length) await storage.deleteCards(gone);
+
+  remoteDays = Object.fromEntries(Object.entries(final.days).filter(([id]) => id !== deviceId));
+  await storage.set('remoteDays', remoteDays);
+
+  let settings = state.settings;
+  if (final.stamps.settings !== stamps.settings) {
+    settings = { ...state.settings, ...final.settings };
+    await storage.set('settings', settings);
+  }
+  let userVocab = state.userVocab;
+  if (final.stamps.userVocab !== stamps.userVocab) {
+    userVocab = final.userVocab;
+    await storage.set('userVocab', userVocab);
+  }
+  if (final.stamps.kanjiList !== stamps.kanjiList) {
+    kanjiList = final.kanjiList;
+    await storage.set('kanjiList', kanjiList);
+  }
+  if (final.stamps.profile !== stamps.profile) {
+    profile = final.profile;
+    if (profile) await storage.set('profile', profile);
+    else await storage.del('profile');
+  }
+  stamps = final.stamps;
+  resets = final.resets;
+  await storage.set('stamps', stamps);
+  await storage.set('resets', resets);
+
+  state = { ...state, userVocab };
+  setState({ cards, days: allDays(), settings, content: composeContent(), version: state.version + 1 });
 }
 
 export async function eraseEverything() {

@@ -1,7 +1,8 @@
 # Nihongo – a private Japanese study app
 
 A calm, ad-free study app for *Minna no Nihongo* and the A1 exam: a static **PWA** that works offline and installs on
-phone and laptop. No backend, no account, no tracking – your progress stays on your device.
+phone and laptop. No backend, no account, no tracking – your progress stays on your device, and if you like it syncs
+between your devices through a private repository in your own GitHub account (encrypted, free).
 
 | Module | What you practise |
 | --- | --- |
@@ -82,6 +83,29 @@ app*; desktop Chrome/Edge: the install icon in the address bar. Then Settings �
 first visit everything works offline, fonts included.
 
 **Updates** install themselves: after a deploy, the app picks up the new version the next time you open it online.
+
+## Sync between devices
+
+Optional and free: progress, daily history, settings, imported word lists, the kanji list and your self-introduction
+sync through **one encrypted file in a private repository of your own GitHub account**. There is no server – the app
+talks to the GitHub API directly. Theme, voice speed, sound and recordings stay per device; the course pack is unlocked
+on each device as before.
+
+1. Create a private, empty repository, e.g. `nihongo-sync` (<https://github.com/new>).
+2. Create a [fine-grained access token](https://github.com/settings/personal-access-tokens/new): *Repository access*
+   → Only select repositories → `nihongo-sync`; *Repository permissions* → **Contents: Read and write**; expiration
+   as long as offered. Keep it in your password manager.
+3. In the app: **Settings → Sync between devices** → repository (`your-name/nihongo-sync`), token and a sync password.
+   Do the same on every device with the same password.
+
+How it works: the file (`progress.enc`) is AES-256-GCM encrypted with a key derived from your sync password – GitHub
+only ever sees ciphertext. Each sync reads the file, merges, writes it back and takes over the result (newest answer per
+card wins; every device keeps its own daily log, so studying on two devices on the same day adds up and nothing is
+counted twice; settings, lists and profile take the most recent change; a module reset reaches the other devices).
+If two devices write at once, GitHub rejects the second write and that device merges again. Syncs run in the background
+(when the app opens, ~20 s after you study, when you leave the app) and never block studying; offline you keep going and
+it syncs later. Forgot the sync password? *Start fresh* replaces the file with one device’s data under a new password.
+When the token expires, Settings shows it – create a new one and connect again.
 
 ## Add a vocab list
 
@@ -200,8 +224,9 @@ Card ids are `module:exercise:item` – renaming an `id` starts that item’s pr
 ## Project structure
 
 ```
-src/core/        module contract (types.ts), SRS engine (srs.ts), sessions, store + IndexedDB, stats, backup, course pack
-src/lib/         romaji ⇄ kana, katakana for names, furigana alignment, CSV, speech, router, dates
+src/core/        module contract (types.ts), SRS engine (srs.ts), sessions, store + IndexedDB, stats, backup, course pack,
+                 sync (sync.ts engine, syncMerge.ts merge rules, github.ts API client)
+src/lib/         romaji ⇄ kana, katakana for names, furigana alignment, CSV, speech, crypto, router, dates
 src/components/  answer widgets, hints, stroke order + drawing pad, recorder, sheet, icons
 src/screens/     Home, Study, module page, Session, Review, Stats, Settings
 src/modules/     one folder per module + index.ts (the registry)
@@ -210,7 +235,7 @@ scripts/         course pack (pack/unpack), font subsets for offline, kanji + st
 ```
 
 Data is stored in IndexedDB (`nihongo-app`): progress, daily log, settings, imported lists, your self-introduction,
-the unlocked pack and voice recordings. **Settings → Backup** exports everything except the pack and recordings as JSON;
+the unlocked pack, voice recordings and – if connected – the sync connection. **Settings → Backup** exports everything except the pack and recordings as JSON;
 importing merges (for each card the newer progress wins).
 
 To rebuild the kanji data or stroke data (only needed when you change the kanji list):

@@ -6,6 +6,7 @@ import type { Settings as S } from '../core/types';
 import { MODULES } from '../modules';
 import { hasJapaneseVoice, onVoicesChanged, speak, speechSupported, voiceName } from '../lib/speech';
 import { Icon } from '../components/Icon';
+import { SyncSettings } from './SyncSettings';
 
 function Row({ title, desc, children }: { title: string; desc?: ReactNode; children: ReactNode }) {
   return (
@@ -125,6 +126,7 @@ export function Settings() {
         </section>
 
         <CoursePack />
+        <SyncSettings />
         <Backup />
 
         <section className="card card-pad">
@@ -144,7 +146,10 @@ export function Settings() {
 
         <section className="card card-pad small muted stack" style={{ '--gap': '8px' } as React.CSSProperties}>
           <h2 style={{ color: 'var(--ink)' }}>About</h2>
-          <p>Nihongo – a private, ad-free Japanese study app. Everything is stored only on this device.</p>
+          <p>
+            Nihongo – a private, ad-free Japanese study app. Everything is stored on this device; if you connect sync, an encrypted copy
+            is kept in your own GitHub repository. No other servers, no tracking.
+          </p>
           <p>
             Stroke order data: <a href="https://kanjivg.tagaini.net" target="_blank" rel="noreferrer">KanjiVG</a> © Ulrich Apel, CC BY-SA 3.0.
             Kanji readings and meanings: <a href="https://www.edrdg.org/wiki/index.php/KANJIDIC_Project" target="_blank" rel="noreferrer">KANJIDIC2</a> © EDRDG, CC BY-SA 4.0.

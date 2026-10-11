@@ -1,6 +1,8 @@
 import { useEffect, type ReactNode } from 'react';
 import { useApp } from './core/store';
 import { useDueCounts } from './core/hooks';
+import { useSyncStatus } from './core/sync';
+import { timeAgo } from './lib/date';
 import { match, usePath } from './lib/router';
 import { Icon, type IconName } from './components/Icon';
 import { Home } from './screens/Home';
@@ -55,8 +57,20 @@ export function App() {
   return <Shell path={path}>{route(path)}</Shell>;
 }
 
+function SyncLine() {
+  const s = useSyncStatus();
+  if (s.phase === 'off') return null;
+  const text = s.phase === 'syncing' ? 'Syncing…' : s.phase === 'error' ? 'Sync problem – see Settings' : s.lastSync ? `Synced ${timeAgo(s.lastSync)}` : 'Sync on';
+  return (
+    <a className={`sidebar-sync sync-status-line ${s.phase}`} href="#/settings">
+      <span className={`sync-dot`} aria-hidden="true" /> {text}
+    </a>
+  );
+}
+
 function Shell({ path, children }: { path: string; children: ReactNode }) {
   const due = useDueCounts().total;
+  const syncError = useSyncStatus().phase === 'error';
   const active = (p: string) => (p === '/' ? path === '/' : path === p || (p === '/study' && path.startsWith('/m/')));
   return (
     <div className="shell">
@@ -78,7 +92,8 @@ function Shell({ path, children }: { path: string; children: ReactNode }) {
           ))}
         </nav>
         <div className="sidebar-foot">
-          Offline · no ads · your data stays on this device
+          <SyncLine />
+          Offline · no ads · your data stays yours
         </div>
       </aside>
       <main className="main" key={path}>
@@ -90,6 +105,7 @@ function Shell({ path, children }: { path: string; children: ReactNode }) {
             <Icon name={n.icon} size={22} />
             {n.label}
             {n.path === '/review' && due > 0 && <span className="nav-dot">{due > 99 ? '99+' : due}</span>}
+            {n.path === '/settings' && syncError && <span className="nav-dot nav-alert" aria-label="Sync problem" />}
           </a>
         ))}
       </nav>

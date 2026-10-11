@@ -84,8 +84,15 @@ workflow are done. The app is feature-complete per the spec; what is left is dep
 - **QA**: every screen, module, exercise and tool clicked through at 1280 / 768 / 375 / 320 px, light and dark – no
   overflow, no console errors. Fixes included a `.hero` class clash (kana prompts off-centre on desktop), sheets
   rendered off-screen (now a portal), mobile grade buttons, hint duplication, ruby/line breaking.
-- **Tests**: 145 unit tests (SRS, romaji, CSV, furigana, numbers, grammar parser, sound-alikes, katakana names,
+- **Tests**: 160+ unit tests (SRS, romaji, CSV, furigana, numbers, grammar parser, sound-alikes, katakana names,
   speaking intro/questions). `README.md` and `.github/workflows/deploy.yml` written.
+
+- **Sync between devices** (third session): `core/sync.ts` (engine: connect, run, background triggers, status),
+  `core/syncMerge.ts` (pure merge rules: newest card wins, per-device day logs, stamps for settings/lists/profile,
+  module reset tombstones), `core/github.ts` (contents API client), `lib/crypto.ts` (PBKDF2 + AES-GCM + gzip). The store
+  keeps `ownDays` (IndexedDB "days") + `remoteDays` (kv) and shows their sum. UI: `screens/SyncSettings.tsx`, sidebar
+  status. Tested with unit tests (two simulated devices, conflicts, wrong password) and a two-browser e2e against a fake
+  GitHub API. Needs a private repo + fine-grained token (Contents: read & write) from the user – see README.
 
 ### To do 🔧
 
@@ -125,7 +132,7 @@ The user explicitly asked that the **Tofugu pictures and the Minna no Nihongo vo
 ```bash
 npm ci                               # Node ≥ 22.12
 npm run dev                          # http://localhost:5173 (bundles private/ if present)
-npm test                             # 145 unit tests (vitest)
+npm test                             # unit tests (vitest)
 npm run typecheck
 npm run build && npm run preview     # production build, no private content
 npm run pack                         # private/ → public/pack.enc
