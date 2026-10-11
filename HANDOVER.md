@@ -1,7 +1,7 @@
 # Handover – Nihongo study app (read this first)
 
-Written 11 Oct 2026 at the end of the first build session, for a **new chat that has none of the previous context**.
-Everything you need is in this file and the code. Continue where the previous session stopped and finish the app.
+Written 11 Oct 2026, updated at the end of the second session, for a **new chat that has none of the previous context**.
+Everything you need is in this file, `README.md` and the code.
 
 ---
 
@@ -59,60 +59,40 @@ laptop. No backend, no accounts, no tracking.
 
 ## 3. Status
 
+Second session (11 Oct 2026, cloud): Listening, Speaking, production build/offline, full QA, README and the Pages
+workflow are done. The app is feature-complete per the spec; what is left is deployment and the user's own content.
+
 ### Done ✅
 
 - **Stack**: Vite 8, React 19, TypeScript 6, `idb`, `vite-plugin-pwa`, Vitest. Fonts via `@fontsource-variable`.
-- **Core** (`src/core`): module contract `types.ts`, SM-2 SRS `srs.ts` (tested), store, IndexedDB `db.ts`, session
-  builder `session.ts` (due → new → weak; wrong answers re-queued 3 cards later, max twice), stats, backup
-  (merge import), private-pack unlock, hooks.
-- **Libraries** (`src/lib`): `romaji.ts` (IME converter + Hepburn + checker with strict/normal/lenient, tested),
-  `furigana.ts` (kanji/reading alignment), `csv.ts` (comma/semicolon/tab), `speech.ts` (best ja-JP voice), hash router.
-- **Screens**: Home, Study, Module page (group picker + presets, exercises, tools), Session (typing / choice /
-  ordering / drawing / flashcards, hints, requeue, finish screen with "practise mistakes"), Review, Stats, Settings
-  (incl. course-pack unlock, backup, reset, about/licences).
-- **Modules registered** in `src/modules/index.ts`: hiragana, katakana, vocab, kanji, grammar, numbers.
-  - Kana (`kana/createKanaModule.tsx` factory): read, recall (MC with look-alike distractors), words, writing,
-    look-alikes (katakana), kana chart tool. Hints = my own keyword/text (`hiragana/mnemonics.json`,
-    `katakana/mnemonics.json`) + Tofugu picture (hiragana). "Ausnahme" flags on し ち つ ふ (the user's own
-    marks in the PDF). **Browser-tested.**
-  - Vocab: meaning MC, type in kana, choose Japanese, flashcards; Word list and Import tools. **Browser-tested.**
-  - Grammar: 55 points for lessons 1–10 (`grammar/data/*.json`, notation documented in `grammar/sentence.ts`),
-    37 form drills; cards / particles / build sentence (**tested**) / forms / translate; Grammar notes tool.
-  - Numbers: 23 categories, read/write/listen, Rules & tables tool (**tested**). Readings tested.
-  - Kanji: 103 N5 kanji (German meanings) out of 335 in `kanji/kanji.json` (built by `scripts/build-kanji.mjs` from
-    KANJIDIC2 + JMdict, example words verified), 4 exercises, browser and "My kanji list" tools. **Not browser-tested yet.**
-- **61 unit tests pass**, typecheck clean. PWA manifest, icons and workbox config are in `vite.config.ts`.
+- **Core** (`src/core`): module contract `types.ts`, SM-2 SRS `srs.ts`, store, IndexedDB `db.ts`, session builder,
+  stats, backup (merge import, includes the self-introduction), private-pack unlock, hooks.
+- **Libraries** (`src/lib`): romaji ⇄ kana + checker, `phraseRomaji` (konbanwa, watashi wa), `katakanaName.ts`
+  (German-style romaji → katakana for names/places, with exceptions), furigana, CSV, speech (queue with line callback,
+  slow replay, iOS priming, `useSpeaking`), router, dates.
+- **Modules** (`src/modules/index.ts`): hiragana, katakana, vocab, kanji, grammar, numbers, **listening**, **speaking**.
+  - Listening: dictation, word meaning, *Hear the difference* (`soundAlikes.ts`: long vowels, っ, dakuten, small ゃゅょ,
+    ん), sentence meaning, sentence dictation (は/わ, へ/え, を/お both accepted); filters by source and lesson; voice
+    speed banner.
+  - Speaking: self-introduction tool (form → じこしょうかい with furigana, DE/EN, play all with line highlight, slow,
+    practise mode, copy, recording; saved as `profile` in kv), 32 oral exam questions in 4 topics (`questions.ts`, model
+    answers from the profile with an example person as fallback, real clock for time/date), exercises *Exam questions*,
+    *Listen & answer*, *Your introduction*; *Question list* tool. `Recorder` component (MediaRecorder → blobs, R key).
+- **Production**: precache = app + the Noto JP font subsets the built-in text needs (`scripts/font-subsets.mjs`,
+  ~3.7 MB, 125 entries); verified offline reload, fonts offline, installable manifest, course-pack unlock in the
+  production preview, no private content in `dist/`.
+- **QA**: every screen, module, exercise and tool clicked through at 1280 / 768 / 375 / 320 px, light and dark – no
+  overflow, no console errors. Fixes included a `.hero` class clash (kana prompts off-centre on desktop), sheets
+  rendered off-screen (now a portal), mobile grade buttons, hint duplication, ruby/line breaking.
+- **Tests**: 145 unit tests (SRS, romaji, CSV, furigana, numbers, grammar parser, sound-alikes, katakana names,
+  speaking intro/questions). `README.md` and `.github/workflows/deploy.yml` written.
 
-### To do (in this order) 🔧
+### To do 🔧
 
-1. **Listening module**: a draft exists at `src/modules/listening/index.tsx` (dictation, hear→meaning, sentences).
-   Review it, **register it** in `src/modules/index.ts` and test it. Session prompts with `speakWhen: 'prompt'`
-   auto-play and Space replays; voice speed comes from Settings.
-2. **Speaking module** (`src/modules/speaking/`), per the spec above:
-   - Tool "Self-introduction": form (name in romaji → katakana suggestion, editable; country from a list with
-     katakana/kanji, e.g. ドイツ, スイス, オーストリア; university (free text, live romaji→katakana); major from a list:
-     けいざいがく, けいえいがく, ほうがく …; year of study ～年生; age optional; hobbies multi-select). Output lines
-     with furigana + German translation: はじめまして。／わたしは〜です。／〜から来ました。／〜大学の学生です。／
-     専攻は〜です。／趣味は〜と〜です。／どうぞよろしくお願いします。 Add audio of the whole text and save the
-     form in IndexedDB (`kv`).
-   - Exercise "Oral exam questions": `reveal` answers with model answers built from the saved intro (お名前は？,
-     お国はどちらですか, 学生ですか, 専攻は何ですか, 何歳ですか, 趣味は何ですか, 毎朝何時に起きますか,
-     きのう何をしましたか, 何で大学へ来ますか, 日本語はどうですか, どんな食べ物が好きですか, 誕生日はいつですか …),
-     with TTS of the question (`speakWhen: 'prompt'`).
-   - Recording: a `Recorder` component (MediaRecorder → `storage.setBlob('rec:<id>')`, playback via object URL),
-     shown in `RevealAnswer` when `answer.record` is set (the field already exists in `core/types.ts`).
-3. **Production build + offline**: `npm run build && npm run preview`. Check the service worker, offline use,
-   installability and runtime font caching.
-4. **Full QA click-through**: every screen and module at desktop and **375 px phone width**, light + dark mode.
-   Especially test the Kanji module, the writing pad (draw → check → grade) and the course-pack unlock in a
-   production preview (see §4). Fix bugs.
-5. **README.md** per the spec (CSV format `kana,kanji,de,en,lesson,tags` with an example; "add a module" guide
-   based on `core/types.ts` → `StudyModule` and `src/modules/index.ts`).
-6. **`.github/workflows/deploy.yml`** for GitHub Pages (`npm ci` → `npm test` → `npm run build` → upload `dist`,
-   deploy-pages). `base: './'` and the hash router already work on Pages.
-7. **Deploy**: the user will give access to their GitHub account **when the project is finished**. The repo
-   should be private if their plan allows; the Pages site is public, which is fine because only the encrypted pack
-   ships. Then: install on phone → Settings → Course pack → passphrase.
+1. **Deploy**: merge the work branch into `main`. The repo is **private** – GitHub Pages needs GitHub Pro for private
+   repos; otherwise make it public (safe: `private/` and the passphrase were never committed). Then Settings → Pages →
+   Source: GitHub Actions. Site: https://cyber069-w.github.io/Japanese-app/
+2. On the phone: open the site, add to home screen, Settings → Course pack → passphrase.
 
 ### Later – the user will supply these ⏳
 
@@ -145,7 +125,7 @@ The user explicitly asked that the **Tofugu pictures and the Minna no Nihongo vo
 ```bash
 npm ci                               # Node ≥ 22.12
 npm run dev                          # http://localhost:5173 (bundles private/ if present)
-npm test                             # 61 unit tests (vitest)
+npm test                             # 145 unit tests (vitest)
 npm run typecheck
 npm run build && npm run preview     # production build, no private content
 npm run pack                         # private/ → public/pack.enc
@@ -157,13 +137,14 @@ PACK_PASSPHRASE='…' npm run unpack   # public/pack.enc → private/
 ```
 src/core/       types.ts (module contract: StudyModule, Exercise, Question, Answer, Hint), srs.ts, store.ts, db.ts,
                 session.ts, sessionConfig.ts, stats.ts, backup.ts, privatePack.ts, hooks.ts
-src/lib/        romaji.ts, furigana.ts, csv.ts, speech.ts, router.ts, date.ts
-src/components/ answers.tsx, HintPanel.tsx, Strokes.tsx (stroke animation + DrawPad), Ruby, Sheet, Icon, ProgressRing
+src/lib/        romaji.ts, katakanaName.ts, furigana.ts, csv.ts, speech.ts, router.ts, date.ts
+src/components/ answers.tsx, HintPanel.tsx, Strokes.tsx (stroke animation + DrawPad), Recorder, Ruby, Sheet, Icon, ProgressRing
 src/screens/    Home, Study, ModuleScreen (+ToolScreen), Session, Review, Stats, Settings
-src/modules/    kana/ hiragana/ katakana/ vocab/ grammar/ numbers/ kanji/ listening/ (draft)  → index.ts registry
+src/modules/    kana/ hiragana/ katakana/ vocab/ grammar/ numbers/ kanji/ listening/ speaking/  → index.ts registry
 src/styles/     tokens.css (light/dark design tokens), base.css, components.css
 src/data/       strokes.json (KanjiVG, generated)
-scripts/        build-pack.mjs, unpack-pack.mjs, pack-lib.mjs, build-kanji.mjs, build-strokes.mjs, make-icons.swift (macOS)
+scripts/        build-pack.mjs, unpack-pack.mjs, pack-lib.mjs, font-subsets.mjs, build-kanji.mjs, build-strokes.mjs, make-icons.swift (macOS)
+.github/        workflows/deploy.yml (test + build on every push, deploy main to Pages)
 ```
 
 **Adding a module**: create `src/modules/<name>/index.ts(x)` that exports a `StudyModule`, with `exercises`
