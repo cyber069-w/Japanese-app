@@ -7,8 +7,8 @@ import { COUNTRIES, HOBBIES, MAJORS } from './data';
 
 const me: Profile = {
   ...EMPTY_PROFILE,
-  name: 'Maximilian', nameJa: '', country: 'ch', university: 'St. Gallen', universityJa: '',
-  year: '2', major: 'econ', age: 20, birthday: '04-14', hobbies: ['ski', 'reading'],
+  name: 'Sebastian', nameJa: '', country: 'ch', university: 'Basel', universityJa: '',
+  year: '2', major: 'econ', age: 20, birthday: '09-03', hobbies: ['music', 'ski'],
 };
 
 /** Parsed text must not contain leftover notation characters. */
@@ -24,15 +24,15 @@ describe('self-introduction', () => {
     const lines = introLines(me);
     expect(lines.map((l) => l.id)).toEqual(['greet', 'name', 'age', 'country', 'uni', 'major', 'hobby', 'close']);
     const text = lines.map((l) => clean(l.ja).text);
-    expect(text).toContain('私はマクシミリアンです。');
+    expect(text).toContain('私はゼバスティアンです。');
     expect(text).toContain('20歳です。');
     expect(text).toContain('スイスから来ました。');
-    expect(text).toContain('ザンクト・ガレン大学の2年生です。');
+    expect(text).toContain('バーゼル大学の2年生です。');
     expect(text).toContain('専攻は経済学です。');
-    expect(text).toContain('趣味はスキーと読書です。');
+    expect(text).toContain('趣味は音楽とスキーです。');
     expect(clean(lines[2].ja).reading).toBe('はたちです。');
     expect(lines.find((l) => l.id === 'country')!.de).toBe('Ich komme aus der Schweiz.');
-    expect(lines.find((l) => l.id === 'hobby')!.de).toBe('Meine Hobbys sind Skifahren und Lesen.');
+    expect(lines.find((l) => l.id === 'hobby')!.de).toBe('Meine Hobbys sind Musik und Skifahren.');
   });
 
   it('leaves out what is not filled in', () => {
@@ -43,10 +43,10 @@ describe('self-introduction', () => {
   });
 
   it('uses the hand-edited Japanese and adds 大学 once', () => {
-    const r = resolve({ ...me, nameJa: 'マックス', universityJa: 'ザンクトガレン大学' });
+    const r = resolve({ ...me, nameJa: 'マックス', universityJa: 'バーゼル大学' });
     expect(r.name.ja).toBe('マックス');
-    expect(clean(r.uni.ja).text).toBe('ザンクトガレン大学');
-    expect(r.uni.latin).toBe('St. Gallen');
+    expect(clean(r.uni.ja).text).toBe('バーゼル大学');
+    expect(r.uni.latin).toBe('Basel');
   });
 
   it('ignores impossible values from old backups', () => {
@@ -94,7 +94,7 @@ describe('oral exam questions', () => {
   it('personalises answers from the profile', () => {
     const r = resolve(me);
     const bday = QUESTIONS.find((q) => q.id === 'birthday')!.answers(r, now)[0];
-    expect(clean(bday.ja).reading).toBe('しがつじゅうよっかです。');
+    expect(clean(bday.ja).reading).toBe('くがつみっかです。');
     const sport = QUESTIONS.find((q) => q.id === 'sport')!.answers(r, now)[0];
     expect(clean(sport.ja).text).toBe('スキーが好きです。');
     const langs = QUESTIONS.find((q) => q.id === 'languages')!.answers(r, now)[0];

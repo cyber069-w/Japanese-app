@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { nameToKatakana } from './katakanaName';
 
 const cases: Array<[string, string]> = [
-  ['Maximilian', 'マクシミリアン'],
+  ['Sebastian', 'ゼバスティアン'],
   ['Max', 'マックス'],
   ['Anna', 'アンナ'],
   ['Hanna', 'ハンナ'],
@@ -46,7 +46,7 @@ describe('nameToKatakana', () => {
   it('joins words with ・ and hyphens with ＝', () => {
     expect(nameToKatakana('Anna Müller')).toBe('アンナ・ミュラー');
     expect(nameToKatakana('Hans-Peter')).toBe('ハンス＝ペーター');
-    expect(nameToKatakana('St. Gallen')).toBe('ザンクト・ガレン');
+    expect(nameToKatakana('Basel')).toBe('バーゼル');
     expect(nameToKatakana('Zürich')).toBe('チューリッヒ');
   });
 

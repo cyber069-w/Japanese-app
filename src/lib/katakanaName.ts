@@ -1,8 +1,8 @@
 /**
  * Suggests how a (mostly German-speaking) name or place is written in katakana:
  *
- *   Maximilian → マクシミリアン   Müller → ミュラー   Anna → アンナ   Stefan → シュテファン
- *   St. Gallen → ザンクト・ガレン   Friedrich → フリードリヒ   Max → マックス
+ *   Sebastian → ゼバスティアン   Müller → ミュラー   Anna → アンナ   Stefan → シュテファン
+ *   Basel → バーゼル   Friedrich → フリードリヒ   Max → マックス
  *
  * It follows German pronunciation (j = y, s before a vowel = z, ie = long i, final -er = ー),
  * so the result is a suggestion the user can edit – foreign names have no single correct spelling.

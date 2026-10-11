@@ -148,8 +148,8 @@ export function SelfIntroTool({ ctx }: { ctx: StudyContext }) {
           )}
         </Field>
 
-        <Field label="University" htmlFor="f-uni" hint="The city or name, e.g. St. Gallen or Zürich – 大学 (university) is added for you.">
-          <input id="f-uni" className="input" value={p.university} onChange={(e) => set({ university: e.target.value })} placeholder="e.g. St. Gallen" />
+        <Field label="University" htmlFor="f-uni" hint="The city or name, e.g. Zürich or Bern – 大学 (university) is added for you.">
+          <input id="f-uni" className="input" value={p.university} onChange={(e) => set({ university: e.target.value })} placeholder="e.g. Zürich" />
           <KatakanaInput
             value={jaOf('universityJa', p.university).replace(/大学$/, '')}
             onChange={(v) => setJa('universityJa', v)}
