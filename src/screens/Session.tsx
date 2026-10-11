@@ -315,6 +315,7 @@ function Runner({ cfg, restart }: { cfg: SessionConfig; restart: (c: SessionConf
         {question.speak && <span><kbd>Space</kbd> audio</span>}
         {question.speak && audioFirst && <span><kbd>Shift</kbd>+<kbd>Space</kbd> slow</span>}
         {question.hint && <span><kbd>?</kbd> hint</span>}
+        {question.answer.type === 'reveal' && question.answer.record && <span><kbd>R</kbd> record</span>}
         <span><kbd>Esc</kbd> quit</span>
       </div>
     </div>

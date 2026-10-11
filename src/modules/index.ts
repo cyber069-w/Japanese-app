@@ -11,8 +11,9 @@ import { vocab } from './vocab';
 import { grammar } from './grammar';
 import { kanji } from './kanji';
 import { listening } from './listening';
+import { speaking } from './speaking';
 
-export const MODULES: StudyModule[] = [hiragana, katakana, vocab, kanji, grammar, numbers, listening];
+export const MODULES: StudyModule[] = [hiragana, katakana, vocab, kanji, grammar, numbers, listening, speaking];
 
 export function getModule(id: string): StudyModule | undefined {
   return MODULES.find((m) => m.id === id);

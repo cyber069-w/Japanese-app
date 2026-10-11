@@ -65,26 +65,52 @@ export function useSpeaking(): boolean {
   );
 }
 
-let current: SpeechSynthesisUtterance | null = null;
+/** Bumped by every speak/stop, so events of a cancelled utterance are ignored. */
+let generation = 0;
 
-export function speak(text: string, rate = 0.9) {
-  if (!supported() || !text) return;
-  speechSynthesis.cancel();
+function utterance(text: string, rate: number) {
   const u = new SpeechSynthesisUtterance(text.replace(/[～〜]/g, ''));
   u.lang = 'ja-JP';
   if (voice) u.voice = voice;
   u.rate = rate;
-  current = u;
-  // `current` guards against a cancelled utterance ending after the next one started
-  u.onstart = () => current === u && setSpeaking(true);
-  u.onend = u.onerror = () => current === u && setSpeaking(false);
+  return u;
+}
+
+export function speak(text: string, rate = 0.9) {
+  speakQueue([text], rate);
+}
+
+/**
+ * Speak several sentences one after another. `onIndex` reports the sentence being
+ * spoken (null at the end) – used to highlight lines while they are read.
+ */
+export function speakQueue(texts: string[], rate = 0.9, onIndex?: (i: number | null) => void) {
+  const list = texts.filter(Boolean);
+  if (!supported() || !list.length) return;
+  speechSynthesis.cancel();
+  const gen = ++generation;
+  list.forEach((t, i) => {
+    const u = utterance(t, rate);
+    u.onstart = () => {
+      if (gen !== generation) return;
+      setSpeaking(true);
+      onIndex?.(i);
+    };
+    if (i === list.length - 1) {
+      u.onend = u.onerror = () => {
+        if (gen !== generation) return;
+        setSpeaking(false);
+        onIndex?.(null);
+      };
+    }
+    speechSynthesis.speak(u);
+  });
   setSpeaking(true);
-  speechSynthesis.speak(u);
 }
 
 export function stopSpeaking() {
   if (!supported()) return;
-  current = null;
+  generation++;
   speechSynthesis.cancel();
   setSpeaking(false);
 }

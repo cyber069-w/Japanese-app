@@ -7,6 +7,7 @@ import { shuffle } from '../../core/session';
 import { kanaEquals, matchesReading, phraseRomaji, toRomaji } from '../../lib/romaji';
 import { vocabAccepts, vocabItems } from '../vocab/items';
 import { grammarSentences } from '../grammar';
+import { sentenceRomaji } from '../grammar/sentence';
 import hiraganaWords from '../hiragana/words.json';
 import katakanaWords from '../katakana/words.json';
 import { ALIKE_NOTE, pickAlikes, soundAlikes } from './soundAlikes';
@@ -22,6 +23,8 @@ interface ListenItem extends BaseItem, Meaning {
   exact: (v: string) => boolean;
   /** Other accepted spellings, e.g. the particle は written わ in a dictation. */
   variants?: string[];
+  /** Romaji for the solution (defaults to the kana). */
+  romaji?: string;
 }
 
 const isKatakana = (s: string) => /^[゠-ヿ\s・]+$/.test(s);
@@ -89,6 +92,7 @@ const SENTENCES: ListenItem[] = grammarSentences.map((s) => ({
   en: s.ex.en,
   exact: (v) => kanaEquals(v, s.s.reading),
   variants: particleSpellings(s.s.chunks.flatMap((c) => c.segs)),
+  romaji: sentenceRomaji(s.s),
 }));
 const kanaCount = (s: string) => [...s.replace(/[\s。、？！?!・]/g, '')].length;
 /** Sentences short enough to type after hearing them once or twice. */
@@ -117,7 +121,7 @@ function meaningOptions(it: ListenItem, pool: ListenItem[], all: ListenItem[], c
 
 /** "kana · romaji · meaning" – the kana only when the word is shown with kanji above it. */
 const solutionSub = (it: ListenItem, ctx: StudyContext) =>
-  [it.label !== it.kana && it.kana.replace(/\s+/g, ' '), phraseRomaji(it.kana), m(it, ctx)].filter(Boolean).join(' · ');
+  [it.label !== it.kana && it.kana.replace(/\s+/g, ' '), it.romaji ?? phraseRomaji(it.kana), m(it, ctx)].filter(Boolean).join(' · ');
 
 // ---------------------------------------------------------------------------
 // Exercises
@@ -229,7 +233,7 @@ const sentenceDictation: Exercise<ListenItem> = {
   question: (it, ctx): Question => ({
     prompt: { audioOnly: true, lang: 'ja', size: 'large', instruction: 'Type the sentence you hear', sub: m(it, ctx) },
     answer: { type: 'typing', input: 'kana', check: (v) => heardRight(v, it, ctx), placeholder: 'type romaji → かな' },
-    solution: { main: it.label, ruby: it.ruby, lang: 'ja', sub: `${it.kana} · ${phraseRomaji(it.say)}`, notes: particleNote(it) },
+    solution: { main: it.label, ruby: it.ruby, lang: 'ja', sub: `${it.kana} · ${it.romaji}`, notes: particleNote(it) },
     hint: { text: `${kanaCount(it.kana)} kana. Particles: は is said “wa”, へ “e”, を “o”.` },
     revealHint: null,
     speak: it.say,

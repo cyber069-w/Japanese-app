@@ -7,7 +7,7 @@ import { useSyncExternalStore } from 'react';
 import bundledPack from 'virtual:private-pack';
 import { storage, type DayLog } from './db';
 import { review, type CardState, type Grade } from './srs';
-import type { Content, Settings, VocabEntry } from './types';
+import type { Content, Profile, Settings, VocabEntry } from './types';
 import { dayKey } from '../lib/date';
 
 export interface PrivatePack {
@@ -49,13 +49,14 @@ let state: AppState = {
   settings: DEFAULT_SETTINGS,
   cards: {},
   days: {},
-  content: { vocab: [], hints: {}, kanjiList: [] },
+  content: { vocab: [], hints: {}, kanjiList: [], profile: null },
   packStatus: 'none',
   userVocab: [],
   version: 0,
 };
 let pack: PrivatePack | null = null;
 let kanjiList: string[] = [];
+let profile: Profile | null = null;
 
 const listeners = new Set<() => void>();
 export const getState = () => state;
@@ -78,6 +79,7 @@ function composeContent(): Content {
     vocab: [...(pack?.vocab ?? []), ...state.userVocab],
     hints: pack?.hints ?? {},
     kanjiList,
+    profile,
   };
 }
 
@@ -86,18 +88,20 @@ function composeContent(): Content {
 // ---------------------------------------------------------------------------
 
 export async function initStore() {
-  const [settings, cardList, dayList, userVocab, storedPack, storedKanji] = await Promise.all([
+  const [settings, cardList, dayList, userVocab, storedPack, storedKanji, storedProfile] = await Promise.all([
     storage.get<Partial<Settings>>('settings'),
     storage.allCards(),
     storage.allDays(),
     storage.get<VocabEntry[]>('userVocab'),
     storage.get<PrivatePack>('pack'),
     storage.get<string[]>('kanjiList'),
+    storage.get<Profile>('profile'),
   ]);
   let packStatus: PackStatus = 'none';
   if (storedPack) { pack = storedPack; packStatus = 'unlocked'; }
   else if (bundledPack) { pack = bundledPack as PrivatePack; packStatus = 'bundled'; }
   kanjiList = storedKanji ?? [];
+  profile = storedProfile ?? null;
   state = {
     ...state,
     ready: true,
@@ -165,6 +169,13 @@ export async function setKanjiList(list: string[]) {
   setState({ content: composeContent() });
 }
 
+export async function setProfile(p: Profile | null) {
+  profile = p;
+  setState({ content: composeContent() });
+  if (p) await storage.set('profile', p);
+  else await storage.del('profile');
+}
+
 export async function installPack(p: PrivatePack) {
   pack = p;
   await storage.set('pack', p);
@@ -187,7 +198,14 @@ export async function resetModule(moduleId: string) {
 }
 
 /** Replace cards/days/settings after an import. */
-export async function applyImport(data: { cards: CardState[]; days: DayLog[]; settings?: Partial<Settings>; userVocab?: VocabEntry[]; kanjiList?: string[] }) {
+export async function applyImport(data: {
+  cards: CardState[];
+  days: DayLog[];
+  settings?: Partial<Settings>;
+  userVocab?: VocabEntry[];
+  kanjiList?: string[];
+  profile?: Profile;
+}) {
   await storage.putCards(data.cards);
   await storage.putDays(data.days);
   const cards = { ...state.cards };
@@ -197,6 +215,7 @@ export async function applyImport(data: { cards: CardState[]; days: DayLog[]; se
   if (data.settings) updateSettings(data.settings);
   if (data.userVocab) await setUserVocab(data.userVocab);
   if (data.kanjiList) await setKanjiList(data.kanjiList);
+  if (data.profile) await setProfile(data.profile);
   setState({ cards, days, version: state.version + 1 });
 }
 

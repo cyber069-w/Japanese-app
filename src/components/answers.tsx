@@ -9,6 +9,7 @@ import { toKana } from '../lib/romaji';
 import { Ruby } from './Ruby';
 import { DrawPad } from './Strokes';
 import { Icon } from './Icon';
+import { Recorder } from './Recorder';
 
 export type Phase = 'ask' | 'done';
 
@@ -257,9 +258,10 @@ export function RevealAnswer({
 }) {
   return (
     <div className="answer-area stack" style={{ '--gap': '14px' } as React.CSSProperties}>
+      {answer.record && <Recorder storageKey={answer.record} hotkey />}
       {revealed ? (
         <>
-          <div className="feedback good" style={{ background: 'var(--surface-2)' }}>{answer.back}</div>
+          <div className="feedback good reveal-back">{answer.back}</div>
           {phase === 'ask' && <GradeButtons onGrade={onGrade} />}
         </>
       ) : (

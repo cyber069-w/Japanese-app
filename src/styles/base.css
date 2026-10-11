@@ -67,6 +67,9 @@ button { cursor: pointer; }
 .ja { font-family: var(--font-sans); }
 .serif { font-family: var(--font-serif); }
 
+/* keep the kanji together when the reading is longer than the word (勉強 + べんきょう) */
+ruby { ruby-align: center; }
+
 ruby rt {
   font-size: 0.5em;
   color: var(--ink-3);

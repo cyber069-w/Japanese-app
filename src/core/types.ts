@@ -32,6 +32,36 @@ export interface Content {
   hints: Record<string, Record<string, string>>;
   /** Kanji the user wants to study (overrides the default list when non-empty). */
   kanjiList: string[];
+  /** Your self-introduction (Speaking module); null until you fill it in. */
+  profile: Profile | null;
+}
+
+/**
+ * The self-introduction form. Japanese fields are what you'll say (katakana / kanji);
+ * the romaji fields are what you typed, used to suggest the katakana.
+ */
+export interface Profile {
+  name: string;
+  nameJa: string;
+  /** Country id from the list, or 'other'. */
+  country: string;
+  countryOther: string;
+  countryOtherJa: string;
+  university: string;
+  universityJa: string;
+  /** '' | '1' … '4' | 'master' */
+  year: string;
+  /** Major id from the list, or 'other'. */
+  major: string;
+  majorOtherJa: string;
+  majorOtherDe: string;
+  /** Empty = leave out. */
+  age: number | null;
+  /** "MM-DD" or '' */
+  birthday: string;
+  hobbies: string[];
+  /** Japanese fields edited by hand (no longer follow the romaji). */
+  edited: string[];
 }
 
 export interface VocabEntry {
