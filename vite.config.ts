@@ -3,6 +3,7 @@ import { defineConfig, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 import { buildPrivatePack } from './scripts/pack-lib.mjs';
+import { fontGlobs } from './scripts/font-subsets.mjs';
 
 /**
  * `virtual:private-pack` = the copyrighted course content from private/.
@@ -37,7 +38,8 @@ export default defineConfig({
     privatePack(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['icons/favicon.svg', 'icons/apple-touch-icon.png'],
+      // icons are already matched by globPatterns below
+      includeManifestIcons: false,
       manifest: {
         name: 'Nihongo – Japanese study',
         short_name: 'Nihongo',
@@ -55,7 +57,8 @@ export default defineConfig({
         ],
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,svg,png,json}'],
+        // the app itself + the font files its built-in text needs (≈ 2.5 MB), so it renders fully offline
+        globPatterns: ['**/*.{js,css,html,svg,png,json}', ...fontGlobs(process.cwd())],
         globIgnores: ['**/pack.enc'],
         maximumFileSizeToCacheInBytes: 6 * 1024 * 1024,
         // Japanese fonts are split into many small files – cache the ones actually used
@@ -69,6 +72,10 @@ export default defineConfig({
       },
     }),
   ],
+  build: {
+    // one app chunk with all study data is intended – it is precached for offline use anyway
+    chunkSizeWarningLimit: 900,
+  },
   test: {
     environment: 'node',
     include: ['src/**/*.test.ts'],

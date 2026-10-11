@@ -4,7 +4,9 @@
  */
 import type { PrivatePack } from './store';
 
-export async function packAvailable(): Promise<boolean> {
+/** Is an encrypted pack deployed next to the app? 'offline' when we can't tell. */
+export async function packAvailable(): Promise<boolean | 'offline'> {
+  if (!navigator.onLine) return 'offline';
   try {
     const res = await fetch('pack.enc', { method: 'HEAD', cache: 'no-store' });
     return res.ok && !(res.headers.get('content-type') ?? '').includes('text/html');
