@@ -96,7 +96,8 @@ export function SelfIntroTool({ ctx }: { ctx: StudyContext }) {
   const majors = useMemo(() => [...MAJORS].sort((a, b) => a[lang].localeCompare(b[lang], lang)), [lang]);
 
   const [bm, bd] = p.birthday ? p.birthday.split('-').map(Number) : [0, 0];
-  const setBirthday = (m: number, d: number) => set({ birthday: m && d ? `${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}` : m ? `${String(m).padStart(2, '0')}-00` : '' });
+  // keep a half-filled date ("05-00") so picking the day first doesn't reset it
+  const setBirthday = (m: number, d: number) => set({ birthday: m || d ? `${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}` : '' });
 
   const toggleHobby = (id: string) =>
     set({ hobbies: p.hobbies.includes(id) ? p.hobbies.filter((h) => h !== id) : p.hobbies.length < MAX_HOBBIES ? [...p.hobbies, id] : p.hobbies });
