@@ -1,0 +1,8 @@
+node_modules
+dist
+dev-dist
+*.local
+.DS_Store
+# Copyrighted course material (Tofugu pictures, Minna no Nihongo vocab) – never commit or publish.
+# Only the encrypted public/pack.enc may be committed.
+private/

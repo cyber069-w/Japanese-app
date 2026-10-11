@@ -1,0 +1,295 @@
+import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { eraseEverything, installPack, removePack, resetModule, updateSettings, useApp } from '../core/store';
+import { exportBackup, importBackup } from '../core/backup';
+import { packAvailable, unlockPack } from '../core/privatePack';
+import type { Settings as S } from '../core/types';
+import { MODULES } from '../modules';
+import { hasJapaneseVoice, onVoicesChanged, speak, speechSupported, voiceName } from '../lib/speech';
+import { Icon } from '../components/Icon';
+
+function Row({ title, desc, children }: { title: string; desc?: ReactNode; children: ReactNode }) {
+  return (
+    <div className="setting">
+      <div className="setting-text">
+        <b>{title}</b>
+        {desc && <span>{desc}</span>}
+      </div>
+      {children}
+    </div>
+  );
+}
+
+function Seg<T extends string | number>({ value, options, onChange }: { value: T; options: Array<[T, string]>; onChange: (v: T) => void }) {
+  return (
+    <div className="seg" role="radiogroup">
+      {options.map(([v, label]) => (
+        <button key={String(v)} className={v === value ? 'on' : ''} role="radio" aria-checked={v === value} onClick={() => onChange(v)}>
+          {label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function Switch({ checked, onChange, label }: { checked: boolean; onChange: (v: boolean) => void; label: string }) {
+  return (
+    <label className="switch">
+      <input type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} aria-label={label} />
+      <span />
+    </label>
+  );
+}
+
+export function Settings() {
+  const s = useApp((st) => st.settings);
+  const set = (patch: Partial<S>) => updateSettings(patch);
+  const [, force] = useState(0);
+  useEffect(() => onVoicesChanged(() => force((n) => n + 1)), []);
+
+  return (
+    <div className="page">
+      <div className="page-head">
+        <div className="grow">
+          <h1>Settings</h1>
+          <div className="page-title-ja" lang="ja">設定</div>
+        </div>
+      </div>
+
+      <div className="stack" style={{ '--gap': '22px' } as React.CSSProperties}>
+        <section className="card card-pad">
+          <h2>Study</h2>
+          <Row title="Romaji leniency" desc={{
+            strict: 'Only standard Hepburn: shi, chi, tsu, fu, gakkou / gakkō.',
+            normal: 'Also accept si, ti, tu, hu, zi and long vowels written oo / ō.',
+            lenient: 'Also accept missing long vowels (gakko) and missing n’.',
+          }[s.leniency]}>
+            <Seg value={s.leniency} options={[['strict', 'Strict'], ['normal', 'Normal'], ['lenient', 'Lenient']]} onChange={(v) => set({ leniency: v })} />
+          </Row>
+          <Row title="Session length" desc="Cards per study session (mistakes come back on top).">
+            <Seg value={s.sessionLength} options={[[10, '10'], [20, '20'], [30, '30'], [50, '50']]} onChange={(v) => set({ sessionLength: v })} />
+          </Row>
+          <Row title="Daily goal" desc="Answers per day for the progress ring.">
+            <Seg value={s.dailyGoal} options={[[20, '20'], [50, '50'], [100, '100'], [150, '150']]} onChange={(v) => set({ dailyGoal: v })} />
+          </Row>
+          <Row title="Auto-advance" desc="Go to the next card automatically after a correct answer.">
+            <Switch checked={s.autoAdvance} onChange={(v) => set({ autoAdvance: v })} label="Auto-advance" />
+          </Row>
+          <Row title="Exam date" desc="Shows a countdown and review suggestions on Home.">
+            <input type="date" className="input" value={s.examDate} onChange={(e) => set({ examDate: e.target.value })} />
+          </Row>
+        </section>
+
+        <section className="card card-pad">
+          <h2>Sound</h2>
+          <Row
+            title="Pronunciation"
+            desc={
+              !speechSupported()
+                ? 'This browser has no speech support.'
+                : hasJapaneseVoice()
+                  ? `Voice: ${voiceName()}`
+                  : 'No Japanese voice found – on iPhone/Mac add one under Settings › Accessibility › Spoken Content › Voices.'
+            }
+          >
+            <Switch checked={s.sound} onChange={(v) => set({ sound: v })} label="Sound" />
+          </Row>
+          <Row title="Voice speed" desc={`${s.voiceRate.toFixed(2)}× – slower helps with listening practice.`}>
+            <div className="row">
+              <input
+                type="range"
+                min={0.5}
+                max={1.3}
+                step={0.05}
+                value={s.voiceRate}
+                onChange={(e) => set({ voiceRate: Number(e.target.value) })}
+                aria-label="Voice speed"
+              />
+              <button className="btn btn-sm" onClick={() => speak('にほんごを べんきょうしています。', s.voiceRate)}>
+                <Icon name="speaker" size={16} /> Test
+              </button>
+            </div>
+          </Row>
+        </section>
+
+        <section className="card card-pad">
+          <h2>Display</h2>
+          <Row title="Theme">
+            <Seg value={s.theme} options={[['system', 'System'], ['light', 'Light'], ['dark', 'Dark']]} onChange={(v) => set({ theme: v })} />
+          </Row>
+          <Row title="Meaning language" desc="Language for word meanings and translations.">
+            <Seg value={s.meaningLang} options={[['de', 'Deutsch'], ['en', 'English']]} onChange={(v) => set({ meaningLang: v })} />
+          </Row>
+          <Row title="Furigana" desc="Show readings above kanji (exercises that test the reading always hide them).">
+            <Switch checked={s.furigana} onChange={(v) => set({ furigana: v })} label="Furigana" />
+          </Row>
+        </section>
+
+        <CoursePack />
+        <Backup />
+
+        <section className="card card-pad">
+          <h2>Reset</h2>
+          <Row title="Reset one module" desc="Deletes the learning progress of a single module.">
+            <ResetModule />
+          </Row>
+          <Row title="Erase everything" desc="Progress, settings, imported lists and recordings on this device.">
+            <button
+              className="btn btn-danger"
+              onClick={() => confirm('Erase ALL data on this device? This cannot be undone – export a backup first.') && eraseEverything()}
+            >
+              <Icon name="trash" size={16} /> Erase
+            </button>
+          </Row>
+        </section>
+
+        <section className="card card-pad small muted stack" style={{ '--gap': '8px' } as React.CSSProperties}>
+          <h2 style={{ color: 'var(--ink)' }}>About</h2>
+          <p>Nihongo – a private, ad-free Japanese study app. Everything is stored only on this device.</p>
+          <p>
+            Stroke order data: <a href="https://kanjivg.tagaini.net" target="_blank" rel="noreferrer">KanjiVG</a> © Ulrich Apel, CC BY-SA 3.0.
+            Kanji readings and meanings: <a href="https://www.edrdg.org/wiki/index.php/KANJIDIC_Project" target="_blank" rel="noreferrer">KANJIDIC2</a> © EDRDG, CC BY-SA 4.0.
+          </p>
+          <p>
+            The private course pack (Minna no Nihongo vocabulary, mnemonic pictures from Tofugu’s “Learn Hiragana”) is copyrighted
+            material for personal study only and is never published in readable form.
+          </p>
+        </section>
+      </div>
+    </div>
+  );
+}
+
+function ResetModule() {
+  const [id, setId] = useState(MODULES[0]?.id ?? '');
+  return (
+    <div className="row">
+      <select className="input" value={id} onChange={(e) => setId(e.target.value)} aria-label="Module">
+        {MODULES.map((m) => (
+          <option key={m.id} value={m.id}>
+            {m.name}
+          </option>
+        ))}
+      </select>
+      <button
+        className="btn btn-danger"
+        onClick={() => confirm(`Reset all progress in ${MODULES.find((m) => m.id === id)?.name}?`) && resetModule(id)}
+      >
+        Reset
+      </button>
+    </div>
+  );
+}
+
+function CoursePack() {
+  const status = useApp((s) => s.packStatus);
+  const content = useApp((s) => s.content);
+  const [available, setAvailable] = useState<boolean | null>(null);
+  const [pass, setPass] = useState('');
+  const [msg, setMsg] = useState<{ kind: 'good' | 'bad'; text: string } | null>(null);
+  const [busy, setBusy] = useState(false);
+  useEffect(() => {
+    packAvailable().then(setAvailable);
+  }, []);
+  const pics = Object.values(content.hints).reduce((n, h) => n + Object.keys(h).length, 0);
+  const packWords = content.vocab.filter((v) => v.source === 'mnn').length;
+
+  const unlock = async () => {
+    setBusy(true);
+    setMsg(null);
+    try {
+      const pack = await unlockPack(pass);
+      await installPack(pack);
+      setPass('');
+      setMsg({ kind: 'good', text: 'Unlocked – the pictures and your course vocab are now on this device.' });
+    } catch (e) {
+      setMsg({ kind: 'bad', text: (e as Error).message });
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <section className="card card-pad stack" style={{ '--gap': '12px' } as React.CSSProperties}>
+      <h2>Course pack</h2>
+      <p className="muted small">
+        Your private content – Minna no Nihongo vocabulary and the hiragana memory pictures – is encrypted so it can live on the
+        website without being public. Unlock it once per device with your passphrase.
+      </p>
+      <div className={`notice ${status === 'none' ? 'warn' : 'good'}`}>
+        {status === 'none' && 'Not unlocked on this device.'}
+        {status === 'bundled' && `Loaded from your local private folder: ${packWords} words, ${pics} pictures.`}
+        {status === 'unlocked' && `Unlocked: ${packWords} words, ${pics} pictures.`}
+      </div>
+      {status !== 'bundled' && available && (
+        <form
+          className="row"
+          onSubmit={(e) => {
+            e.preventDefault();
+            unlock();
+          }}
+        >
+          <input
+            className="input"
+            style={{ flex: '1 1 220px' }}
+            type="password"
+            placeholder="Passphrase"
+            value={pass}
+            onChange={(e) => setPass(e.target.value)}
+            autoComplete="current-password"
+            aria-label="Course pack passphrase"
+          />
+          <button className="btn btn-primary" disabled={!pass || busy}>
+            <Icon name="key" size={16} /> {busy ? 'Unlocking…' : status === 'unlocked' ? 'Update' : 'Unlock'}
+          </button>
+        </form>
+      )}
+      {status !== 'bundled' && available === false && <p className="faint small">No encrypted pack is deployed with this copy of the app.</p>}
+      {msg && <div className={`notice ${msg.kind}`}>{msg.text}</div>}
+      {status === 'unlocked' && (
+        <div>
+          <button className="btn btn-sm btn-danger" onClick={() => removePack()}>
+            Remove from this device
+          </button>
+        </div>
+      )}
+    </section>
+  );
+}
+
+function Backup() {
+  const file = useRef<HTMLInputElement>(null);
+  const [msg, setMsg] = useState<{ kind: 'good' | 'bad'; text: string } | null>(null);
+  return (
+    <section className="card card-pad">
+      <h2>Backup</h2>
+      <Row title="Export progress" desc="Download all progress as a JSON file.">
+        <button className="btn" onClick={() => exportBackup()}>
+          <Icon name="download" size={16} /> Export
+        </button>
+      </Row>
+      <Row title="Import progress" desc="Merge a backup file – for each card the most recent progress wins.">
+        <button className="btn" onClick={() => file.current?.click()}>
+          <Icon name="upload" size={16} /> Import
+        </button>
+        <input
+          ref={file}
+          type="file"
+          accept="application/json,.json"
+          hidden
+          onChange={async (e) => {
+            const f = e.target.files?.[0];
+            e.target.value = '';
+            if (!f) return;
+            try {
+              const r = await importBackup(f);
+              setMsg({ kind: 'good', text: `Imported ${r.cards} cards and ${r.days} days of history.` });
+            } catch (err) {
+              setMsg({ kind: 'bad', text: (err as Error).message });
+            }
+          }}
+        />
+      </Row>
+      {msg && <div className={`notice ${msg.kind}`}>{msg.text}</div>}
+    </section>
+  );
+}
