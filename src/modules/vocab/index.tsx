@@ -90,6 +90,7 @@ const meaningToJa: Exercise<VocabItem> = {
 
 const flashcards: Exercise<VocabItem> = {
   id: 'cards',
+  selfRated: true,
   name: 'Flashcards',
   description: 'Say the meaning to yourself, flip, and rate how well you knew it.',
   icon: '札',

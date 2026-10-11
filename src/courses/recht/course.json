@@ -1,0 +1,11 @@
+{
+  "id": "recht",
+  "name": "Recht",
+  "subtitle": "Privatrecht",
+  "glyph": "§",
+  "order": 4,
+  "description": "Empty for now – filled from your lecture notes.",
+  "claudeProjectUrl": "",
+  "study": [],
+  "exam": []
+}

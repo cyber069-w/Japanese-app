@@ -1,0 +1,11 @@
+{
+  "id": "bwl",
+  "name": "BWL",
+  "subtitle": "Betriebswirtschaftslehre",
+  "glyph": "B",
+  "order": 3,
+  "description": "Empty for now – filled from your lecture notes.",
+  "claudeProjectUrl": "",
+  "study": [],
+  "exam": []
+}

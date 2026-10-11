@@ -23,6 +23,7 @@ const rec = (id: string) => `rec:speaking:${id}`;
 
 const questions: Exercise<QItem> = {
   id: 'questions',
+  selfRated: true,
   name: 'Exam questions',
   description: 'Read and hear a question, answer out loud, then compare with the model answer.',
   icon: '問',
@@ -42,6 +43,7 @@ const questions: Exercise<QItem> = {
 
 const listen: Exercise<QItem> = {
   id: 'listen',
+  selfRated: true,
   name: 'Listen & answer',
   description: 'Like the real oral exam: you only hear the question.',
   icon: '耳',
@@ -70,6 +72,7 @@ function lineItems(ctx: StudyContext): LineItem[] {
 
 const intro: Exercise<LineItem> = {
   id: 'intro',
+  selfRated: true,
   name: 'Your introduction',
   description: 'Learn your じこしょうかい by heart: see the translation, say the Japanese.',
   icon: '自',

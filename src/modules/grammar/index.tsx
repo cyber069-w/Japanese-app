@@ -56,6 +56,7 @@ function withBlank(e: BlankItem): RubyText {
 
 const notes: Exercise<PointItem> = {
   id: 'notes',
+  selfRated: true,
   name: 'Grammar cards',
   description: 'See the pattern, recall what it means and how to use it – then check.',
   icon: '文',

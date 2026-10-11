@@ -1,9 +1,11 @@
 import { useMemo } from 'react';
 import { useApp } from './store';
 import type { StudyContext, StudyModule } from './types';
-import { MODULES } from '../modules';
 import { countDue, exerciseItems, filterByGroups } from './session';
 import { itemStats } from './stats';
+import { courseMeter, type CourseMeter } from './meter';
+import { ACTIVE_MODULES, COURSES, courseOfModule, getCourse } from '../courses';
+import type { CourseConfig } from '../courses/types';
 
 /** The study context (settings + content) for building items and questions. */
 export function useCtx(): StudyContext {
@@ -12,21 +14,36 @@ export function useCtx(): StudyContext {
   return useMemo(() => ({ settings, content, rng: Math.random }), [settings, content]);
 }
 
-/** Due count per module id (+ total), recomputed when cards change. */
+/** Due count per module id, per course and in total, recomputed when cards change. */
 export function useDueCounts() {
   const ctx = useCtx();
   const cards = useApp((s) => s.cards);
   return useMemo(() => {
     const now = Date.now();
     const per: Record<string, number> = {};
+    const perCourse: Record<string, number> = Object.fromEntries(COURSES.map((c) => [c.id, 0]));
     let total = 0;
-    for (const m of MODULES) {
-      const n = countDue(MODULES, ctx, cards, now, m.id);
+    for (const m of ACTIVE_MODULES) {
+      const n = countDue(ACTIVE_MODULES, ctx, cards, now, m.id);
       per[m.id] = n;
+      perCourse[courseOfModule(m.id).id] += n;
       total += n;
     }
-    return { per, total };
+    return { per, perCourse, total };
   }, [ctx, cards]);
+}
+
+/** The course shown on this device. */
+export function useCourse(): CourseConfig {
+  const id = useApp((s) => s.settings.course);
+  return getCourse(id);
+}
+
+/** Preparation meter of every course, by course id. */
+export function useCourseMeters(): Record<string, CourseMeter> {
+  const ctx = useCtx();
+  const cards = useApp((s) => s.cards);
+  return useMemo(() => Object.fromEntries(COURSES.map((c) => [c.id, courseMeter(c, ctx, cards)])), [ctx, cards]);
 }
 
 /** The groups currently selected for a module (remembered in settings). */

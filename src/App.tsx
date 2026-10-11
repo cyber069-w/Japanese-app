@@ -1,6 +1,6 @@
 import { useEffect, type ReactNode } from 'react';
 import { useApp } from './core/store';
-import { useDueCounts } from './core/hooks';
+import { useCourse, useDueCounts } from './core/hooks';
 import { useSyncStatus } from './core/sync';
 import { timeAgo } from './lib/date';
 import { match, usePath } from './lib/router';
@@ -12,6 +12,7 @@ import { Review } from './screens/Review';
 import { Stats } from './screens/Stats';
 import { Settings } from './screens/Settings';
 import { SessionScreen } from './screens/Session';
+import { CourseRoute, TopicPage } from './screens/Course';
 
 const NAV: Array<{ path: string; label: string; icon: IconName }> = [
   { path: '/', label: 'Home', icon: 'home' },
@@ -43,6 +44,8 @@ function route(path: string): ReactNode {
   if (path === '/review') return <Review />;
   if (path === '/stats') return <Stats />;
   if (path === '/settings') return <Settings />;
+  if ((p = match('/c/:id', path))) return <CourseRoute key={p.id} id={p.id} />;
+  if ((p = match('/c/:id/t/:topic', path))) return <TopicPage key={path} courseId={p.id} topicId={p.topic} />;
   if ((p = match('/m/:id', path))) return <ModuleScreen key={p.id} id={p.id} />;
   if ((p = match('/m/:id/t/:tool', path))) return <ToolScreen key={path} id={p.id} tool={p.tool} />;
   return <Home />;
@@ -71,15 +74,16 @@ function SyncLine() {
 function Shell({ path, children }: { path: string; children: ReactNode }) {
   const due = useDueCounts().total;
   const syncError = useSyncStatus().phase === 'error';
-  const active = (p: string) => (p === '/' ? path === '/' : path === p || (p === '/study' && path.startsWith('/m/')));
+  const course = useCourse();
+  const active = (p: string) => (p === '/' ? path === '/' : path === p || (p === '/study' && (path.startsWith('/m/') || path.startsWith('/c/'))));
   return (
     <div className="shell">
       <aside className="sidebar">
         <a className="brand" href="#/">
-          <span className="seal" lang="ja">日</span>
+          <span className="seal" lang="ja" aria-hidden="true">{course.glyph}</span>
           <span>
-            <div className="brand-name">Nihongo</div>
-            <div className="brand-sub" lang="ja">にほんご</div>
+            <div className="brand-name">Study</div>
+            <div className="brand-sub">{course.name}</div>
           </span>
         </a>
         <nav className="nav" aria-label="Main">

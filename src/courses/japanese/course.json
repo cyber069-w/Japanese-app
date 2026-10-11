@@ -1,0 +1,45 @@
+{
+  "id": "japanese",
+  "name": "Japanese",
+  "subtitle": "日本語 · Minna no Nihongo",
+  "glyph": "日",
+  "order": 1,
+  "description": "Kana, vocabulary and grammar by chapter, plus listening and speaking for the exam.",
+  "claudeProjectUrl": "",
+  "study": [
+    {
+      "title": "Alphabets",
+      "note": "Hiragana and katakana – kanji comes later",
+      "modules": [
+        { "id": "hiragana", "unverified": ["words"] },
+        { "id": "katakana", "unverified": ["words"] },
+        { "id": "kanji", "soon": true }
+      ]
+    },
+    { "title": "Vocabulary", "note": "By chapter – pick one chapter or mix several", "modules": ["vocab"] },
+    { "title": "Grammar", "note": "By chapter", "modules": [{ "id": "grammar", "unverified": true }] },
+    { "title": "Numbers & time", "modules": [{ "id": "numbers", "unverified": true }] }
+  ],
+  "exam": [
+    {
+      "title": "Listening & speaking",
+      "modules": [
+        { "id": "listening", "unverified": ["sentences", "sentence-dictation"] },
+        { "id": "speaking", "unverified": true }
+      ]
+    },
+    {
+      "title": "Mixed tests & mock exams",
+      "placeholders": [
+        { "name": "Mock exams", "description": "Exam-style tests mixing all chapters – coming later.", "icon": "試" }
+      ]
+    }
+  ],
+  "meter": [
+    { "label": "Alphabets", "weight": 15, "modules": ["hiragana", "katakana"] },
+    { "label": "Vocabulary", "weight": 30, "modules": ["vocab"] },
+    { "label": "Grammar", "weight": 25, "modules": ["grammar"] },
+    { "label": "Listening", "weight": 20, "modules": ["listening"] },
+    { "label": "Speaking", "weight": 10, "modules": ["speaking"] }
+  ]
+}
