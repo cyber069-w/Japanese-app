@@ -15,7 +15,7 @@ import { slowRate, speakQueue, stopSpeaking, useSpeaking } from '../../lib/speec
 import { readAge, readDate } from '../numbers/readings';
 import { parseSentence } from '../grammar/sentence';
 import { COUNTRIES, HOBBIES, MAJORS, YEARS } from './data';
-import { EMPTY_PROFILE, introLines } from './intro';
+import { EMPTY_PROFILE, introLines, isBlank } from './intro';
 
 type JaField = 'nameJa' | 'universityJa' | 'countryOtherJa';
 const MAX_HOBBIES = 3;
@@ -75,7 +75,7 @@ export function SelfIntroTool({ ctx }: { ctx: StudyContext }) {
     }
     setSaved('saving');
     const t = setTimeout(() => {
-      void setProfile(p).then(() => setSaved('saved'));
+      void setProfile(isBlank(p) ? null : p).then(() => setSaved('saved'));
     }, 400);
     return () => clearTimeout(t);
   }, [p]);

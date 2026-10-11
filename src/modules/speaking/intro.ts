@@ -113,7 +113,7 @@ export function resolve(profile: Profile | null): Resolved {
   if (!year && profile) missing.add('year');
 
   const ageOf = (n: number) => ({ ja: `${n}歳[${readAge(n).kana}]`, n });
-  const age = use('age', p.age && p.age > 0 && p.age < 100 ? ageOf(p.age) : null, ageOf(s.age!));
+  const age = use('age', typeof p.age === 'number' && p.age >= 1 && p.age <= 99 ? ageOf(Math.round(p.age)) : null, ageOf(s.age!));
 
   const bdayOf = (mmdd: string) => {
     const [m, d] = mmdd.split('-').map(Number);
@@ -122,11 +122,8 @@ export function resolve(profile: Profile | null): Resolved {
   };
   const birthday = use('birthday', bdayOf(p.birthday), bdayOf(s.birthday)!);
 
-  const hobbies = use(
-    'hobbies',
-    p.hobbies.length ? p.hobbies.map((id) => HOBBIES.find((x) => x.id === id)).filter((x): x is Hobby => !!x) : null,
-    s.hobbies.map((id) => HOBBIES.find((x) => x.id === id)!),
-  );
+  const known = p.hobbies.map((id) => HOBBIES.find((x) => x.id === id)).filter((x): x is Hobby => !!x);
+  const hobbies = use('hobbies', known.length ? known : null, s.hobbies.map((id) => HOBBIES.find((x) => x.id === id)!));
 
   if (!profile) (['name', 'country', 'uni', 'major', 'age', 'birthday', 'hobbies'] as Field[]).forEach((f) => missing.add(f));
   return { name, country, uni, major, year, age, birthday, hobbies, missing };
@@ -175,6 +172,11 @@ export function introLines(profile: Profile): Line[] {
   if (has('hobbies')) lines.push(hobbiesSentence(r.hobbies));
   lines.push({ id: 'close', ja: 'どうぞ よろしく お願[ねが]いします。', de: 'Sehr erfreut.', en: 'Pleased to meet you.' });
   return lines;
+}
+
+/** Nothing filled in at all. */
+export function isBlank(p: Profile): boolean {
+  return !p.name.trim() && !p.nameJa && !p.country && !p.university.trim() && !p.universityJa && !p.major && !p.year && !p.age && !p.birthday && !p.hobbies.length;
 }
 
 /** Enough filled in for a real introduction (name, country, university, major). */

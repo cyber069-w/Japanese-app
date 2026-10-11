@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import type { StudyContext } from '../../core/types';
 import { ModelBack, SpokenLine } from './ModelAnswer';
+import { isComplete } from './intro';
 import { QUESTIONS, TOPICS, type Topic } from './questions';
 
 export function QuestionList({ ctx }: { ctx: StudyContext }) {
@@ -16,13 +17,19 @@ export function QuestionList({ ctx }: { ctx: StudyContext }) {
           </button>
         ))}
       </div>
+      {!isComplete(ctx.content.profile) && (
+        <div className="notice small">
+          Answers about you use an example person. <a href="#/m/speaking/t/intro">Write your self-introduction</a> and they
+          become yours.
+        </div>
+      )}
       {QUESTIONS.filter((q) => q.topic === topic).map((q) => (
         <section key={q.id} className="card card-pad qa-card">
           <div className="qa-q">
             <SpokenLine ja={q.q} meaning={q[lang]} ctx={ctx} size="lg" />
             <span className="tag">L{q.lesson}</span>
           </div>
-          <ModelBack q={q} ctx={ctx} />
+          <ModelBack q={q} ctx={ctx} exampleNote={false} />
         </section>
       ))}
     </div>

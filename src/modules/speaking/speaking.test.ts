@@ -49,6 +49,15 @@ describe('self-introduction', () => {
     expect(r.uni.latin).toBe('St. Gallen');
   });
 
+  it('ignores impossible values from old backups', () => {
+    const r = resolve({ ...me, age: 0, birthday: '02-00', hobbies: ['nope'] });
+    expect(r.missing.has('age')).toBe(true);
+    expect(r.missing.has('birthday')).toBe(true);
+    expect(r.missing.has('hobbies')).toBe(true);
+    expect(introLines({ ...me, age: 0, hobbies: ['nope'] }).map((l) => l.id)).not.toContain('age');
+    expect(introLines({ ...me, hobbies: ['nope'] }).map((l) => l.id)).not.toContain('hobby');
+  });
+
   it('marks fields that come from the example profile', () => {
     const r = resolve(null);
     expect(r.missing.has('name')).toBe(true);

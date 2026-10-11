@@ -33,7 +33,9 @@ export function SpokenLine({ ja, meaning, ctx, size = 'md', romaji = false }: {
 }
 
 /** Answer side of a question card: question (for listening mode), model answer, alternatives, tip. */
-export function ModelBack({ q, ctx, showQuestion = false }: { q: OralQuestion; ctx: StudyContext; showQuestion?: boolean }) {
+export function ModelBack({ q, ctx, showQuestion = false, exampleNote = true }: {
+  q: OralQuestion; ctx: StudyContext; showQuestion?: boolean; exampleNote?: boolean;
+}) {
   const lang = ctx.settings.meaningLang;
   const r = resolve(ctx.content.profile);
   const answers: ModelAnswer[] = q.answers(r, new Date());
@@ -64,7 +66,7 @@ export function ModelBack({ q, ctx, showQuestion = false }: { q: OralQuestion; c
           <Icon name="bulb" size={16} /> <span>{q.tip[lang]}</span>
         </div>
       )}
-      {example && (
+      {example && exampleNote && (
         <div className="notice small">
           Example person. <a href="#/m/speaking/t/intro">Write your self-introduction</a> to get answers about you.
         </div>

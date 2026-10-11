@@ -36,9 +36,11 @@ export function Recorder({
   const audioCtx = useRef<AudioContext | null>(null);
   const started = useRef(0);
   const tick = useRef<ReturnType<typeof setInterval>>(undefined);
+  const mounted = useRef(true);
 
   // load an earlier recording
   useEffect(() => {
+    mounted.current = true;
     let alive = true;
     let made: string | null = null;
     Promise.all([storage.getBlob(storageKey), storage.get<number>(`rec-ms:${storageKey}`)]).then(([blob, dur]) => {
@@ -65,6 +67,7 @@ export function Recorder({
 
   useEffect(
     () => () => {
+      mounted.current = false;
       if (rec.current?.state === 'recording') {
         rec.current.ondataavailable = null;
         rec.current.onstop = null;
@@ -84,6 +87,11 @@ export function Recorder({
     setState('asking');
     try {
       const s = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } });
+      if (!mounted.current) {
+        // the permission prompt was answered after leaving this card – don't keep the mic open
+        s.getTracks().forEach((t) => t.stop());
+        return;
+      }
       stream.current = s;
       const type = TYPES.find((t) => MediaRecorder.isTypeSupported(t));
       const r = new MediaRecorder(s, type ? { mimeType: type } : undefined);
