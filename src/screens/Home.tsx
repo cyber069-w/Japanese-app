@@ -1,15 +1,17 @@
 import { useMemo } from 'react';
 import { useApp } from '../core/store';
-import { useCtx, useDueCounts, useModuleProgress } from '../core/hooks';
+import { useCourse, useCtx, useDueCounts } from '../core/hooks';
 import { buildReviewQueue, buildWeakQueue, weakCardIds } from '../core/session';
 import { startSession } from '../core/sessionConfig';
 import { streak } from '../core/stats';
-import type { StudyModule } from '../core/types';
-import { MODULES } from '../modules';
+import { getModule } from '../modules';
+import { ACTIVE_IDS, ACTIVE_MODULES, COURSES, courseEntries } from '../courses';
 import { dayKey, daysUntil, japaneseDate } from '../lib/date';
 import { navigate } from '../lib/router';
 import { Icon } from '../components/Icon';
 import { ProgressRing } from '../components/ProgressRing';
+import { CourseBar, CourseList } from '../components/CourseBar';
+import { ModuleCard } from '../components/ModuleCard';
 
 function greeting(h: number) {
   if (h < 5) return ['こんばんは', 'Good evening – studying late?'];
@@ -24,27 +26,29 @@ export function Home() {
   const days = useApp((s) => s.days);
   const settings = useApp((s) => s.settings);
   const due = useDueCounts();
+  const course = useCourse();
   const today = days[dayKey()]?.reviews ?? 0;
   const st = streak(days);
-  const weakCount = useMemo(() => weakCardIds(cards).length, [cards]);
+  const weakCount = useMemo(() => weakCardIds(cards, Date.now(), ACTIVE_IDS).length, [cards]);
   const [ja, en] = greeting(new Date().getHours());
-  const modulesWithDue = Object.values(due.per).filter((n) => n > 0).length;
+  const coursesWithDue = COURSES.filter((c) => due.perCourse[c.id] > 0);
   const examDays = settings.examDate ? daysUntil(settings.examDate) : null;
 
   const startReview = () =>
-    startSession({ title: 'Review', cards: buildReviewQueue(MODULES, ctx, cards), back: '/', rebuild: () => buildReviewQueue(MODULES, ctx, cards) });
+    startSession({ title: 'Review – all courses', cards: buildReviewQueue(ACTIVE_MODULES, ctx, cards), back: '/', rebuild: () => buildReviewQueue(ACTIVE_MODULES, ctx, cards) });
   const startWeak = () =>
-    startSession({ title: 'Weakest items', cards: buildWeakQueue(MODULES, ctx, cards), back: '/' });
+    startSession({ title: 'Weakest items', cards: buildWeakQueue(ACTIVE_MODULES, ctx, cards, Date.now(), ACTIVE_IDS), back: '/' });
 
   // suggestion: the module with the most due cards, otherwise the least practised one
   const suggestion = useMemo(() => {
-    const byDue = [...MODULES].filter((m) => m.status === 'ready').sort((a, b) => (due.per[b.id] ?? 0) - (due.per[a.id] ?? 0));
+    const byDue = [...ACTIVE_MODULES].sort((a, b) => (due.per[b.id] ?? 0) - (due.per[a.id] ?? 0));
     if (byDue[0] && due.per[byDue[0].id]) return { mod: byDue[0], why: `${due.per[byDue[0].id]} cards due` };
     return null;
   }, [due]);
 
   return (
     <div className="page">
+      <CourseBar />
       <div className="page-head">
         <div className="grow">
           <div className="eyebrow">{japaneseDate()}</div>
@@ -60,9 +64,18 @@ export function Home() {
           <div className="row" style={{ alignItems: 'baseline', gap: 12 }}>
             <span className="due-number">{due.total}</span>
             <span className="muted">
-              {due.total === 0 ? 'nothing due – learn something new' : `card${due.total === 1 ? '' : 's'} in ${modulesWithDue} module${modulesWithDue === 1 ? '' : 's'}`}
+              {due.total === 0 ? 'nothing due – learn something new' : `card${due.total === 1 ? '' : 's'} in all courses`}
             </span>
           </div>
+          {coursesWithDue.length > 0 && (
+            <div className="row due-courses" style={{ gap: 8 }}>
+              {coursesWithDue.map((c) => (
+                <a key={c.id} className="tag tag-accent" href={`#/c/${c.id}`}>
+                  {c.name} · {due.perCourse[c.id]}
+                </a>
+              ))}
+            </div>
+          )}
           <div className="row">
             <button className="btn btn-primary btn-lg" onClick={due.total ? startReview : () => navigate('/study')}>
               {due.total ? (
@@ -127,16 +140,49 @@ export function Home() {
 
       <div className="section">
         <div className="section-head">
-          <h2>Modules</h2>
-          <span className="spacer" />
-          <a href="#/study">All modules</a>
+          <h2>Your courses</h2>
         </div>
-        <div className="grid module-grid" style={{ '--min': '210px' } as React.CSSProperties}>
-          {MODULES.map((m) => (
-            <ModuleCard key={m.id} mod={m} due={due.per[m.id] ?? 0} />
-          ))}
-        </div>
+        <CourseList onPick={() => navigate('/study')} />
       </div>
+
+      <div className="section">
+        <div className="section-head">
+          <h2>{course.name}</h2>
+          <span className="spacer" />
+          <a href="#/study">Open course</a>
+        </div>
+        <CourseModules />
+      </div>
+    </div>
+  );
+}
+
+/** The current course's modules (or its topics) as cards. */
+function CourseModules() {
+  const course = useCourse();
+  const due = useDueCounts();
+  const mods = courseEntries(course).map((e) => getModule(e.id)).filter((m) => !!m);
+  if (course.topics?.length) {
+    return (
+      <div className="grid module-grid" style={{ '--min': '210px' } as React.CSSProperties}>
+        {course.topics.map((t) => (
+          <a key={t.id} className="card card-link module-card" href={`#/c/${course.id}/t/${t.id}`}>
+            <div className="module-glyph">{t.name[0]}</div>
+            <h3>{t.name}</h3>
+            <div className="meta">
+              <span>{t.modules} learning modules · no content yet</span>
+            </div>
+          </a>
+        ))}
+      </div>
+    );
+  }
+  if (!mods.length) return <div className="card card-pad muted small">No content in this course yet – it will come from your own notes.</div>;
+  return (
+    <div className="grid module-grid" style={{ '--min': '210px' } as React.CSSProperties}>
+      {mods.map((m) => (
+        <ModuleCard key={m!.id} mod={m!} due={due.per[m!.id] ?? 0} />
+      ))}
     </div>
   );
 }
@@ -154,37 +200,5 @@ function ExamTip({ days, dueTotal, weak }: { days: number; dueTotal: number; wea
       {dueTotal > 0 && ` Today: clear your ${dueTotal} due cards.`}
       {weak > 0 && days <= 14 && ` Then drill your weakest items.`}
     </div>
-  );
-}
-
-export function ModuleCard({ mod, due }: { mod: StudyModule; due: number }) {
-  const progress = useModuleProgress(mod);
-  const pct = progress.total ? progress.learned / progress.total : 0;
-  return (
-    <a className={`card card-link module-card${mod.status === 'soon' ? ' soon' : ''}`} href={`#/m/${mod.id}`}>
-      <div className="row" style={{ alignItems: 'flex-start' }}>
-        <div className="module-glyph" lang="ja">{mod.icon}</div>
-        <span className="spacer" />
-        {mod.status === 'soon' ? <span className="tag">soon</span> : due > 0 ? <span className="tag tag-accent">{due} due</span> : null}
-      </div>
-      <div>
-        <h3>{mod.name}</h3>
-        <div className="faint small serif" lang="ja">{mod.nameJa}</div>
-      </div>
-      <div className="meta">
-        {mod.status === 'ready' && progress.total > 0 ? (
-          <>
-            <div className="bar" style={{ flex: 1 }}>
-              <span style={{ width: `${pct * 100}%` }} />
-            </div>
-            <span className="nowrap">
-              {progress.learned}/{progress.total}
-            </span>
-          </>
-        ) : (
-          <span>{mod.description}</span>
-        )}
-      </div>
-    </a>
   );
 }

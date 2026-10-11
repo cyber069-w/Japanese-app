@@ -49,6 +49,7 @@ export const DEFAULT_SETTINGS: Settings = {
   examDate: '',
   autoAdvance: true,
   selections: {},
+  course: 'japanese', // unknown ids fall back to the first course
 };
 
 let state: AppState = {

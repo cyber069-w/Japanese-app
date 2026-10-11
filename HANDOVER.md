@@ -60,7 +60,9 @@ laptop. No backend, no accounts, no tracking.
 ## 3. Status
 
 Second session (11 Oct 2026, cloud): Listening, Speaking, production build/offline, full QA, README and the Pages
-workflow are done. The app is feature-complete per the spec; what is left is deployment and the user's own content.
+workflow are done. Third: sync between devices; deployed to https://cyber069-w.github.io/Japanese-app/ (repo now
+public). Fourth: the app became a multi-course study platform (see "Study platform" below) – the rest of the user's
+platform plan is in the to-do list.
 
 ### Done ✅
 
@@ -94,13 +96,32 @@ workflow are done. The app is feature-complete per the spec; what is left is dep
   status. Tested with unit tests (two simulated devices, conflicts, wrong password) and a two-browser e2e against a fake
   GitHub API. Needs a private repo + fine-grained token (Contents: read & write) from the user – see README.
 
-### To do 🔧
+- **Study platform** (fourth session): the app is now multi-course. `src/courses/<id>/course.json` (auto-loaded by
+  `src/courses/index.ts`): Japanese (all 8 modules; Study → Alphabets / Vocabulary / Grammar / Numbers & time, Exam
+  Preparation → Listening & speaking + mock exams placeholder; **Kanji is "coming later"** – progress kept, never due),
+  CFA Level 1 (10 topics of the 2027 curriculum, 102 empty learning modules, exam-prep placeholders), BWL and Recht
+  (empty shells). Every course page has the five areas Study · Practice & Review · Exam Preparation · Imports · Tutor
+  (Imports and Tutor are placeholders). Course switcher + **preparation meter** (`core/meter.ts`, formula in README) at
+  the top of Home, Study and Stats (`components/CourseBar.tsx`); Home shows due per course + combined and all courses;
+  Review can filter by course once more than one course has content; Stats shows the current course. The current
+  course is a device-only setting (`settings.course`, not synced). Content written by an earlier Claude session is
+  labelled **unverified** (module banner + tags; marked in course.json). `modules/ids.test.ts` freezes every module and
+  exercise id. **No saved progress changed** – courses only arrange existing module ids.
 
-1. **Deploy**: merge the work branch into `main`. The repo is **private** – GitHub Pages needs GitHub Pro for private
-   repos; otherwise make it public (safe: `private/` and the passphrase were never committed). Then Settings → Pages →
-   Source: GitHub Actions. Site: https://cyber069-w.github.io/Japanese-app/
-2. On the phone: open the site, add to home screen, Settings → Course pack → passphrase.
+### To do 🔧 (the user's full platform plan – they chose to do it step by step when they have credits)
 
+The user's request (study-platform prompt, kept privately by the user) also asks for these – not built yet:
+1. Imports & drafts: an inbox per course for OneNote PDFs / photos, Claude Code drafts lessons, the app shows
+   Approve / Edit / Discard. **The repo is public** – originals, drafts, book pages, notes and tutor files must live in a
+   private repo (the user agreed to a new private repo `study-content`, loaded by the app with the sync token).
+2. Tutor: tutor instruction files (copied exactly from the prompt's appendices), "Ask tutor" button that opens the
+   course's Claude Project (`claudeProjectUrl` in course.json) and copies a context note, session summaries.
+3. CFA lesson building blocks (notes, key terms, formulas, worked examples, A/B/C questions as review cards, formula sheet).
+4. Audio play button on every word/example sentence with a slow toggle, "no Japanese voice" message; Quizlet export
+   (term⇥definition) and import (headerless, preview, adds to a chapter).
+5. Daily goal in minutes or answers, 7-day overview; design refresh (the user does not want design work for now).
+6. The user's hiragana OneNote PDFs (Tofugu book pages + their handwritten notes) – to be imported via the private repo
+   as a draft; their notes repeat Tofugu's ideas, so they stay private.
 ### Later – the user will supply these ⏳
 
 - **Minna no Nihongo vocab lessons 6–10**: the user adds these themselves later. Only lessons 0 (intro) to 5 are
@@ -146,7 +167,8 @@ src/core/       types.ts (module contract: StudyModule, Exercise, Question, Answ
                 session.ts, sessionConfig.ts, stats.ts, backup.ts, privatePack.ts, hooks.ts
 src/lib/        romaji.ts, katakanaName.ts, furigana.ts, csv.ts, speech.ts, router.ts, date.ts
 src/components/ answers.tsx, HintPanel.tsx, Strokes.tsx (stroke animation + DrawPad), Recorder, Ruby, Sheet, Icon, ProgressRing
-src/screens/    Home, Study, ModuleScreen (+ToolScreen), Session, Review, Stats, Settings
+src/screens/    Home, Study (= current course), Course (CoursePage, TopicPage), ModuleScreen (+ToolScreen), Session, Review, Stats, Settings
+src/courses/    japanese/ cfa/ bwl/ recht/ course.json → index.ts registry (ACTIVE_MODULES, courseModules, moduleInfo, meterSections)
 src/modules/    kana/ hiragana/ katakana/ vocab/ grammar/ numbers/ kanji/ listening/ speaking/  → index.ts registry
 src/styles/     tokens.css (light/dark design tokens), base.css, components.css
 src/data/       strokes.json (KanjiVG, generated)
@@ -156,6 +178,7 @@ scripts/        build-pack.mjs, unpack-pack.mjs, pack-lib.mjs, font-subsets.mjs,
 
 **Adding a module**: create `src/modules/<name>/index.ts(x)` that exports a `StudyModule`, with `exercises`
 (each has `items(ctx)` and `question(item, ctx)` returning a `Question`) and optionally `groups`, `presets`,
-`tools` and `chart`. Then add it to `MODULES` in `src/modules/index.ts`. Card ids are `module:exercise:item`.
+`tools` and `chart`. Then add it to `MODULES` in `src/modules/index.ts` and list it in a course's `course.json`.
+Card ids are `module:exercise:item` – never rename a module or exercise id (`modules/ids.test.ts` guards this).
 
 Licences: KanjiVG (CC BY-SA 3.0); KANJIDIC2 and JMdict (EDRDG, CC BY-SA 4.0). Both are credited in Settings → About.

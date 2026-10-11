@@ -103,6 +103,8 @@ export interface Settings {
   autoAdvance: boolean;
   /** Selected filter groups per module (persisted so your row choice is remembered). */
   selections: Record<string, string[]>;
+  /** The course shown on this device (not synced). */
+  course: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -202,6 +204,8 @@ export interface Exercise<I extends BaseItem = BaseItem> {
   generative?: boolean;
   /** Shown on the exercise card when it has no items for a reason other than the filter (e.g. "Fill in your self-introduction first"). */
   emptyMessage?: (ctx: StudyContext) => string | null;
+  /** You judge your own answer (flashcards, notes, drawing) – left out of the preparation meter when checked exercises exist. */
+  selfRated?: boolean;
 }
 
 export interface FilterGroup { id: string; label: string; sub?: string; section?: string }

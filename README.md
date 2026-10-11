@@ -1,8 +1,14 @@
-# Nihongo – a private Japanese study app
+# Study – a private study platform
 
-A calm, ad-free study app for *Minna no Nihongo* and the A1 exam: a static **PWA** that works offline and installs on
-phone and laptop. No backend, no account, no tracking – your progress stays on your device, and if you like it syncs
-between your devices through a private repository in your own GitHub account (encrypted, free).
+A calm, ad-free study app for several courses – **Japanese** (*Minna no Nihongo*, A1 exam), **CFA Level 1**, **BWL** and
+**Recht** – as a static **PWA** that works offline and installs on phone and laptop. No backend, no account, no tracking,
+no AI calls – your progress stays on your device, and if you like it syncs between your devices through a private
+repository in your own GitHub account (encrypted, free).
+
+Switch courses with the course button at the top of every main screen, or from **Your courses** on Home. Every course has
+the same five areas: **Study · Practice & Review · Exam Preparation · Imports · Tutor**. Japanese is complete; CFA has its
+ten 2027 topics with their learning modules as an empty structure; BWL and Recht are empty shells. Imports and Tutor are
+placeholders for a later update. The Japanese modules:
 
 | Module | What you practise |
 | --- | --- |
@@ -18,6 +24,23 @@ Every module feeds one spaced-repetition engine (SM-2 with learning steps): wron
 and sooner the next days, known cards fade out. **Review** mixes everything that is due. **Stats** shows streaks,
 accuracy per module, progress per lesson and red→green heatmaps. Word meanings are in **German** by default
 (English is a switch in Settings).
+
+### Preparation meter
+
+The ring next to the course button shows how prepared you are for the current course; tap it for the breakdown.
+
+- **Per card:** 0 until you have answered it right on two different days, then ½ ("learned"); 1 once its next review is
+  three or more weeks away ("mastered"). A card you're relearning counts 0 again.
+- **Per section** (e.g. Vocabulary): the average over *every* card the section can have – unseen cards count 0, so new
+  material lowers the number until you learn it. Self-rated exercises (flashcards, grammar notes, drawing) are left out
+  when the module also has checked ones; generated drills (Numbers & time) never count.
+- **Per course:** the sections weighted as set in the course's `course.json` – Japanese: Alphabets 15 %, Vocabulary 30 %,
+  Grammar 25 %, Listening 20 %, Speaking 10 % (self-rated). CFA: one section per topic, weighted by the middle of its
+  exam-weight range; topics without content count 0, so the meter never overstates.
+- Accuracy is shown in Stats but not mixed into the meter – it jumps around and easy sessions would inflate it.
+- Sections built on content an earlier Claude session wrote (not from your own material yet) are marked **unverified**.
+
+The meter is computed from your saved answers, so it is always current and syncs with your progress.
 
 ---
 
@@ -144,10 +167,26 @@ kana,kanji,de,en,lesson,tags
 - A single `meaning` column also works – the importer asks whether it is German or English. Header names in German
   (`Deutsch`, `Lektion` …) are understood as well.
 
+## Add a course
+
+A course is one folder in `src/courses/` with a `course.json` – it is picked up automatically, no code changes.
+
+1. Copy an existing folder, e.g. `src/courses/bwl/` → `src/courses/marketing/`.
+2. Edit `course.json`: `id` (the folder name), `name`, `subtitle`, `glyph` (one character for the seal), `order`
+   (position in the list), `description`, and leave `claudeProjectUrl` empty until you have a Claude Project for it.
+3. Fill the areas: `study` and `exam` are lists of sections, each with a `title` and `modules` (module ids, see below)
+   and/or `placeholders` for things that come later. A module can be marked `"soon": true` (shown as "coming later",
+   progress kept, never due) or `"unverified": true` / a list of exercise ids (content not from your own material yet).
+   A curriculum can be listed as `topics` (`id`, `name`, number of `modules`, exam `weight` range) – CFA does this.
+4. Set the preparation meter: `meter` is a list of `{ "label", "weight", "modules" }` (courses with `topics` use those).
+5. Commit and push – the build checks the config (`src/courses/courses.test.ts`) and the course appears after the deploy.
+
+Saved progress is keyed by module, never by course, so moving a module between sections or courses keeps every answer.
+
 ## Add a module
 
-A module is a folder in `src/modules/` that exports a `StudyModule` (see `src/core/types.ts`). Home, Study, Review and
-Stats pick it up automatically – no other screen needs changes.
+A module is a folder in `src/modules/` that exports a `StudyModule` (see `src/core/types.ts`). Once it is registered and
+listed in a course, Home, Study, Review, Stats and the meter pick it up automatically – no other screen needs changes.
 
 **1. Create the items and an exercise** – `src/modules/colours/index.ts`:
 
@@ -201,7 +240,11 @@ import { colours } from './colours';
 export const MODULES: StudyModule[] = [hiragana, katakana, vocab, kanji, grammar, numbers, listening, speaking, colours];
 ```
 
-**3. Test it**: `npm run dev`, open Study → Colours, and add a `*.test.ts` next to your logic (`npm test`).
+and list its id in a course's `course.json`, e.g. `{ "title": "Colours", "modules": ["colours"] }` under `study`
+(and in a `meter` section if it should count). New modules of other courses use a course prefix, e.g. `cfa.quant`.
+
+**3. Test it**: `npm run dev`, open Study → Colours, and add a `*.test.ts` next to your logic (`npm test`). Add its
+exercise ids to `src/modules/ids.test.ts` – that test freezes every id so saved progress can never be orphaned.
 
 What a question can use:
 
@@ -215,7 +258,8 @@ What a question can use:
 
 More options: `hint` / `revealHint` (keyword, text, picture, rules – shown on <kbd>?</kbd> and after mistakes),
 `speakWhen: 'prompt'` (audio is the question, e.g. listening), `prompt.audioOnly`, `fastMs` (fast answers count as
-“easy”), `generative: true` (random questions per category, like Numbers), `srs: false` (not scheduled). A module can
+“easy”), `generative: true` (random questions per category, like Numbers), `srs: false` (not scheduled), `selfRated: true`
+(you judge your own answer – left out of the meter when the module has checked exercises). A module can
 also add `presets` and `defaultGroups` for the filter, `tools` (extra pages like the kana chart), a `chart` (heatmap on
 Stats), a `banner` and an `emptyState`.
 
@@ -228,7 +272,8 @@ src/core/        module contract (types.ts), SRS engine (srs.ts), sessions, stor
                  sync (sync.ts engine, syncMerge.ts merge rules, github.ts API client)
 src/lib/         romaji ⇄ kana, katakana for names, furigana alignment, CSV, speech, crypto, router, dates
 src/components/  answer widgets, hints, stroke order + drawing pad, recorder, sheet, icons
-src/screens/     Home, Study, module page, Session, Review, Stats, Settings
+src/screens/     Home, Study (the current course), Course + topic pages, module page, Session, Review, Stats, Settings
+src/courses/     one folder per course with course.json + index.ts (the registry); core/meter.ts is the preparation meter
 src/modules/     one folder per module + index.ts (the registry)
 src/styles/      design tokens (light/dark), base, components
 scripts/         course pack (pack/unpack), font subsets for offline, kanji + stroke data builders
@@ -248,5 +293,6 @@ To rebuild the kanji data or stroke data (only needed when you change the kanji 
 - Stroke order: [KanjiVG](https://kanjivg.tagaini.net) © Ulrich Apel, CC BY-SA 3.0
 - Kanji readings, meanings and example words: KANJIDIC2 and JMdict © [EDRDG](https://www.edrdg.org), CC BY-SA 4.0
 - Fonts: Noto Sans JP and Noto Serif JP, SIL Open Font License
-- The mnemonic texts are original. The course pack content (Minna no Nihongo vocabulary, Tofugu pictures) is for
+- The hiragana memory texts paraphrase the ideas of Tofugu's *Learn Hiragana* pictures (they are not Tofugu's text) and
+  will move into private content. The course pack content (Minna no Nihongo vocabulary, Tofugu pictures) is for
   personal study only and is never published in readable form.

@@ -45,8 +45,8 @@ describe('mergeSync', () => {
     expect(m.stamps).toMatchObject({ settings: 20, kanjiList: 9 });
   });
 
-  it('never syncs the device’s theme, voice speed or sound', () => {
-    const local = data({ settings: { theme: 'dark', voiceRate: 0.6, sound: false, dailyGoal: 50 } as SyncData['settings'], stamps: { ...NO_STAMPS, settings: 5 } });
+  it('never syncs the device’s theme, voice speed, sound or current course', () => {
+    const local = data({ settings: { theme: 'dark', voiceRate: 0.6, sound: false, course: 'cfa', dailyGoal: 50 } as SyncData['settings'], stamps: { ...NO_STAMPS, settings: 5 } });
     const m = mergeSync(local, null, 'A', 'Mac', 1);
     expect(m.settings).toEqual({ dailyGoal: 50 });
   });

@@ -87,6 +87,7 @@ const words: Exercise<WordItem> = {
 
 const write: Exercise<KanjiItem> = {
   id: 'write',
+  selfRated: true,
   name: 'Writing',
   description: 'Draw the kanji from its meaning, then check the stroke order.',
   icon: '筆',

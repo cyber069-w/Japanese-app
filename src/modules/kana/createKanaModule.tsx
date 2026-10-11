@@ -224,6 +224,7 @@ export function createKanaModule(o: KanaModuleOptions): StudyModule {
 
   const write: Exercise<KanaItem> = {
     id: 'write',
+    selfRated: true,
     name: 'Writing',
     description: 'Draw the character, then compare with the stroke order.',
     icon: '筆',

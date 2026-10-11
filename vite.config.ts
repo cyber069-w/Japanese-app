@@ -41,9 +41,9 @@ export default defineConfig({
       // icons are already matched by globPatterns below
       includeManifestIcons: false,
       manifest: {
-        name: 'Nihongo – Japanese study',
-        short_name: 'Nihongo',
-        description: 'Kana, vocab, kanji, grammar, numbers, listening and speaking for Minna no Nihongo – offline, no ads.',
+        name: 'Study – Japanese, CFA, BWL, Recht',
+        short_name: 'Study',
+        description: 'Your courses in one study app: Japanese (Minna no Nihongo), CFA Level 1, BWL and Recht – spaced repetition, offline, no ads.',
         lang: 'en',
         start_url: './',
         scope: './',
