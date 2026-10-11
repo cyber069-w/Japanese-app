@@ -690,6 +690,7 @@ table.table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
 .table th { text-align: left; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-3); font-weight: 700; padding: 8px 10px; border-bottom: 1px solid var(--line); }
 .table td { padding: 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
 .table td.ja { font-size: 1.05rem; }
+.table td[lang='ja'] { white-space: nowrap; }
 .table-wrap { overflow-x: auto; }
 
 /* ---------- modal / sheet ---------- */

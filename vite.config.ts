@@ -43,7 +43,7 @@ export default defineConfig({
       manifest: {
         name: 'Nihongo – Japanese study',
         short_name: 'Nihongo',
-        description: 'Kana, vocab, kanji, grammar and numbers for Minna no Nihongo – offline, no ads.',
+        description: 'Kana, vocab, kanji, grammar, numbers, listening and speaking for Minna no Nihongo – offline, no ads.',
         lang: 'en',
         start_url: './',
         scope: './',
