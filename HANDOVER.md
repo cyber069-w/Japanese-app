@@ -108,20 +108,33 @@ platform plan is in the to-do list.
   labelled **unverified** (module banner + tags; marked in course.json). `modules/ids.test.ts` freezes every module and
   exercise id. **No saved progress changed** – courses only arrange existing module ids.
 
-### To do 🔧 (the user's full platform plan – they chose to do it step by step when they have credits)
+### To do 🔧 – outstanding features and fixes (in the user's priority order)
 
-The user's request (study-platform prompt, kept privately by the user) also asks for these – not built yet:
-1. Imports & drafts: an inbox per course for OneNote PDFs / photos, Claude Code drafts lessons, the app shows
-   Approve / Edit / Discard. **The repo is public** – originals, drafts, book pages, notes and tutor files must live in a
-   private repo (the user agreed to a new private repo `study-content`, loaded by the app with the sync token).
-2. Tutor: tutor instruction files (copied exactly from the prompt's appendices), "Ask tutor" button that opens the
-   course's Claude Project (`claudeProjectUrl` in course.json) and copies a context note, session summaries.
-3. CFA lesson building blocks (notes, key terms, formulas, worked examples, A/B/C questions as review cards, formula sheet).
-4. Audio play button on every word/example sentence with a slow toggle, "no Japanese voice" message; Quizlet export
-   (term⇥definition) and import (headerless, preview, adds to a chapter).
-5. Daily goal in minutes or answers, 7-day overview; design refresh (the user does not want design work for now).
-6. The user's hiragana OneNote PDFs (Tofugu book pages + their handwritten notes) – to be imported via the private repo
-   as a draft; their notes repeat Tofugu's ideas, so they stay private.
+1. **Visual overhaul (user's top wish).** The user finds the current look plain/cheap and the **symbols low quality**.
+   - Replace the hand-drawn line icons (`components/Icon.tsx`) and the single-character "glyph" tiles (module cards,
+     course seals Σ / B / §, CFA topic letters Q/E/C…) with a consistent, high-quality icon set (one style, one stroke
+     weight, designed course and area icons). Self-hosted SVGs or a bundled set, no runtime CDN.
+   - A real design system: refined palette with one accent colour per course, type scale, spacing tokens, card depth,
+     subtle transitions; dark mode and phone/laptop. Start with 2 mockup directions (Home, a practice question, a
+     course page) and let the user pick before rolling out. Priority screens: practice screen, Home, course page.
+   - Keep the font budget (~3.7 MB Japanese subsets offline); at most one small Latin font.
+2. **Tutor**: tutor instruction files (from the user's study-platform prompt appendices, copied exactly), an "Ask
+   tutor" button per course that opens that course's Claude Project (`claudeProjectUrl` in course.json, or a field in
+   the app) and copies a context note, plus a session-summaries list per course.
+3. **Audio everywhere**: play button with a slow option on every word and example sentence (grammar card examples,
+   kana word list, chapter pages), "no Japanese voice installed" message with steps per device.
+4. **Quizlet**: export a chapter or selected words (term⇥definition, download + copy); import pasted Quizlet text
+   (no header row, preview, adds to a chapter, never replaces a list).
+5. **Goal & week**: daily goal in answers *or* minutes (free value), 7-day overview on Home, exam date per course.
+6. **Imports & drafts** (needs the private repo `study-content`; the app repo is public): inbox per course for OneNote
+   PDFs/photos, Claude drafts lessons, Approve / Edit / Discard in the app, source pages viewable and zoomable.
+7. **CFA lessons**: notes, key terms and A/B/C questions as review cards, formulas, worked examples, formula sheet.
+8. **Hiragana notes**: the user's OneNote PDFs (Tofugu pages + handwritten notes) as the first import – private only.
+9. **Content**: Minna no Nihongo pages for the exam chapters (verify/replace the "unverified" grammar and speaking
+   content), vocab lessons 6+, katakana material; move the Tofugu-derived memory texts out of the public code.
+10. **Small fixes**: one word can count up to 4× in "due" (one per exercise) – consider counting items; Review course
+   filter only appears once a second course has content; `/m/kanji/t/*` tool pages are still reachable by URL.
+
 ### Later – the user will supply these ⏳
 
 - **Minna no Nihongo vocab lessons 6–10**: the user adds these themselves later. Only lessons 0 (intro) to 5 are
