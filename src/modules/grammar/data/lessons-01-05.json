@@ -1,0 +1,392 @@
+[
+  {
+    "id": "1-1", "lesson": 1, "pattern": "N1 は N2 です",
+    "title": { "en": "N1 is N2", "de": "N1 ist N2" },
+    "explain": {
+      "en": "は marks the topic – what you are talking about – and is pronounced wa. です ends a polite noun sentence. Japanese has no articles and usually no plural.",
+      "de": "は markiert das Thema – worüber man spricht – und wird „wa“ gelesen. です beendet einen höflichen Nominalsatz. Es gibt keine Artikel und meist keinen Plural."
+    },
+    "examples": [
+      { "ja": "私[わたし]{は} マイク・ミラーです。", "en": "I am Mike Miller.", "de": "Ich bin Mike Miller." },
+      { "ja": "ミラーさん{は} 会社員[かいしゃいん]です。", "en": "Mr Miller is a company employee.", "de": "Herr Miller ist Firmenangestellter." },
+      { "ja": "サントスさん{は} ブラジル人[じん]です。", "en": "Mr Santos is Brazilian.", "de": "Herr Santos ist Brasilianer." }
+    ]
+  },
+  {
+    "id": "1-2", "lesson": 1, "pattern": "N1 は N2 じゃありません",
+    "title": { "en": "N1 is not N2", "de": "N1 ist nicht N2" },
+    "explain": {
+      "en": "The negative of です is じゃありません. The more formal written form is ではありません (は read wa).",
+      "de": "Die Verneinung von です ist じゃありません. Förmlicher/schriftlich: ではありません (は wird „wa“ gelesen)."
+    },
+    "examples": [
+      { "ja": "サントスさん{は} 学生[がくせい]じゃありません。", "en": "Mr Santos is not a student.", "de": "Herr Santos ist kein Student." },
+      { "ja": "私[わたし]{は} 先生[せんせい]じゃありません。", "en": "I am not a teacher.", "de": "Ich bin kein Lehrer." },
+      { "ja": "ワットさん{は} アメリカ人[じん]じゃありません。", "en": "Mr Watt is not American.", "de": "Herr Watt ist kein Amerikaner." }
+    ]
+  },
+  {
+    "id": "1-3", "lesson": 1, "pattern": "S か",
+    "title": { "en": "Questions with か", "de": "Fragen mit か" },
+    "explain": {
+      "en": "Put か at the end of a sentence to make a question – the word order stays the same and the voice rises. Answer with はい (yes) or いいえ (no).",
+      "de": "か am Satzende macht eine Frage – die Wortstellung bleibt gleich, die Stimme geht nach oben. Antwort: はい (ja) oder いいえ (nein)."
+    },
+    "examples": [
+      { "ja": "ミラーさん{は} アメリカ人[じん]です{か}。", "en": "Is Mr Miller American?", "de": "Ist Herr Miller Amerikaner?" },
+      { "ja": "あの 方[かた]{は} どなたです{か}。", "en": "Who is that person?", "de": "Wer ist die Person dort?" },
+      { "ja": "テレーザちゃん{は} 何歳[なんさい]です{か}。", "en": "How old is Teresa?", "de": "Wie alt ist Teresa?" }
+    ]
+  },
+  {
+    "id": "1-4", "lesson": 1, "pattern": "N も",
+    "title": { "en": "も – also, too", "de": "も – auch" },
+    "explain": {
+      "en": "も replaces は and means “also / too”.",
+      "de": "も ersetzt は und bedeutet „auch“."
+    },
+    "examples": [
+      { "ja": "私[わたし]{も} 学生[がくせい]です。", "en": "I am a student too.", "de": "Ich bin auch Student." },
+      { "ja": "グプタさん{も} 会社員[かいしゃいん]です。", "en": "Mr Gupta is also a company employee.", "de": "Herr Gupta ist auch Firmenangestellter." },
+      { "ja": "ワンさん{も} 医者[いしゃ]です{か}。", "en": "Is Mr Wang a doctor too?", "de": "Ist Herr Wang auch Arzt?" }
+    ]
+  },
+  {
+    "id": "1-5", "lesson": 1, "pattern": "N1 の N2 (belonging)",
+    "title": { "en": "の – belonging to", "de": "の – Zugehörigkeit" },
+    "explain": {
+      "en": "の links two nouns: N1 describes N2, e.g. which company or school someone belongs to.",
+      "de": "の verbindet zwei Nomen: N1 beschreibt N2 näher, z. B. zu welcher Firma oder Schule jemand gehört."
+    },
+    "examples": [
+      { "ja": "ミラーさん{は} IMC{の} 社員[しゃいん]です。", "en": "Mr Miller is an employee of IMC.", "de": "Herr Miller ist Angestellter von IMC." },
+      { "ja": "私[わたし]{は} さくら大学[だいがく]{の} 学生[がくせい]です。", "en": "I am a student at Sakura University.", "de": "Ich bin Student an der Sakura-Universität." },
+      { "ja": "ワンさん{は} 神戸病院[こうべびょういん]{の} 医者[いしゃ]です。", "en": "Mr Wang is a doctor at Kobe Hospital.", "de": "Herr Wang ist Arzt im Kobe-Krankenhaus." }
+    ]
+  },
+  {
+    "id": "1-6", "lesson": 1, "pattern": "～さん",
+    "title": { "en": "さん after names", "de": "さん nach Namen" },
+    "explain": {
+      "en": "さん is added to other people’s names as a polite title – never to your own name. For children ちゃん is used.",
+      "de": "さん hängt man höflich an die Namen anderer – nie an den eigenen. Bei Kindern sagt man ちゃん."
+    },
+    "examples": [
+      { "ja": "あの 方[かた]{は} 木村[きむら]さんです。", "en": "That person is Ms Kimura.", "de": "Die Person dort ist Frau Kimura." },
+      { "ja": "私[わたし]{は} 山田[やまだ]です。", "en": "I am Yamada.", "de": "Ich bin Yamada." },
+      { "ja": "テレーザちゃん{は} 9歳[きゅうさい]です。", "en": "Teresa is nine years old.", "de": "Teresa ist neun Jahre alt." }
+    ]
+  },
+  {
+    "id": "2-1", "lesson": 2, "pattern": "これ / それ / あれ",
+    "title": { "en": "this / that / that over there", "de": "das hier / das da / das dort" },
+    "explain": {
+      "en": "これ = this thing near me, それ = that thing near you, あれ = that thing away from both of us. They stand alone like nouns.",
+      "de": "これ = das hier (bei mir), それ = das da (bei dir), あれ = das dort drüben (weg von uns beiden). Sie stehen allein wie Nomen."
+    },
+    "examples": [
+      { "ja": "これ{は} 辞書[じしょ]です。", "en": "This is a dictionary.", "de": "Das ist ein Wörterbuch." },
+      { "ja": "それ{は} 私[わたし]{の} 傘[かさ]です。", "en": "That is my umbrella.", "de": "Das ist mein Regenschirm." },
+      { "ja": "あれ{は} だれ{の} かばんです{か}。", "en": "Whose bag is that over there?", "de": "Wessen Tasche ist das dort drüben?" }
+    ]
+  },
+  {
+    "id": "2-2", "lesson": 2, "pattern": "この N / その N / あの N",
+    "title": { "en": "this N / that N", "de": "dieses N / jenes N" },
+    "explain": {
+      "en": "この, その and あの always come directly before a noun: この本 = this book.",
+      "de": "この, その und あの stehen immer direkt vor einem Nomen: この本 = dieses Buch."
+    },
+    "examples": [
+      { "ja": "この 本[ほん]{は} 私[わたし]{の}です。", "en": "This book is mine.", "de": "Dieses Buch gehört mir." },
+      { "ja": "その 辞書[じしょ]{は} 先生[せんせい]{の}です。", "en": "That dictionary is the teacher’s.", "de": "Das Wörterbuch (bei dir) gehört dem Lehrer." },
+      { "ja": "あの 人[ひと]{は} だれです{か}。", "en": "Who is that person over there?", "de": "Wer ist die Person dort drüben?" }
+    ]
+  },
+  {
+    "id": "2-3", "lesson": 2, "pattern": "そうです / そうじゃありません",
+    "title": { "en": "Yes, that’s right / No", "de": "Ja, genau / Nein" },
+    "explain": {
+      "en": "For yes/no questions about nouns, answer はい、そうです (yes, that’s right) or いいえ、そうじゃありません / いいえ、違います (no).",
+      "de": "Auf Ja/Nein-Fragen mit Nomen antwortet man はい、そうです (ja, genau) oder いいえ、そうじゃありません / いいえ、違います (nein)."
+    },
+    "examples": [
+      { "ja": "それ{は} テレホンカードです{か}。", "en": "Is that a telephone card?", "de": "Ist das eine Telefonkarte?" },
+      { "ja": "はい、そうです。", "en": "Yes, it is.", "de": "Ja, genau." },
+      { "ja": "いいえ、そうじゃありません。", "en": "No, it isn’t.", "de": "Nein, das stimmt nicht." }
+    ]
+  },
+  {
+    "id": "2-4", "lesson": 2, "pattern": "S1 か、S2 か",
+    "title": { "en": "A or B?", "de": "A oder B?" },
+    "explain": {
+      "en": "Two questions in a row ask “A or B?”. Answer with the right option, not with はい / いいえ.",
+      "de": "Zwei Fragen hintereinander bedeuten „A oder B?“. Man antwortet mit der richtigen Option, nicht mit はい / いいえ."
+    },
+    "examples": [
+      { "ja": "これ{は} 9です{か}、7です{か}。", "en": "Is this a 9 or a 7?", "de": "Ist das eine 9 oder eine 7?" },
+      { "ja": "それ{は} シャープペンシルです{か}、ボールペンです{か}。", "en": "Is that a mechanical pencil or a ballpoint pen?", "de": "Ist das ein Druckbleistift oder ein Kugelschreiber?" },
+      { "ja": "ミラーさん{は} アメリカ人[じん]です{か}、イギリス人[じん]です{か}。", "en": "Is Mr Miller American or British?", "de": "Ist Herr Miller Amerikaner oder Brite?" }
+    ]
+  },
+  {
+    "id": "2-5", "lesson": 2, "pattern": "N1 の N2 (content, owner)",
+    "title": { "en": "の – about, whose", "de": "の – über, wessen" },
+    "explain": {
+      "en": "の also says what something is about (コンピューターの本 = a book about computers) or whose it is (私の本 = my book). If it is clear, the second noun can be dropped: 私の = mine.",
+      "de": "の gibt auch den Inhalt an (コンピューターの本 = Buch über Computer) oder den Besitzer (私の本 = mein Buch). Ist es klar, fällt das zweite Nomen weg: 私の = meins."
+    },
+    "examples": [
+      { "ja": "これ{は} コンピューター{の} 本[ほん]です。", "en": "This is a book about computers.", "de": "Das ist ein Buch über Computer." },
+      { "ja": "これ{は} 私[わたし]{の} 本[ほん]です。", "en": "This is my book.", "de": "Das ist mein Buch." },
+      { "ja": "あの 傘[かさ]{は} 私[わたし]{の}です。", "en": "That umbrella over there is mine.", "de": "Der Regenschirm dort drüben ist meiner." }
+    ]
+  },
+  {
+    "id": "2-6", "lesson": 2, "pattern": "何 (なん) ですか",
+    "title": { "en": "What is it?", "de": "Was ist das?" },
+    "explain": {
+      "en": "何 means “what”. Before です, の or a counter it is read なん. そうですか (“I see”) shows you understood something new.",
+      "de": "何 heißt „was“. Vor です, の oder Zählwörtern liest man なん. そうですか („Ach so“) zeigt, dass man etwas Neues verstanden hat."
+    },
+    "examples": [
+      { "ja": "これ{は} 何[なん]です{か}。", "en": "What is this?", "de": "Was ist das?" },
+      { "ja": "それ{は} 何[なん]{の} 雑誌[ざっし]です{か}。", "en": "What is that magazine about?", "de": "Was ist das für eine Zeitschrift?" },
+      { "ja": "あれ{は} 何[なん]{の} カードです{か}。", "en": "What card is that over there?", "de": "Was ist das dort für eine Karte?" }
+    ]
+  },
+  {
+    "id": "3-1", "lesson": 3, "pattern": "ここ / そこ / あそこ / どこ",
+    "title": { "en": "here / there / over there / where", "de": "hier / da / dort drüben / wo" },
+    "explain": {
+      "en": "ここ = here (near me), そこ = there (near you), あそこ = over there. どこ asks “where?”.",
+      "de": "ここ = hier (bei mir), そこ = da (bei dir), あそこ = dort drüben. どこ fragt „wo?“."
+    },
+    "examples": [
+      { "ja": "ここ{は} 食堂[しょくどう]です。", "en": "This is the canteen.", "de": "Hier ist die Kantine." },
+      { "ja": "トイレ{は} あそこです。", "en": "The toilet is over there.", "de": "Die Toilette ist dort drüben." },
+      { "ja": "エレベーター{は} どこです{か}。", "en": "Where is the lift?", "de": "Wo ist der Aufzug?" }
+    ]
+  },
+  {
+    "id": "3-2", "lesson": 3, "pattern": "N は (place) です",
+    "title": { "en": "N is at (place)", "de": "N ist (Ort)" },
+    "explain": {
+      "en": "To say where something or someone is: N は place です. Ask with どこですか.",
+      "de": "Wo etwas oder jemand ist: N は Ort です. Frage: どこですか."
+    },
+    "examples": [
+      { "ja": "電話[でんわ]{は} 2階[にかい]です。", "en": "The telephone is on the second floor.", "de": "Das Telefon ist im 2. Stock." },
+      { "ja": "山田[やまだ]さん{は} 事務所[じむしょ]です。", "en": "Mr Yamada is in the office.", "de": "Herr Yamada ist im Büro." },
+      { "ja": "会議室[かいぎしつ]{は} どこです{か}。", "en": "Where is the meeting room?", "de": "Wo ist der Konferenzraum?" }
+    ]
+  },
+  {
+    "id": "3-3", "lesson": 3, "pattern": "こちら / そちら / あちら / どちら",
+    "title": { "en": "Polite: this way, which", "de": "Höflich: hier entlang, welche" },
+    "explain": {
+      "en": "The polite versions of ここ / そこ / あそこ / どこ, also meaning “this way”. どちら also asks politely for someone’s country or company.",
+      "de": "Die höflichen Formen von ここ / そこ / あそこ / どこ, auch „diese Richtung“. どちら fragt höflich auch nach Land oder Firma."
+    },
+    "examples": [
+      { "ja": "エレベーター{は} あちらです。", "en": "The lift is over there (polite).", "de": "Der Aufzug ist dort drüben (höflich)." },
+      { "ja": "お国[おくに]{は} どちらです{か}。", "en": "Which country are you from?", "de": "Aus welchem Land kommen Sie?" },
+      { "ja": "会社[かいしゃ]{は} どちらです{か}。", "en": "Which company do you work for?", "de": "Bei welcher Firma arbeiten Sie?" }
+    ]
+  },
+  {
+    "id": "3-4", "lesson": 3, "pattern": "N1 の N2 (origin, maker)",
+    "title": { "en": "の – made in / by", "de": "の – Herkunft, Hersteller" },
+    "explain": {
+      "en": "の also tells where something comes from or who made it: 日本の車 = a Japanese car.",
+      "de": "の nennt auch Herkunft oder Hersteller: 日本の車 = ein japanisches Auto."
+    },
+    "examples": [
+      { "ja": "これ{は} 日本[にほん]{の} 車[くるま]です。", "en": "This is a Japanese car.", "de": "Das ist ein japanisches Auto." },
+      { "ja": "これ{は} どこ{の} ワインです{か}。", "en": "Where is this wine from?", "de": "Woher kommt dieser Wein?" },
+      { "ja": "それ{は} イタリア{の} 靴[くつ]です。", "en": "Those are Italian shoes.", "de": "Das sind italienische Schuhe." }
+    ]
+  },
+  {
+    "id": "3-5", "lesson": 3, "pattern": "いくらですか / ～円",
+    "title": { "en": "How much is it?", "de": "Wie viel kostet das?" },
+    "explain": {
+      "en": "Ask the price with いくらですか. Prices are number + 円 (えん).",
+      "de": "Nach dem Preis fragt man mit いくらですか. Preise: Zahl + 円 (えん)."
+    },
+    "examples": [
+      { "ja": "この 時計[とけい]{は} いくらです{か}。", "en": "How much is this watch?", "de": "Wie viel kostet diese Uhr?" },
+      { "ja": "その ワイン{は} 2,000円[にせんえん]です。", "en": "That wine costs 2,000 yen.", "de": "Der Wein kostet 2000 Yen." },
+      { "ja": "この 傘[かさ]{は} 800円[はっぴゃくえん]です。", "en": "This umbrella costs 800 yen.", "de": "Dieser Regenschirm kostet 800 Yen." }
+    ]
+  },
+  {
+    "id": "4-1", "lesson": 4, "pattern": "今 ～時～分です",
+    "title": { "en": "Telling the time", "de": "Uhrzeit" },
+    "explain": {
+      "en": "Time = number + 時 (じ) + number + 分 (ふん / ぷん). 半 (はん) = half past. Watch the irregular hours: 4時 よじ, 7時 しちじ, 9時 くじ.",
+      "de": "Uhrzeit = Zahl + 時 (じ) + Zahl + 分 (ふん / ぷん). 半 (はん) = halb. Achtung: 4時 よじ, 7時 しちじ, 9時 くじ."
+    },
+    "examples": [
+      { "ja": "今[いま] 4時[よじ]5分[ごふん]です。", "en": "It is 4:05 now.", "de": "Es ist jetzt 4:05 Uhr." },
+      { "ja": "ニューヨーク{は} 今[いま] 何時[なんじ]です{か}。", "en": "What time is it in New York now?", "de": "Wie spät ist es jetzt in New York?" },
+      { "ja": "今[いま] 9時[くじ]半[はん]です。", "en": "It is 9:30 now.", "de": "Es ist jetzt 9:30 Uhr." }
+    ]
+  },
+  {
+    "id": "4-2", "lesson": 4, "pattern": "V ます",
+    "title": { "en": "Polite verbs: ～ます", "de": "Höfliche Verben: ～ます" },
+    "explain": {
+      "en": "Polite verbs end in ます. The ます form is used for habits and for the future.",
+      "de": "Höfliche Verben enden auf ます. Die ます-Form steht für Gewohnheiten und für die Zukunft."
+    },
+    "examples": [
+      { "ja": "私[わたし]{は} 毎日[まいにち] 勉強[べんきょう]します。", "en": "I study every day.", "de": "Ich lerne jeden Tag." },
+      { "ja": "毎朝[まいあさ] 6時[ろくじ]{に} 起[お]きます。", "en": "I get up at six every morning.", "de": "Ich stehe jeden Morgen um 6 Uhr auf." },
+      { "ja": "あした 働[はたら]きます。", "en": "I will work tomorrow.", "de": "Morgen arbeite ich." }
+    ]
+  },
+  {
+    "id": "4-3", "lesson": 4, "pattern": "ます / ません / ました / ませんでした",
+    "title": { "en": "Present, negative, past", "de": "Gegenwart, Verneinung, Vergangenheit" },
+    "explain": {
+      "en": "Four polite forms: ～ます (do / will do), ～ません (don’t / won’t), ～ました (did), ～ませんでした (didn’t).",
+      "de": "Vier höfliche Formen: ～ます (tue / werde tun), ～ません (tue nicht), ～ました (tat), ～ませんでした (tat nicht)."
+    },
+    "examples": [
+      { "ja": "きのう 勉強[べんきょう]しました。", "en": "I studied yesterday.", "de": "Gestern habe ich gelernt." },
+      { "ja": "おととい 働[はたら]きませんでした。", "en": "I didn’t work the day before yesterday.", "de": "Vorgestern habe ich nicht gearbeitet." },
+      { "ja": "あした{は} 休[やす]みません。", "en": "I won’t take tomorrow off.", "de": "Morgen mache ich nicht frei." }
+    ]
+  },
+  {
+    "id": "4-4", "lesson": 4, "pattern": "N (time) に V",
+    "title": { "en": "に – at (a time)", "de": "に – um / am (Zeitpunkt)" },
+    "explain": {
+      "en": "に marks a specific point in time: 6時に, 日曜日に. No に after relative time words like きょう, あした, 毎朝, 今.",
+      "de": "に markiert einen bestimmten Zeitpunkt: 6時に, 日曜日に. Kein に nach relativen Zeitwörtern wie きょう, あした, 毎朝, 今."
+    },
+    "examples": [
+      { "ja": "6時[ろくじ]半[はん]{に} 起[お]きます。", "en": "I get up at half past six.", "de": "Ich stehe um halb sieben auf." },
+      { "ja": "日曜日[にちようび]{に} 休[やす]みます。", "en": "I take Sundays off.", "de": "Am Sonntag mache ich frei." },
+      { "ja": "何時[なんじ]{に} 寝[ね]ます{か}。", "en": "What time do you go to bed?", "de": "Um wie viel Uhr gehst du schlafen?" }
+    ]
+  },
+  {
+    "id": "4-5", "lesson": 4, "pattern": "N1 から N2 まで",
+    "title": { "en": "from … until …", "de": "von … bis …" },
+    "explain": {
+      "en": "から = from, まで = until / to – for time and places. Each can also be used alone: 9時から = from nine o’clock.",
+      "de": "から = von / ab, まで = bis – für Zeit und Ort. Auch einzeln: 9時から = ab 9 Uhr."
+    },
+    "examples": [
+      { "ja": "9時[くじ]{から} 5時[ごじ]{まで} 働[はたら]きます。", "en": "I work from nine to five.", "de": "Ich arbeite von 9 bis 17 Uhr." },
+      { "ja": "銀行[ぎんこう]{は} 9時[くじ]{から} 3時[さんじ]{まで}です。", "en": "The bank is open from nine to three.", "de": "Die Bank ist von 9 bis 15 Uhr geöffnet." },
+      { "ja": "昼休[ひるやす]み{は} 12時[じゅうにじ]{から} 1時[いちじ]{まで}です。", "en": "Lunch break is from twelve to one.", "de": "Die Mittagspause ist von 12 bis 13 Uhr." }
+    ]
+  },
+  {
+    "id": "4-6", "lesson": 4, "pattern": "N1 と N2",
+    "title": { "en": "と – and (nouns)", "de": "と – und (Nomen)" },
+    "explain": {
+      "en": "と joins nouns: “N1 and N2”. It cannot join sentences.",
+      "de": "と verbindet Nomen: „N1 und N2“. Sätze verbindet es nicht."
+    },
+    "examples": [
+      { "ja": "銀行[ぎんこう]{の} 休[やす]み{は} 土曜日[どようび]{と} 日曜日[にちようび]です。", "en": "The bank is closed on Saturdays and Sundays.", "de": "Die Bank hat samstags und sonntags geschlossen." },
+      { "ja": "図書館[としょかん]{の} 休[やす]み{は} 月曜日[げつようび]{と} 火曜日[かようび]です。", "en": "The library is closed on Mondays and Tuesdays.", "de": "Die Bibliothek ist montags und dienstags geschlossen." },
+      { "ja": "ミラーさん{と} 山田[やまだ]さん{は} 会社員[かいしゃいん]です。", "en": "Mr Miller and Mr Yamada are company employees.", "de": "Herr Miller und Herr Yamada sind Firmenangestellte." }
+    ]
+  },
+  {
+    "id": "4-7", "lesson": 4, "pattern": "S ね",
+    "title": { "en": "ね – isn’t it?", "de": "ね – nicht wahr?" },
+    "explain": {
+      "en": "ね at the end looks for agreement or shows sympathy: 大変ですね = That’s tough, isn’t it?",
+      "de": "ね am Satzende sucht Zustimmung oder zeigt Mitgefühl: 大変ですね = Das ist ja anstrengend!"
+    },
+    "examples": [
+      { "ja": "大変[たいへん]です{ね}。", "en": "That’s tough, isn’t it?", "de": "Das ist ja anstrengend!" },
+      { "ja": "毎晩[まいばん] 12時[じゅうにじ]{まで} 勉強[べんきょう]します。", "en": "I study until twelve every night.", "de": "Ich lerne jeden Abend bis 12 Uhr." },
+      { "ja": "いい 天気[てんき]です{ね}。", "en": "Nice weather, isn’t it?", "de": "Schönes Wetter, nicht wahr?" }
+    ]
+  },
+  {
+    "id": "5-1", "lesson": 5, "pattern": "N (place) へ 行きます",
+    "title": { "en": "へ – going somewhere", "de": "へ – irgendwohin gehen" },
+    "explain": {
+      "en": "With movement verbs – 行きます (go), 来ます (come), 帰ります (go home) – へ marks the destination. へ is pronounced e.",
+      "de": "Bei Bewegungsverben – 行きます (gehen), 来ます (kommen), 帰ります (heimgehen) – markiert へ das Ziel. へ wird „e“ gelesen."
+    },
+    "examples": [
+      { "ja": "京都[きょうと]{へ} 行[い]きます。", "en": "I go to Kyoto.", "de": "Ich fahre nach Kyoto." },
+      { "ja": "日本[にほん]{へ} 来[き]ました。", "en": "I came to Japan.", "de": "Ich bin nach Japan gekommen." },
+      { "ja": "うち{へ} 帰[かえ]ります。", "en": "I go home.", "de": "Ich gehe nach Hause." }
+    ]
+  },
+  {
+    "id": "5-2", "lesson": 5, "pattern": "どこ［へ］も 行きません",
+    "title": { "en": "Not going anywhere", "de": "Nirgendwohin gehen" },
+    "explain": {
+      "en": "Question word + も + negative verb = “nowhere / nothing / nobody”: どこへも行きません = I’m not going anywhere.",
+      "de": "Fragewort + も + verneintes Verb = „nirgendwo / nichts / niemand“: どこへも行きません = Ich gehe nirgendwohin."
+    },
+    "examples": [
+      { "ja": "どこ{へ}{も} 行[い]きません。", "en": "I’m not going anywhere.", "de": "Ich gehe nirgendwohin." },
+      { "ja": "日曜日[にちようび]{は} どこ{も} 行[い]きませんでした。", "en": "On Sunday I didn’t go anywhere.", "de": "Am Sonntag bin ich nirgendwo hingegangen." },
+      { "ja": "きのう{は} どこ{へ}{も} 行[い]きませんでした。", "en": "Yesterday I didn’t go anywhere.", "de": "Gestern bin ich nirgendwohin gegangen." }
+    ]
+  },
+  {
+    "id": "5-3", "lesson": 5, "pattern": "N (vehicle) で 行きます",
+    "title": { "en": "で – by (train, bus …)", "de": "で – mit (Zug, Bus …)" },
+    "explain": {
+      "en": "で marks the means of transport: 電車で = by train. “On foot” is あるいて – without で.",
+      "de": "で gibt das Verkehrsmittel an: 電車で = mit dem Zug. „Zu Fuß“ heißt あるいて – ohne で."
+    },
+    "examples": [
+      { "ja": "電車[でんしゃ]{で} 行[い]きます。", "en": "I go by train.", "de": "Ich fahre mit dem Zug." },
+      { "ja": "タクシー{で} うち{へ} 帰[かえ]りました。", "en": "I went home by taxi.", "de": "Ich bin mit dem Taxi nach Hause gefahren." },
+      { "ja": "駅[えき]{から} 歩[ある]いて 帰[かえ]りました。", "en": "I walked home from the station.", "de": "Vom Bahnhof bin ich zu Fuß nach Hause gegangen." }
+    ]
+  },
+  {
+    "id": "5-4", "lesson": 5, "pattern": "N (person) と V",
+    "title": { "en": "と – together with", "de": "と – zusammen mit" },
+    "explain": {
+      "en": "と after a person means “together with”: 家族と = with my family. Alone is ひとりで.",
+      "de": "と nach einer Person bedeutet „zusammen mit“: 家族と = mit meiner Familie. Allein = ひとりで."
+    },
+    "examples": [
+      { "ja": "家族[かぞく]{と} 日本[にほん]{へ} 来[き]ました。", "en": "I came to Japan with my family.", "de": "Ich bin mit meiner Familie nach Japan gekommen." },
+      { "ja": "友達[ともだち]{と} 行[い]きます。", "en": "I’m going with a friend.", "de": "Ich gehe mit einem Freund." },
+      { "ja": "ひとりで 東京[とうきょう]{へ} 行[い]きます。", "en": "I’m going to Tokyo alone.", "de": "Ich fahre allein nach Tokyo." }
+    ]
+  },
+  {
+    "id": "5-5", "lesson": 5, "pattern": "いつ / dates",
+    "title": { "en": "When? – dates", "de": "Wann? – Datum" },
+    "explain": {
+      "en": "いつ asks “when?” and takes no に. Dates are month + がつ and day + にち, with special readings for days 1–10, 14, 20 and 24.",
+      "de": "いつ fragt „wann?“ und steht ohne に. Datum: Monat + がつ, Tag + にち – mit Sonderlesungen für den 1.–10., 14., 20. und 24."
+    },
+    "examples": [
+      { "ja": "いつ 日本[にほん]{へ} 来[き]ました{か}。", "en": "When did you come to Japan?", "de": "Wann bist du nach Japan gekommen?" },
+      { "ja": "3月[さんがつ]25日[にじゅうごにち]{に} 来[き]ました。", "en": "I came on 25 March.", "de": "Ich bin am 25. März gekommen." },
+      { "ja": "誕生日[たんじょうび]{は} いつです{か}。", "en": "When is your birthday?", "de": "Wann hast du Geburtstag?" }
+    ]
+  },
+  {
+    "id": "5-6", "lesson": 5, "pattern": "S よ",
+    "title": { "en": "よ – I’m telling you", "de": "よ – „…, weißt du“" },
+    "explain": {
+      "en": "よ at the end tells the listener something new, with some emphasis.",
+      "de": "よ am Satzende teilt dem Gesprächspartner etwas Neues mit Nachdruck mit."
+    },
+    "examples": [
+      { "ja": "この 電車[でんしゃ]{は} 甲子園[こうしえん]{へ} 行[い]きます{よ}。", "en": "This train goes to Koshien, you know.", "de": "Dieser Zug fährt nach Koshien, wissen Sie." },
+      { "ja": "次[つぎ]{の} 普通[ふつう]です{よ}。", "en": "It’s the next local train.", "de": "Es ist der nächste Nahverkehrszug." },
+      { "ja": "あの 店[みせ]{の} パン{は} おいしいです{よ}。", "en": "The bread at that shop is delicious, you know.", "de": "Das Brot in dem Laden ist lecker, weißt du." }
+    ]
+  }
+]
