@@ -1,0 +1,392 @@
+[
+  {
+    "id": "6-1", "lesson": 6, "pattern": "N を V",
+    "title": { "en": "を – the object", "de": "を – das Objekt" },
+    "explain": {
+      "en": "を marks the direct object – what you eat, drink, read, buy …. It is pronounced o.",
+      "de": "を markiert das direkte Objekt – was man isst, trinkt, liest, kauft …. Es wird „o“ gelesen."
+    },
+    "examples": [
+      { "ja": "ジュース{を} 飲[の]みます。", "en": "I drink juice.", "de": "Ich trinke Saft." },
+      { "ja": "毎朝[まいあさ] 新聞[しんぶん]{を} 読[よ]みます。", "en": "I read the newspaper every morning.", "de": "Ich lese jeden Morgen Zeitung." },
+      { "ja": "手紙[てがみ]{を} 書[か]きました。", "en": "I wrote a letter.", "de": "Ich habe einen Brief geschrieben." }
+    ]
+  },
+  {
+    "id": "6-2", "lesson": 6, "pattern": "N を します",
+    "title": { "en": "N をします – to do / play", "de": "N をします – machen / spielen" },
+    "explain": {
+      "en": "します (do) combines with many nouns: サッカーをします (play soccer), 宿題をします (do homework), パーティーをします (have a party).",
+      "de": "します (machen) verbindet sich mit vielen Nomen: サッカーをします (Fußball spielen), 宿題をします (Hausaufgaben machen), パーティーをします (eine Party feiern)."
+    },
+    "examples": [
+      { "ja": "サッカー{を} します。", "en": "I play soccer.", "de": "Ich spiele Fußball." },
+      { "ja": "宿題[しゅくだい]{を} します。", "en": "I do my homework.", "de": "Ich mache Hausaufgaben." },
+      { "ja": "土曜日[どようび]{に} パーティー{を} します。", "en": "We are having a party on Saturday.", "de": "Am Samstag feiern wir eine Party." }
+    ]
+  },
+  {
+    "id": "6-3", "lesson": 6, "pattern": "何を しますか",
+    "title": { "en": "What do you do?", "de": "Was machst du?" },
+    "explain": {
+      "en": "何をしますか asks “What do you do / will you do?”. Before を, 何 is read なに.",
+      "de": "何をしますか fragt „Was machst du?“. Vor を wird 何 なに gelesen."
+    },
+    "examples": [
+      { "ja": "月曜日[げつようび]{に} 何[なに]{を} します{か}。", "en": "What are you doing on Monday?", "de": "Was machst du am Montag?" },
+      { "ja": "きのう 何[なに]{を} しました{か}。", "en": "What did you do yesterday?", "de": "Was hast du gestern gemacht?" },
+      { "ja": "日曜日[にちようび]{に} テニス{を} しました。", "en": "I played tennis on Sunday.", "de": "Am Sonntag habe ich Tennis gespielt." }
+    ]
+  },
+  {
+    "id": "6-4", "lesson": 6, "pattern": "N (place) で V",
+    "title": { "en": "で – where something happens", "de": "で – wo etwas passiert" },
+    "explain": {
+      "en": "で marks the place where an action happens: 駅で新聞を買います = I buy a newspaper at the station. (The destination of movement is へ.)",
+      "de": "で markiert den Ort einer Handlung: 駅で新聞を買います = Ich kaufe am Bahnhof eine Zeitung. (Das Ziel einer Bewegung ist へ.)"
+    },
+    "examples": [
+      { "ja": "駅[えき]{で} 新聞[しんぶん]{を} 買[か]います。", "en": "I buy a newspaper at the station.", "de": "Ich kaufe am Bahnhof eine Zeitung." },
+      { "ja": "図書館[としょかん]{で} 勉強[べんきょう]します。", "en": "I study at the library.", "de": "Ich lerne in der Bibliothek." },
+      { "ja": "どこ{で} その かばん{を} 買[か]いました{か}。", "en": "Where did you buy that bag?", "de": "Wo hast du die Tasche gekauft?" }
+    ]
+  },
+  {
+    "id": "6-5", "lesson": 6, "pattern": "V ませんか",
+    "title": { "en": "Won’t you …? (invitation)", "de": "Wollen wir nicht …? (Einladung)" },
+    "explain": {
+      "en": "～ませんか is a polite invitation: “Won’t you …? / Would you like to …?”.",
+      "de": "～ませんか ist eine höfliche Einladung: „Wollen wir nicht …? / Hast du Lust …?“."
+    },
+    "examples": [
+      { "ja": "いっしょに 京都[きょうと]{へ} 行[い]きません{か}。", "en": "Would you like to go to Kyoto with me?", "de": "Wollen wir nicht zusammen nach Kyoto fahren?" },
+      { "ja": "いっしょに 昼[ひる]ごはん{を} 食[た]べません{か}。", "en": "Shall we have lunch together?", "de": "Wollen wir nicht zusammen zu Mittag essen?" },
+      { "ja": "いっしょに 映画[えいが]{を} 見[み]ません{か}。", "en": "Would you like to watch a film together?", "de": "Wollen wir nicht zusammen einen Film ansehen?" }
+    ]
+  },
+  {
+    "id": "6-6", "lesson": 6, "pattern": "V ましょう",
+    "title": { "en": "Let’s …", "de": "Lass uns …" },
+    "explain": {
+      "en": "～ましょう = “Let’s …”: a suggestion, or a positive answer to an invitation (ええ、行きましょう).",
+      "de": "～ましょう = „Lass uns …“: ein Vorschlag oder eine Zusage auf eine Einladung (ええ、行きましょう)."
+    },
+    "examples": [
+      { "ja": "ちょっと 休[やす]みましょう。", "en": "Let’s take a short break.", "de": "Machen wir kurz Pause." },
+      { "ja": "ええ、行[い]きましょう。", "en": "Yes, let’s go.", "de": "Ja, gehen wir!" },
+      { "ja": "駅[えき]{で} 会[あ]いましょう。", "en": "Let’s meet at the station.", "de": "Treffen wir uns am Bahnhof." }
+    ]
+  },
+  {
+    "id": "7-1", "lesson": 7, "pattern": "N (tool, means) で V",
+    "title": { "en": "で – with, in (a tool or language)", "de": "で – mit, auf (Werkzeug, Sprache)" },
+    "explain": {
+      "en": "で also marks a tool or means: はしで食べます (eat with chopsticks), 日本語で書きます (write in Japanese).",
+      "de": "で gibt auch ein Werkzeug oder Mittel an: はしで食べます (mit Stäbchen essen), 日本語で書きます (auf Japanisch schreiben)."
+    },
+    "examples": [
+      { "ja": "はし{で} 食[た]べます。", "en": "I eat with chopsticks.", "de": "Ich esse mit Stäbchen." },
+      { "ja": "日本語[にほんご]{で} レポート{を} 書[か]きます。", "en": "I write the report in Japanese.", "de": "Ich schreibe den Bericht auf Japanisch." },
+      { "ja": "はさみ{で} 紙[かみ]{を} 切[き]ります。", "en": "I cut paper with scissors.", "de": "Ich schneide Papier mit der Schere." }
+    ]
+  },
+  {
+    "id": "7-2", "lesson": 7, "pattern": "「X」は ～語で 何ですか",
+    "title": { "en": "How do you say X in …?", "de": "Was heißt X auf …?" },
+    "explain": {
+      "en": "Ask for a word in another language: 「Thank you」は日本語で何ですか.",
+      "de": "So fragt man nach einem Wort in einer anderen Sprache: 「Danke」は日本語で何ですか."
+    },
+    "examples": [
+      { "ja": "「ありがとう」{は} 英語[えいご]{で} 何[なん]です{か}。", "en": "How do you say ありがとう in English?", "de": "Was heißt ありがとう auf Englisch?" },
+      { "ja": "「Thank you」{は} 日本語[にほんご]{で} 何[なん]です{か}。", "en": "How do you say “Thank you” in Japanese?", "de": "Was heißt „Thank you“ auf Japanisch?" },
+      { "ja": "「さようなら」{は} ドイツ語[ご]{で} 何[なん]です{か}。", "en": "How do you say さようなら in German?", "de": "Was heißt さようなら auf Deutsch?" }
+    ]
+  },
+  {
+    "id": "7-3", "lesson": 7, "pattern": "N (person) に N を あげます",
+    "title": { "en": "to give", "de": "geben, schenken" },
+    "explain": {
+      "en": "あげます = give. The receiver takes に, the thing takes を. The same pattern works with 貸します (lend), 教えます (teach), 書きます / 送ります (write / send to).",
+      "de": "あげます = geben. Der Empfänger bekommt に, die Sache を. Genauso: 貸します (leihen), 教えます (lehren), 書きます / 送ります (schreiben / schicken an)."
+    },
+    "examples": [
+      { "ja": "木村[きむら]さん{に} 花[はな]{を} あげました。", "en": "I gave Ms Kimura flowers.", "de": "Ich habe Frau Kimura Blumen geschenkt." },
+      { "ja": "山田[やまだ]さん{に} 本[ほん]{を} 貸[か]しました。", "en": "I lent Mr Yamada a book.", "de": "Ich habe Herrn Yamada ein Buch geliehen." },
+      { "ja": "友達[ともだち]{に} 手紙[てがみ]{を} 書[か]きます。", "en": "I write a letter to a friend.", "de": "Ich schreibe einem Freund einen Brief." }
+    ]
+  },
+  {
+    "id": "7-4", "lesson": 7, "pattern": "N (person) に／から N を もらいます",
+    "title": { "en": "to receive", "de": "bekommen" },
+    "explain": {
+      "en": "もらいます = receive. The giver takes に or から: カリナさんにCDをもらいました = I got a CD from Karina. 習います (learn from) works the same way.",
+      "de": "もらいます = bekommen. Der Geber bekommt に oder から: カリナさんにCDをもらいました = Ich habe von Karina eine CD bekommen. Genauso: 習います (lernen bei)."
+    },
+    "examples": [
+      { "ja": "カリナさん{に} チョコレート{を} もらいました。", "en": "I got chocolate from Karina.", "de": "Ich habe von Karina Schokolade bekommen.", "ok": { "に": ["から"] } },
+      { "ja": "父[ちち]{に} 時計[とけい]{を} もらいました。", "en": "I got a watch from my father.", "de": "Ich habe von meinem Vater eine Uhr bekommen.", "ok": { "に": ["から"] } },
+      { "ja": "山田[やまだ]さん{から} 日本語[にほんご]{を} 習[なら]いました。", "en": "I learned Japanese from Mr Yamada.", "de": "Ich habe bei Herrn Yamada Japanisch gelernt.", "ok": { "から": ["に"] } }
+    ]
+  },
+  {
+    "id": "7-5", "lesson": 7, "pattern": "もう V ました",
+    "title": { "en": "already / not yet", "de": "schon / noch nicht" },
+    "explain": {
+      "en": "もう + ～ました = “already”. To say “not yet”: いいえ、まだです.",
+      "de": "もう + ～ました = „schon“. „Noch nicht“ heißt: いいえ、まだです."
+    },
+    "examples": [
+      { "ja": "もう 荷物[にもつ]{を} 送[おく]りました{か}。", "en": "Have you already sent the parcel?", "de": "Hast du das Paket schon verschickt?" },
+      { "ja": "もう 昼[ひる]ごはん{を} 食[た]べました{か}。", "en": "Have you had lunch yet?", "de": "Hast du schon zu Mittag gegessen?" },
+      { "ja": "いいえ、まだです。", "en": "No, not yet.", "de": "Nein, noch nicht." }
+    ]
+  },
+  {
+    "id": "8-1", "lesson": 8, "pattern": "N は い-adj / な-adj です",
+    "title": { "en": "Adjectives", "de": "Adjektive" },
+    "explain": {
+      "en": "い-adjectives end in い (高い), な-adjectives don’t (きれい, 元気, 親切). As a predicate both simply take です.",
+      "de": "い-Adjektive enden auf い (高い), な-Adjektive nicht (きれい, 元気, 親切). Als Prädikat stehen beide einfach mit です."
+    },
+    "examples": [
+      { "ja": "桜[さくら]{は} きれいです。", "en": "Cherry blossoms are beautiful.", "de": "Die Kirschblüten sind schön." },
+      { "ja": "富士山[ふじさん]{は} 高[たか]いです。", "en": "Mount Fuji is high.", "de": "Der Fuji ist hoch." },
+      { "ja": "ワットさん{は} 親切[しんせつ]です。", "en": "Mr Watt is kind.", "de": "Herr Watt ist freundlich." }
+    ]
+  },
+  {
+    "id": "8-2", "lesson": 8, "pattern": "～じゃありません / ～くないです",
+    "title": { "en": "Negative adjectives", "de": "Verneinte Adjektive" },
+    "explain": {
+      "en": "な-adjective: ～じゃありません (静かじゃありません). い-adjective: drop い and add くないです (おもしろくないです). Exception: いい → よくないです.",
+      "de": "な-Adjektiv: ～じゃありません (静かじゃありません). い-Adjektiv: い weglassen + くないです (おもしろくないです). Ausnahme: いい → よくないです."
+    },
+    "examples": [
+      { "ja": "あそこ{は} 静[しず]かじゃありません。", "en": "It isn’t quiet over there.", "de": "Dort ist es nicht ruhig." },
+      { "ja": "この 本[ほん]{は} おもしろくないです。", "en": "This book isn’t interesting.", "de": "Dieses Buch ist nicht interessant." },
+      { "ja": "この 映画[えいが]{は} よくないです。", "en": "This film isn’t good.", "de": "Dieser Film ist nicht gut." }
+    ]
+  },
+  {
+    "id": "8-3", "lesson": 8, "pattern": "な-adj な N / い-adj N",
+    "title": { "en": "Adjective + noun", "de": "Adjektiv + Nomen" },
+    "explain": {
+      "en": "Before a noun, な-adjectives keep な (きれいな花) and い-adjectives stay as they are (高い山).",
+      "de": "Vor einem Nomen behalten な-Adjektive das な (きれいな花), い-Adjektive bleiben unverändert (高い山)."
+    },
+    "examples": [
+      { "ja": "奈良[なら]{は} 古[ふる]い 町[まち]です。", "en": "Nara is an old town.", "de": "Nara ist eine alte Stadt." },
+      { "ja": "富士山[ふじさん]{は} 高[たか]い 山[やま]です。", "en": "Mount Fuji is a high mountain.", "de": "Der Fuji ist ein hoher Berg." },
+      { "ja": "ミラーさん{は} 親切[しんせつ]な 人[ひと]です。", "en": "Mr Miller is a kind person.", "de": "Herr Miller ist ein freundlicher Mensch." }
+    ]
+  },
+  {
+    "id": "8-4", "lesson": 8, "pattern": "とても / あまり",
+    "title": { "en": "very / not very", "de": "sehr / nicht besonders" },
+    "explain": {
+      "en": "とても = very (positive sentences). あまり = not very – only with a negative: あまり寒くないです.",
+      "de": "とても = sehr (bejahte Sätze). あまり = nicht besonders – nur mit Verneinung: あまり寒くないです."
+    },
+    "examples": [
+      { "ja": "ペキン{は} とても 寒[さむ]いです。", "en": "Beijing is very cold.", "de": "In Peking ist es sehr kalt." },
+      { "ja": "これ{は} とても おもしろい 映画[えいが]です。", "en": "This is a very interesting film.", "de": "Das ist ein sehr interessanter Film." },
+      { "ja": "シャンハイ{は} あまり 寒[さむ]くないです。", "en": "Shanghai isn’t very cold.", "de": "In Shanghai ist es nicht besonders kalt." }
+    ]
+  },
+  {
+    "id": "8-5", "lesson": 8, "pattern": "N は どうですか",
+    "title": { "en": "How is N?", "de": "Wie ist N?" },
+    "explain": {
+      "en": "どうですか asks for an impression or opinion: 日本の生活はどうですか = How is life in Japan?",
+      "de": "どうですか fragt nach Eindruck oder Meinung: 日本の生活はどうですか = Wie ist das Leben in Japan?"
+    },
+    "examples": [
+      { "ja": "日本[にほん]{の} 生活[せいかつ]{は} どうです{か}。", "en": "How is life in Japan?", "de": "Wie ist das Leben in Japan?" },
+      { "ja": "とても 楽[たの]しいです。", "en": "It’s a lot of fun.", "de": "Es macht viel Spaß." },
+      { "ja": "日本語[にほんご]{の} 勉強[べんきょう]{は} どうです{か}。", "en": "How are your Japanese studies going?", "de": "Wie läuft das Japanischlernen?" }
+    ]
+  },
+  {
+    "id": "8-6", "lesson": 8, "pattern": "N1 は どんな N2 ですか",
+    "title": { "en": "What kind of N2?", "de": "Was für ein N2?" },
+    "explain": {
+      "en": "どんな + noun asks for a description: 奈良はどんな町ですか = What kind of town is Nara?",
+      "de": "どんな + Nomen fragt nach einer Beschreibung: 奈良はどんな町ですか = Was für eine Stadt ist Nara?"
+    },
+    "examples": [
+      { "ja": "奈良[なら]{は} どんな 町[まち]です{か}。", "en": "What kind of town is Nara?", "de": "Was für eine Stadt ist Nara?" },
+      { "ja": "古[ふる]い 町[まち]です。", "en": "It’s an old town.", "de": "Eine alte Stadt." },
+      { "ja": "山田[やまだ]さん{は} どんな 人[ひと]です{か}。", "en": "What kind of person is Mr Yamada?", "de": "Was für ein Mensch ist Herr Yamada?" }
+    ]
+  },
+  {
+    "id": "8-7", "lesson": 8, "pattern": "S1 が、S2",
+    "title": { "en": "が – but", "de": "が – aber" },
+    "explain": {
+      "en": "が between two sentences means “but”: 日本の食べ物はおいしいですが、高いです.",
+      "de": "が zwischen zwei Sätzen heißt „aber“: 日本の食べ物はおいしいですが、高いです."
+    },
+    "examples": [
+      { "ja": "日本[にほん]{の} 食[た]べ物[もの]{は} おいしいです{が}、高[たか]いです。", "en": "Japanese food is delicious but expensive.", "de": "Das japanische Essen ist lecker, aber teuer." },
+      { "ja": "仕事[しごと]{は} 忙[いそが]しいです{が}、おもしろいです。", "en": "Work is busy but interesting.", "de": "Die Arbeit ist stressig, aber interessant." },
+      { "ja": "天気[てんき]{は} いいです{が}、寒[さむ]いです。", "en": "The weather is good, but it’s cold.", "de": "Das Wetter ist gut, aber es ist kalt." }
+    ]
+  },
+  {
+    "id": "8-8", "lesson": 8, "pattern": "どれ / どの N",
+    "title": { "en": "Which one?", "de": "Welches?" },
+    "explain": {
+      "en": "どれ = which one (out of three or more). Directly before a noun use どの: どのかばん = which bag.",
+      "de": "どれ = welches (von drei oder mehr). Direkt vor einem Nomen: どの: どのかばん = welche Tasche."
+    },
+    "examples": [
+      { "ja": "ミラーさん{の} 傘[かさ]{は} どれです{か}。", "en": "Which one is Mr Miller’s umbrella?", "de": "Welcher ist Herrn Millers Regenschirm?" },
+      { "ja": "あの 青[あお]い 傘[かさ]です。", "en": "That blue umbrella over there.", "de": "Der blaue Regenschirm dort drüben." },
+      { "ja": "どの 人[ひと]{が} 山田[やまだ]さんです{か}。", "en": "Which person is Mr Yamada?", "de": "Welche Person ist Herr Yamada?" }
+    ]
+  },
+  {
+    "id": "9-1", "lesson": 9, "pattern": "N が 好きです / 上手です",
+    "title": { "en": "Likes and skills with が", "de": "Vorlieben und Können mit が" },
+    "explain": {
+      "en": "好きです (like), 嫌いです (dislike), 上手です (good at) and 下手です (bad at) mark their object with が: 料理が好きです = I like cooking.",
+      "de": "好きです (mögen), 嫌いです (nicht mögen), 上手です (gut können) und 下手です (schlecht können) markieren das Objekt mit が: 料理が好きです = Ich koche gern."
+    },
+    "examples": [
+      { "ja": "私[わたし]{は} イタリア料理[りょうり]{が} 好[す]きです。", "en": "I like Italian food.", "de": "Ich mag italienisches Essen." },
+      { "ja": "私[わたし]{は} 料理[りょうり]{が} 下手[へた]です。", "en": "I’m bad at cooking.", "de": "Ich kann nicht gut kochen." },
+      { "ja": "ワンさん{は} 日本語[にほんご]{が} 上手[じょうず]です。", "en": "Mr Wang is good at Japanese.", "de": "Herr Wang spricht gut Japanisch." }
+    ]
+  },
+  {
+    "id": "9-2", "lesson": 9, "pattern": "N が わかります / あります",
+    "title": { "en": "to understand / to have", "de": "verstehen / haben" },
+    "explain": {
+      "en": "わかります (understand) and あります (have) also mark their object with が.",
+      "de": "わかります (verstehen) und あります (haben) markieren ihr Objekt ebenfalls mit が."
+    },
+    "examples": [
+      { "ja": "マリアさん{は} 中国語[ちゅうごくご]{が} わかります。", "en": "Maria understands Chinese.", "de": "Maria versteht Chinesisch." },
+      { "ja": "私[わたし]{は} 車[くるま]{が} あります。", "en": "I have a car.", "de": "Ich habe ein Auto." },
+      { "ja": "きょう{は} 時間[じかん]{が} ありません。", "en": "I don’t have time today.", "de": "Heute habe ich keine Zeit." }
+    ]
+  },
+  {
+    "id": "9-3", "lesson": 9, "pattern": "よく / だいたい / 少し / あまり / 全然",
+    "title": { "en": "How well? How much?", "de": "Wie gut? Wie viel?" },
+    "explain": {
+      "en": "With わかります: よく (well), だいたい (mostly), 少し (a little); with a negative: あまり (not much), 全然 (not at all). With あります: たくさん (a lot), 少し, あまり, 全然.",
+      "de": "Mit わかります: よく (gut), だいたい (größtenteils), 少し (ein wenig); verneint: あまり (kaum), 全然 (gar nicht). Mit あります: たくさん (viel), 少し, あまり, 全然."
+    },
+    "examples": [
+      { "ja": "英語[えいご]{が} よく わかります。", "en": "I understand English well.", "de": "Ich verstehe Englisch gut." },
+      { "ja": "フランス語[ご]{が} 全然[ぜんぜん] わかりません。", "en": "I don’t understand French at all.", "de": "Ich verstehe überhaupt kein Französisch." },
+      { "ja": "お金[かね]{が} たくさん あります。", "en": "I have a lot of money.", "de": "Ich habe viel Geld." }
+    ]
+  },
+  {
+    "id": "9-4", "lesson": 9, "pattern": "どんな N が 好きですか",
+    "title": { "en": "What kind of … do you like?", "de": "Was für … magst du?" },
+    "explain": {
+      "en": "どんな + noun + が好きですか asks which kind of thing someone likes.",
+      "de": "どんな + Nomen + が好きですか fragt, welche Art von etwas jemand mag."
+    },
+    "examples": [
+      { "ja": "どんな スポーツ{が} 好[す]きです{か}。", "en": "What kind of sport do you like?", "de": "Welchen Sport magst du?" },
+      { "ja": "サッカー{が} 好[す]きです。", "en": "I like soccer.", "de": "Ich mag Fußball." },
+      { "ja": "どんな 音楽[おんがく]{が} 好[す]きです{か}。", "en": "What kind of music do you like?", "de": "Was für Musik magst du?" }
+    ]
+  },
+  {
+    "id": "9-5", "lesson": 9, "pattern": "S1 から、S2",
+    "title": { "en": "から – because", "de": "から – weil" },
+    "explain": {
+      "en": "から after a sentence gives the reason: 時間がありませんから、新聞を読みません = Because I have no time, I don’t read the paper.",
+      "de": "から nach einem Satz nennt den Grund: 時間がありませんから、新聞を読みません = Weil ich keine Zeit habe, lese ich keine Zeitung."
+    },
+    "examples": [
+      { "ja": "時間[じかん]{が} ありません{から}、新聞[しんぶん]{を} 読[よ]みません。", "en": "Because I have no time, I don’t read the newspaper.", "de": "Weil ich keine Zeit habe, lese ich keine Zeitung." },
+      { "ja": "用事[ようじ]{が} あります{から}、早[はや]く 帰[かえ]ります。", "en": "I have something to do, so I’m going home early.", "de": "Weil ich etwas zu erledigen habe, gehe ich früh nach Hause." },
+      { "ja": "忙[いそが]しいです{から}、行[い]きません。", "en": "I’m busy, so I won’t go.", "de": "Weil ich beschäftigt bin, gehe ich nicht hin." }
+    ]
+  },
+  {
+    "id": "9-6", "lesson": 9, "pattern": "どうして",
+    "title": { "en": "Why?", "de": "Warum?" },
+    "explain": {
+      "en": "どうして asks “why?”. The answer ends in ～から.",
+      "de": "どうして fragt „warum?“. Die Antwort endet auf ～から."
+    },
+    "examples": [
+      { "ja": "どうして 朝[あさ] 新聞[しんぶん]{を} 読[よ]みません{か}。", "en": "Why don’t you read the newspaper in the morning?", "de": "Warum liest du morgens keine Zeitung?" },
+      { "ja": "時間[じかん]{が} ありません{から}。", "en": "Because I don’t have time.", "de": "Weil ich keine Zeit habe." },
+      { "ja": "どうして きのう 早[はや]く 帰[かえ]りました{か}。", "en": "Why did you go home early yesterday?", "de": "Warum bist du gestern früh nach Hause gegangen?" }
+    ]
+  },
+  {
+    "id": "10-1", "lesson": 10, "pattern": "N が あります / います",
+    "title": { "en": "There is … (things / living beings)", "de": "Es gibt … (Dinge / Lebewesen)" },
+    "explain": {
+      "en": "あります = there is / to be for things and plants; います for people and animals. What exists is marked with が.",
+      "de": "あります = es gibt / sich befinden für Dinge und Pflanzen; います für Menschen und Tiere. Was da ist, wird mit が markiert."
+    },
+    "examples": [
+      { "ja": "コンピューター{が} あります。", "en": "There is a computer.", "de": "Es gibt einen Computer." },
+      { "ja": "男[おとこ]{の} 人[ひと]{が} います。", "en": "There is a man.", "de": "Da ist ein Mann." },
+      { "ja": "犬[いぬ]{が} います。", "en": "There is a dog.", "de": "Da ist ein Hund." }
+    ]
+  },
+  {
+    "id": "10-2", "lesson": 10, "pattern": "(place) に N が あります / います",
+    "title": { "en": "At (place) there is N", "de": "An (Ort) gibt es N" },
+    "explain": {
+      "en": "Place + に + N + が + あります / います = “At place there is N.”",
+      "de": "Ort + に + N + が + あります / います = „An Ort gibt es N.“"
+    },
+    "examples": [
+      { "ja": "私[わたし]{の} 部屋[へや]{に} 机[つくえ]{が} あります。", "en": "There is a desk in my room.", "de": "In meinem Zimmer steht ein Schreibtisch." },
+      { "ja": "事務所[じむしょ]{に} ミラーさん{が} います。", "en": "Mr Miller is in the office.", "de": "Im Büro ist Herr Miller." },
+      { "ja": "公園[こうえん]{に} 子[こ]ども{が} います。", "en": "There are children in the park.", "de": "Im Park sind Kinder." }
+    ]
+  },
+  {
+    "id": "10-3", "lesson": 10, "pattern": "N は (place) に あります / います",
+    "title": { "en": "N is at (place)", "de": "N ist an (Ort)" },
+    "explain": {
+      "en": "To say where a known thing or person is: N は place に あります / います. Often shortened to N は place です.",
+      "de": "Wo sich etwas Bekanntes befindet: N は Ort に あります / います. Oft kurz: N は Ort です."
+    },
+    "examples": [
+      { "ja": "東京[とうきょう]ディズニーランド{は} 千葉県[ちばけん]{に} あります。", "en": "Tokyo Disneyland is in Chiba Prefecture.", "de": "Tokyo Disneyland liegt in der Präfektur Chiba." },
+      { "ja": "ミラーさん{は} 事務所[じむしょ]{に} います。", "en": "Mr Miller is in the office.", "de": "Herr Miller ist im Büro." },
+      { "ja": "電話[でんわ]{は} どこ{に} あります{か}。", "en": "Where is the telephone?", "de": "Wo ist das Telefon?" }
+    ]
+  },
+  {
+    "id": "10-4", "lesson": 10, "pattern": "N1 の 上 / 下 / 中 / 前 …",
+    "title": { "en": "on, under, in, in front of …", "de": "auf, unter, in, vor …" },
+    "explain": {
+      "en": "Position words follow の: 机の上 (on the desk), 箱の中 (in the box), 駅の前 (in front of the station). Also: 下, うしろ, 右, 左, 外, となり, 近く, 間.",
+      "de": "Lagewörter stehen nach の: 机の上 (auf dem Tisch), 箱の中 (in der Kiste), 駅の前 (vor dem Bahnhof). Außerdem: 下, うしろ, 右, 左, 外, となり, 近く, 間."
+    },
+    "examples": [
+      { "ja": "机[つくえ]{の} 上[うえ]{に} 写真[しゃしん]{が} あります。", "en": "There is a photo on the desk.", "de": "Auf dem Schreibtisch liegt ein Foto." },
+      { "ja": "郵便局[ゆうびんきょく]{は} 銀行[ぎんこう]{の} となり{に} あります。", "en": "The post office is next to the bank.", "de": "Die Post ist neben der Bank." },
+      { "ja": "箱[はこ]{の} 中[なか]{に} 何[なに]{が} あります{か}。", "en": "What is in the box?", "de": "Was ist in der Kiste?" }
+    ]
+  },
+  {
+    "id": "10-5", "lesson": 10, "pattern": "N1 や N2 [など]",
+    "title": { "en": "や – things like … and …", "de": "や – … und … (unter anderem)" },
+    "explain": {
+      "en": "や lists examples, not everything (often with など, “and so on”). と lists everything.",
+      "de": "や zählt Beispiele auf, nicht alles (oft mit など, „usw.“). と zählt alles auf."
+    },
+    "examples": [
+      { "ja": "箱[はこ]{の} 中[なか]{に} 手紙[てがみ]{や} 写真[しゃしん]{が} あります。", "en": "In the box there are letters, photos and so on.", "de": "In der Kiste sind Briefe, Fotos und so weiter." },
+      { "ja": "冷蔵庫[れいぞうこ]{の} 中[なか]{に} 卵[たまご]{や} 牛乳[ぎゅうにゅう]など{が} あります。", "en": "In the fridge there are eggs, milk and so on.", "de": "Im Kühlschrank gibt es Eier, Milch usw." },
+      { "ja": "店[みせ]{に} パン{や} 果物[くだもの]{が} あります。", "en": "The shop has bread, fruit and other things.", "de": "Im Laden gibt es Brot, Obst und anderes." }
+    ]
+  }
+]
