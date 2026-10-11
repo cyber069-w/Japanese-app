@@ -66,9 +66,9 @@ export function createGitHub(token: string, ref: RepoRef, fetchFn: typeof fetch 
         if (e instanceof GitHubError && e.status === 404) return null; // no sync file yet
         throw e;
       }
-      const j = (await res.json()) as { sha: string; content?: string; size?: number };
-      if (j.content) return { sha: j.sha, bytes: fromBase64(j.content) };
-      // files over 1 MB come without content – fetch the blob instead
+      const j = (await res.json()) as { sha: string };
+      // Always read the raw blob: the contents API may treat binary files as text and
+      // transcode them (e.g. the encrypted file read as UTF-16), which corrupts the bytes.
       const blob = (await (await call(`${base}/git/blobs/${j.sha}`)).json()) as { content: string };
       return { sha: j.sha, bytes: fromBase64(blob.content) };
     },
