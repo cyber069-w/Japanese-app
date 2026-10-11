@@ -10,8 +10,9 @@ import { numbers } from './numbers';
 import { vocab } from './vocab';
 import { grammar } from './grammar';
 import { kanji } from './kanji';
+import { listening } from './listening';
 
-export const MODULES: StudyModule[] = [hiragana, katakana, vocab, kanji, grammar, numbers];
+export const MODULES: StudyModule[] = [hiragana, katakana, vocab, kanji, grammar, numbers, listening];
 
 export function getModule(id: string): StudyModule | undefined {
   return MODULES.find((m) => m.id === id);

@@ -84,6 +84,8 @@ function ModuleView({ mod }: { mod: StudyModule }) {
         </div>
       )}
 
+      {mod.banner && <mod.banner ctx={ctx} />}
+
       {empty ? (
         empty
       ) : (
@@ -96,7 +98,9 @@ function ModuleView({ mod }: { mod: StudyModule }) {
             </div>
             <div className="grid" style={{ '--min': '280px' } as React.CSSProperties}>
               {mod.exercises.map((ex) => {
-                const count = filterByGroups(exerciseItems(ex, ctx), mod.groups ? selected : undefined).length;
+                const all = exerciseItems(ex, ctx);
+                const count = filterByGroups(all, mod.groups ? selected : undefined).length;
+                const why = all.length === 0 ? ex.emptyMessage?.(ctx) ?? 'no content yet' : 'nothing selected';
                 return (
                   <button key={ex.id} className="card card-link ex-card" onClick={() => start(ex)} disabled={count === 0}>
                     <span className="ex-icon" lang="ja">{ex.icon}</span>
@@ -105,7 +109,7 @@ function ModuleView({ mod }: { mod: StudyModule }) {
                       <span className="muted small">{ex.description}</span>
                       <span className="ex-meta">
                         <span className="tag">{ex.generative ? `${count} categor${count === 1 ? 'y' : 'ies'}` : `${count} item${count === 1 ? '' : 's'}`}</span>
-                        {count === 0 && <span className="tag tag-warn">nothing selected</span>}
+                        {count === 0 && <span className="tag tag-warn">{why}</span>}
                       </span>
                     </span>
                   </button>

@@ -128,6 +128,27 @@ export function toRomaji(input: string, opts: RomajiOptions = {}): string {
   return out;
 }
 
+/**
+ * Romaji for showing a word or phrase: spaces kept, punctuation dropped, particles
+ * written as they are said – こんばんは → konbanwa, わたしは がくせいです → watashi wa gakusei desu.
+ */
+export function phraseRomaji(kana: string): string {
+  const words = kana.replace(/[。、？！?!「」・]/g, ' ').trim().split(/\s+/).filter(Boolean);
+  const phrase = words.length > 1;
+  return words
+    .map((w) => {
+      const r = toRomaji(w);
+      const len = [...w].length;
+      if (/(にち|ばん|で)は$/.test(w)) return r.slice(0, -2) + 'wa';
+      if (!phrase || len < 2) return r;
+      if (w.endsWith('は')) return r.slice(0, -2) + ' wa';
+      if (w.endsWith('へ')) return r.slice(0, -2) + ' e';
+      if (w.endsWith('を')) return r.slice(0, -2) + ' o';
+      return r;
+    })
+    .join(' ');
+}
+
 // ---------------------------------------------------------------------------
 // Romaji → kana (IME style)
 // ---------------------------------------------------------------------------

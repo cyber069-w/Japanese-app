@@ -12,7 +12,15 @@ import { toHiragana } from '../../lib/romaji';
 
 export interface Seg { text: string; reading?: string; particle?: boolean }
 export interface Chunk { segs: Seg[] }
-export interface Sentence { chunks: Chunk[]; ruby: RubyText; reading: string; text: string }
+export interface Sentence {
+  chunks: Chunk[];
+  ruby: RubyText;
+  /** Whole sentence in hiragana (for checking answers). */
+  reading: string;
+  text: string;
+  /** For text-to-speech: kanji replaced by their reading, katakana kept, a space between word chunks. */
+  spoken: string;
+}
 
 const isKana = (c: string) => /[぀-ヿ]/.test(c);
 
@@ -55,8 +63,8 @@ export function parseSentence(src: string): Sentence {
     if (ci < chunks.length - 1) ruby.push([' ']);
   });
   const text = chunks.map(chunkText).join('');
-  const reading = toHiragana(chunks.map((ch) => ch.segs.map((s) => s.reading ?? s.text).join('')).join(''));
-  return { chunks, ruby, reading, text };
+  const kana = chunks.map((ch) => ch.segs.map((s) => s.reading ?? s.text).join(''));
+  return { chunks, ruby, reading: toHiragana(kana.join('')), text, spoken: kana.join(' ') };
 }
 
 export const chunkText = (c: Chunk) => c.segs.map((s) => s.text).join('');

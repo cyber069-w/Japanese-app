@@ -90,9 +90,11 @@ export function ChoiceAnswer({
   const n = answer.options.length;
   const cols = n === 4 ? 2 : n <= 3 ? n : 3;
   const isJa = answer.options.every((o) => o.lang === 'ja' && [...o.label].length <= 3);
+  // long Japanese options get one per row on phones instead of breaking mid-word
+  const wide = answer.options.some((o) => o.lang === 'ja' && [...o.label].length > 5);
   return (
     <div className="answer-area">
-      <div className="choices" style={{ '--cols': isJa ? cols : Math.min(cols, 2) } as React.CSSProperties}>
+      <div className={`choices${wide ? ' wide' : ''}`} style={{ '--cols': isJa ? cols : Math.min(cols, 2) } as React.CSSProperties}>
         {answer.options.map((o: ChoiceOption, i) => {
           let cls = 'choice';
           if (phase === 'done') {

@@ -11,7 +11,7 @@ import { recordAnswer, useApp } from '../core/store';
 import { cardId, type Question, type StudyContext } from '../core/types';
 import { getModule } from '../modules';
 import { navigate } from '../lib/router';
-import { speak, speechSupported } from '../lib/speech';
+import { slowRate, speak, speechSupported, useSpeaking } from '../lib/speech';
 import { formatDuration } from '../lib/date';
 import { Icon } from '../components/Icon';
 import { Ruby } from '../components/Ruby';
@@ -87,6 +87,9 @@ function Runner({ cfg, restart }: { cfg: SessionConfig; restart: (c: SessionConf
   const audioFirst = question?.speakWhen === 'prompt';
   const play = useCallback(() => {
     if (question?.speak) speak(question.speak, settings.voiceRate);
+  }, [question, settings.voiceRate]);
+  const playSlow = useCallback(() => {
+    if (question?.speak) speak(question.speak, slowRate(settings.voiceRate));
   }, [question, settings.voiceRate]);
 
   // audio that belongs to the prompt (listening) plays right away
@@ -169,6 +172,7 @@ function Runner({ cfg, restart }: { cfg: SessionConfig; restart: (c: SessionConf
       const typing = target.tagName === 'INPUT' && (target as HTMLInputElement).value !== '';
       if (e.key === 'Escape') { e.preventDefault(); exit(); return; }
       if (e.key === '?') { e.preventDefault(); toggleHint(); return; }
+      if (e.key === ' ' && e.shiftKey && question?.speak) { e.preventDefault(); playSlow(); return; }
       if (phase === 'done') {
         if (e.key === 'Enter' || e.key === 'ArrowRight') { e.preventDefault(); next(); }
         else if (e.key === ' ' && !typing) { e.preventDefault(); play(); }
@@ -202,7 +206,7 @@ function Runner({ cfg, restart }: { cfg: SessionConfig; restart: (c: SessionConf
   const p = question.prompt;
   const progress = index / queue.length;
   const praise = PRAISE[(index * 7 + 3) % PRAISE.length];
-  const shownHint = question.revealHint ?? question.hint;
+  const shownHint = question.revealHint === null ? undefined : question.revealHint ?? question.hint;
 
   return (
     <div className="session">
@@ -227,7 +231,7 @@ function Runner({ cfg, restart }: { cfg: SessionConfig; restart: (c: SessionConf
         className={`qcard card${phase === 'done' && outcome ? (outcome.correct ? ' correct' : ' wrong shake') : ''}`}
       >
         <div className="q-tools">
-          {question.speak && speechSupported() && (audioFirst || phase === 'done' || question.answer.type === 'draw') && (
+          {question.speak && speechSupported() && !p.audioOnly && (audioFirst || phase === 'done' || question.answer.type === 'draw') && (
             <button className="icon-btn" onClick={play} aria-label="Play pronunciation" title="Play (Space)">
               <Icon name="speaker" />
             </button>
@@ -240,9 +244,7 @@ function Runner({ cfg, restart }: { cfg: SessionConfig; restart: (c: SessionConf
         </div>
         <div className="q-instruction">{p.instruction}</div>
         {p.audioOnly ? (
-          <button className="btn btn-lg" style={{ margin: '18px 0', minWidth: 160 }} onClick={play}>
-            <Icon name="speaker" size={26} /> Play again
-          </button>
+          <AudioPrompt play={play} playSlow={playSlow} />
         ) : (
           (p.text || p.ruby) && (
             <div className={`q-prompt ${p.size} ${p.lang}`} lang={p.lang === 'ja' ? 'ja' : undefined}>
@@ -311,9 +313,28 @@ function Runner({ cfg, restart }: { cfg: SessionConfig; restart: (c: SessionConf
         <span><kbd>Enter</kbd> check / next</span>
         {question.answer.type === 'choice' && <span><kbd>1</kbd>–<kbd>{question.answer.options.length}</kbd> choose</span>}
         {question.speak && <span><kbd>Space</kbd> audio</span>}
+        {question.speak && audioFirst && <span><kbd>Shift</kbd>+<kbd>Space</kbd> slow</span>}
         {question.hint && <span><kbd>?</kbd> hint</span>}
         <span><kbd>Esc</kbd> quit</span>
       </div>
+    </div>
+  );
+}
+
+/** Listening prompt: a big replay button that pulses while the audio plays, plus a slow replay. */
+function AudioPrompt({ play, playSlow }: { play: () => void; playSlow: () => void }) {
+  const speaking = useSpeaking();
+  if (!speechSupported()) {
+    return <div className="notice warn" style={{ margin: '12px 0' }}>This browser can’t play Japanese audio. Try Safari or Chrome.</div>;
+  }
+  return (
+    <div className="audio-prompt">
+      <button className={`audio-play${speaking ? ' speaking' : ''}`} onClick={play} aria-label="Play again" title="Play again (Space)">
+        <Icon name="speaker" size={34} />
+      </button>
+      <button className="btn btn-sm btn-ghost" onClick={playSlow} title="Slow replay (Shift+Space)">
+        <Icon name="gauge" size={16} /> Slower
+      </button>
     </div>
   );
 }

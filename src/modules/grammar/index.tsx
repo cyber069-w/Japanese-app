@@ -78,7 +78,7 @@ const notes: Exercise<PointItem> = {
       ),
     },
     solution: { main: it.point.pattern, lang: 'ja', sub: tr(it.point.title, ctx) },
-    speak: parseSentence(it.point.examples[0].ja).reading,
+    speak: parseSentence(it.point.examples[0].ja).spoken,
   }),
 };
 
@@ -99,7 +99,7 @@ const particles: Exercise<BlankItem> = {
       answer: { type: 'choice', options: opts.map((o) => ({ label: o, lang: 'ja' })), correct: opts.indexOf(correct) },
       solution: { main: it.s.text, ruby: it.s.ruby, lang: 'ja', sub: `${it.point.pattern} – ${tr(it.point.title, ctx)}` },
       hint: { text: tr(it.point.explain, ctx) },
-      speak: it.s.reading,
+      speak: it.s.spoken,
       fastMs: 4000,
     };
   },
@@ -128,7 +128,7 @@ const order: Exercise<ExampleItem> = {
       answer: { type: 'order', tiles: perm.map((i) => tiles[i]), tileRuby: perm.map((i) => tileRuby[i]), solutions: solutions.map((s) => s.map((i) => perm.indexOf(i))) },
       solution: { main: it.s.text, ruby: it.s.ruby, lang: 'ja', sub: `${it.point.pattern} – ${tr(it.point.title, ctx)}` },
       hint: { text: tr(it.point.explain, ctx) },
-      speak: it.s.reading,
+      speak: it.s.spoken,
     };
   },
 };
@@ -148,7 +148,7 @@ const forms: Exercise<FormItem> = {
       prompt: { ruby, lang: 'ja', size: 'medium', instruction: 'Choose the right form', sub: tr(it.t, ctx) },
       answer: { type: 'choice', options: opts.map(({ o }) => ({ label: o, lang: 'ja' })), correct: opts.findIndex(({ i }) => i === it.answer) },
       solution: { main: full.text, ruby: full.ruby, lang: 'ja', sub: tr(it.t, ctx) },
-      speak: full.reading,
+      speak: full.spoken,
       fastMs: 4000,
     };
   },
@@ -169,7 +169,7 @@ const translate: Exercise<ExampleItem> = {
       prompt: { ruby: it.s.ruby, lang: 'ja', size: 'medium', instruction: 'What does it mean?' },
       answer: { type: 'choice', options: opts.map((o) => ({ label: tr(o.ex, ctx), lang: 'latin' })), correct: opts.indexOf(it) },
       solution: { main: tr(it.ex, ctx), lang: 'latin', sub: `${it.point.pattern} – ${tr(it.point.title, ctx)}` },
-      speak: it.s.reading,
+      speak: it.s.spoken,
       fastMs: 5000,
     };
   },

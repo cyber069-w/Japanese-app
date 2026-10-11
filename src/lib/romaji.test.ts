@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { kanaEquals, matchesReading, toHiragana, toKana, toKatakana, toRomaji } from './romaji';
+import { kanaEquals, matchesReading, phraseRomaji, toHiragana, toKana, toKatakana, toRomaji } from './romaji';
 
 describe('toRomaji (Hepburn)', () => {
   it('romanises the exceptions', () => {
@@ -113,5 +113,20 @@ describe('kanaEquals', () => {
     expect(kanaEquals('neko', 'ねこ')).toBe(true);
     expect(kanaEquals('ねこ', 'いぬ')).toBe(false);
     expect(kanaEquals('', 'いぬ')).toBe(false);
+  });
+});
+
+describe('phraseRomaji', () => {
+  it('writes particles as they are said', () => {
+    expect(phraseRomaji('こんばんは。')).toBe('konbanwa');
+    expect(phraseRomaji('こんにちは')).toBe('konnichiwa');
+    expect(phraseRomaji('では また')).toBe('dewa mata');
+    expect(phraseRomaji('わたしは がくせい です。')).toBe('watashi wa gakusei desu');
+    expect(phraseRomaji('にほんへ いきます')).toBe('nihon e ikimasu');
+    expect(phraseRomaji('ほんを よみます')).toBe('hon o yomimasu');
+  });
+  it('leaves words alone', () => {
+    expect(phraseRomaji('はは')).toBe('haha');
+    expect(phraseRomaji('がっこう')).toBe('gakkou');
   });
 });
