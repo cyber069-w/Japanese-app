@@ -154,7 +154,7 @@ export function OrderAnswer({
           </button>
         ))}
       </div>
-      <div className="order-bank">
+      <div className="order-bank" hidden={phase === 'done'}>
         {answer.tiles.map((tile, i) => (
           <button
             key={i}

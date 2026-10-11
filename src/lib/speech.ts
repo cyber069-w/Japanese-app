@@ -106,6 +106,17 @@ export function speakQueue(texts: string[], rate = 0.9, onIndex?: (i: number | n
     speechSynthesis.speak(u);
   });
   setSpeaking(true);
+  // Some engines never fire onend (or fail silently without a Japanese voice):
+  // poll so the UI doesn't stay in "playing" forever.
+  const check = () => {
+    if (gen !== generation) return;
+    if (speechSynthesis.speaking || speechSynthesis.pending) setTimeout(check, 1000);
+    else {
+      setSpeaking(false);
+      onIndex?.(null);
+    }
+  };
+  setTimeout(check, 1500);
 }
 
 export function stopSpeaking() {

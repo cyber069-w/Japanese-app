@@ -42,7 +42,7 @@ export function WordList({ ctx }: { ctx: StudyContext }) {
               <th style={{ width: 44 }} />
               <th>Japanese</th>
               <th>{lang === 'de' ? 'Deutsch' : 'English'}</th>
-              <th>Lesson</th>
+              {lesson === 'all' && <th className="wordlist-lesson">Lesson</th>}
             </tr>
           </thead>
           <tbody>
@@ -62,7 +62,7 @@ export function WordList({ ctx }: { ctx: StudyContext }) {
                   {i[lang]}
                   <div className="faint tiny">{lang === 'de' ? i.en : i.de}</div>
                 </td>
-                <td className="faint">{lessonLabel(i.lesson ?? 0)}</td>
+                {lesson === 'all' && <td className="faint wordlist-lesson">{lessonLabel(i.lesson ?? 0)}</td>}
               </tr>
             ))}
           </tbody>

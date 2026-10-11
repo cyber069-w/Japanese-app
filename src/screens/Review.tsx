@@ -39,7 +39,7 @@ export function Review() {
         </div>
       </div>
 
-      <div className="hero">
+      <div className="dash-hero">
         <div className="card hero-main">
           <span className="big-kanji" aria-hidden="true">習</span>
           <div className="eyebrow">Everything due today</div>

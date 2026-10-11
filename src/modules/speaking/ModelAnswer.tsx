@@ -66,8 +66,7 @@ export function ModelBack({ q, ctx, showQuestion = false }: { q: OralQuestion; c
       )}
       {example && (
         <div className="notice small">
-          This answer uses an example person.{' '}
-          <a href="#/m/speaking/t/intro">Fill in your self-introduction</a> to practise with your own details.
+          Example person. <a href="#/m/speaking/t/intro">Write your self-introduction</a> to get answers about you.
         </div>
       )}
     </div>

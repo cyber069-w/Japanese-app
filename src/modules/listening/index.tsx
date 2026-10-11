@@ -121,7 +121,7 @@ function meaningOptions(it: ListenItem, pool: ListenItem[], all: ListenItem[], c
 
 /** "kana · romaji · meaning" – the kana only when the word is shown with kanji above it. */
 const solutionSub = (it: ListenItem, ctx: StudyContext) =>
-  [it.label !== it.kana && it.kana.replace(/\s+/g, ' '), it.romaji ?? phraseRomaji(it.kana), m(it, ctx)].filter(Boolean).join(' · ');
+  [it.label !== it.kana && it.kana.replace(/[。、？！]/g, '').replace(/\s+/g, ' '), it.romaji ?? phraseRomaji(it.kana), m(it, ctx)].filter(Boolean).join(' · ');
 
 // ---------------------------------------------------------------------------
 // Exercises

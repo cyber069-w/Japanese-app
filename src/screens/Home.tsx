@@ -53,7 +53,7 @@ export function Home() {
         </div>
       </div>
 
-      <div className="hero">
+      <div className="dash-hero">
         <div className="card hero-main">
           <span className="big-kanji" aria-hidden="true">復</span>
           <div className="eyebrow">Due today</div>
@@ -131,7 +131,7 @@ export function Home() {
           <span className="spacer" />
           <a href="#/study">All modules</a>
         </div>
-        <div className="grid" style={{ '--min': '210px' } as React.CSSProperties}>
+        <div className="grid module-grid" style={{ '--min': '210px' } as React.CSSProperties}>
           {MODULES.map((m) => (
             <ModuleCard key={m.id} mod={m} due={due.per[m.id] ?? 0} />
           ))}

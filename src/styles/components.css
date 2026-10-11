@@ -254,17 +254,17 @@
 }
 .empty .serif { font-size: 2.6rem; color: var(--ink-3); display: block; margin-bottom: 8px; }
 
-.bar { height: 6px; border-radius: 99px; background: var(--paper-2); overflow: hidden; }
+.bar { height: 6px; border-radius: 99px; background: var(--track); overflow: hidden; }
 .bar > span { display: block; height: 100%; border-radius: inherit; background: var(--accent); transition: width 0.5s var(--ease); }
 
 /* ============================== Home ============================== */
 
-.hero {
+.dash-hero {
   display: grid;
   grid-template-columns: 1.4fr 1fr;
   gap: 16px;
 }
-@media (max-width: 760px) { .hero { grid-template-columns: 1fr; } }
+@media (max-width: 760px) { .dash-hero { grid-template-columns: 1fr; } }
 
 .hero-main {
   position: relative;
@@ -291,7 +291,7 @@
 
 .ring { position: relative; flex: none; }
 .ring svg { display: block; transform: rotate(-90deg); }
-.ring .ring-track { stroke: var(--paper-2); }
+.ring .ring-track { stroke: var(--track); }
 .ring .ring-fill { stroke: var(--accent); stroke-linecap: round; transition: stroke-dashoffset 0.8s var(--ease); }
 .ring.done .ring-fill { stroke: var(--good); }
 .ring-label { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; line-height: 1.1; }
@@ -967,3 +967,36 @@ input[type='range'] { accent-color: var(--accent); }
 .qa-card { display: flex; flex-direction: column; gap: 12px; }
 .qa-q { display: flex; align-items: flex-start; gap: 10px; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
 .qa-q .spoken-line { flex: 1; }
+
+/* ---------- QA polish ---------- */
+
+.hint-panel > * { min-width: 0; }
+.hint-strip-item.text-only {
+  width: auto;
+  min-width: 64px;
+  padding: 10px 12px 8px;
+  border-radius: 12px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+}
+.hint-strip-item.text-only .serif { font-size: 1.6rem; line-height: 1.2; }
+.feedback-head { flex-wrap: wrap; row-gap: 2px; }
+.feedback-typed { font-weight: 500; }
+.solution-main.long { font-size: 1.45rem; }
+/* Japanese text with spaces between words breaks at the spaces, like a children's book */
+.solution-main.ja, .spoken-line .serif, .intro-ja, .hint-ruby, .grammar-example, .choice-main.ja, .speak-banner-name {
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+.heat-cell { font-size: clamp(1.1rem, 4.6vw, 1.45rem); }
+.chart-cell { font-size: clamp(1.3rem, 5.6vw, 1.7rem); }
+.chart-cell small { font-size: 0.62rem; }
+@media (max-width: 520px) {
+  .module-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .module-grid .module-card { padding: 14px; min-height: 0; gap: 10px; }
+  .module-grid .module-glyph { width: 42px; height: 42px; font-size: 22px; border-radius: 12px; }
+  .module-grid .module-card h3 { font-size: 0.98rem; }
+  .module-grid .module-card .meta { font-size: 0.72rem; }
+  .speak-banner-ja { display: none; }
+  .wordlist-lesson { display: none; }
+}

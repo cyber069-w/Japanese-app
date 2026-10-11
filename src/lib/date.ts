@@ -26,6 +26,7 @@ export function daysUntil(key: string, now = Date.now()): number {
 }
 
 export function formatDuration(ms: number): string {
+  if (ms > 0 && ms < 59_500) return `${Math.max(1, Math.round(ms / 1000))} s`;
   const min = Math.round(ms / 60_000);
   if (min < 60) return `${min} min`;
   const h = Math.floor(min / 60);

@@ -8,7 +8,7 @@ import { getSession, type SessionConfig } from '../core/sessionConfig';
 import { exerciseItems, shuffle, type SessionCard } from '../core/session';
 import { gradeFromAnswer, type Grade } from '../core/srs';
 import { recordAnswer, useApp } from '../core/store';
-import { cardId, type Question, type StudyContext } from '../core/types';
+import { cardId, type Hint, type Question, type StudyContext } from '../core/types';
 import { getModule } from '../modules';
 import { navigate } from '../lib/router';
 import { slowRate, speak, speechSupported, useSpeaking } from '../lib/speech';
@@ -206,7 +206,7 @@ function Runner({ cfg, restart }: { cfg: SessionConfig; restart: (c: SessionConf
   const p = question.prompt;
   const progress = index / queue.length;
   const praise = PRAISE[(index * 7 + 3) % PRAISE.length];
-  const shownHint = question.revealHint === null ? undefined : question.revealHint ?? question.hint;
+  const shownHint = withoutRepeats(question.revealHint === null ? undefined : question.revealHint ?? question.hint, question.solution.notes);
 
   return (
     <div className="session">
@@ -291,9 +291,9 @@ function Runner({ cfg, restart }: { cfg: SessionConfig; restart: (c: SessionConf
           <div className={`feedback ${outcome.correct ? 'good' : 'bad'}`} style={{ width: '100%' }}>
             <div className="feedback-head">
               <Icon name={outcome.correct ? 'check' : 'x'} size={20} stroke={2.4} />
-              {outcome.correct ? praise : 'Not quite'}
+              <span className="nowrap">{outcome.correct ? praise : 'Not quite'}</span>
               {!outcome.correct && outcome.value && (
-                <span className="faint small" style={{ fontWeight: 500 }}>
+                <span className="faint small feedback-typed">
                   you wrote “{outcome.value}”
                 </span>
               )}
@@ -340,12 +340,27 @@ function AudioPrompt({ play, playSlow }: { play: () => void; playSlow: () => voi
   );
 }
 
+/** The hint shown with the solution, minus lines the solution notes already say. Undefined if nothing is left. */
+function withoutRepeats(hint: Hint | undefined, notes: string[] | undefined): Hint | undefined {
+  if (!hint || !notes?.length) return hint;
+  const said = new Set(notes);
+  const h: Hint = {
+    ...hint,
+    text: hint.text && said.has(hint.text) ? undefined : hint.text,
+    rules: hint.rules?.filter((r) => !said.has(r)),
+    flags: hint.flags?.filter((f) => !said.has(f)),
+  };
+  const empty = !h.keyword && !h.text && !h.image && !h.rules?.length && !h.flags?.length && !h.strip?.length && !h.ruby;
+  return empty ? undefined : h;
+}
+
 function SolutionBlock({ q }: { q: Question }) {
   const s = q.solution;
+  const long = [...s.main].length > (s.lang === 'ja' ? 9 : 20);
   return (
     <div>
       <div className="eyebrow" style={{ marginBottom: 2 }}>Answer</div>
-      <div className={`solution-main ${s.lang}`} lang={s.lang === 'ja' ? 'ja' : undefined}>
+      <div className={`solution-main ${s.lang}${long ? ' long' : ''}`} lang={s.lang === 'ja' ? 'ja' : undefined}>
         {s.ruby ? <Ruby text={s.ruby} /> : s.main}
       </div>
       {s.sub && <div className="solution-sub">{s.sub}</div>}

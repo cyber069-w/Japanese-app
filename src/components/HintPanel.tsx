@@ -38,7 +38,7 @@ export function HintPanel({ hint }: { hint: Hint }) {
       {hint.strip && hint.strip.length > 0 && (
         <div className="hint-strip">
           {hint.strip.map((s, i) => (
-            <div className="hint-strip-item" key={i}>
+            <div className={`hint-strip-item${s.image ? '' : ' text-only'}`} key={i}>
               {s.image ? (
                 <div className="hint-img">
                   <img src={s.image} alt={s.keyword ?? s.kana} />
