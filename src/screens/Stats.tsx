@@ -5,7 +5,7 @@ import { bestStreak, heatColor, itemStats, lastDays, moduleTotals, streak, total
 import { exerciseItems } from '../core/session';
 import type { StudyModule } from '../core/types';
 import { MODULES } from '../modules';
-import { formatDuration } from '../lib/date';
+import { dayKey, formatDuration } from '../lib/date';
 import { Icon } from '../components/Icon';
 
 export function Stats() {
@@ -18,6 +18,7 @@ export function Stats() {
   const maxDay = Math.max(1, ...activity.map((d) => d.reviews));
 
   const tiles: Array<[string, string, Parameters<typeof Icon>[0]['name'], string?]> = [
+    [String(days[dayKey()]?.reviews ?? 0), 'answers today', 'zap'],
     [String(streak(days)), 'day streak', 'flame', 'flame'],
     [String(bestStreak(days)), 'best streak', 'sparkle'],
     [String(due.total), 'due today', 'review'],

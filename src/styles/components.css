@@ -156,7 +156,7 @@
 .spacer { flex: 1; }
 .grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(var(--min, 220px), 1fr)); }
 .section { margin-top: 36px; }
-.section-head { display: flex; align-items: baseline; gap: 12px; margin-bottom: 14px; }
+.section-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; margin-bottom: 14px; }
 .section-head h2 { font-size: 1.1rem; }
 .section-head .spacer + * { font-size: 0.85rem; }
 
@@ -297,7 +297,7 @@
 .ring-label { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; line-height: 1.1; }
 .ring-label b { font-size: 1.5rem; }
 
-.stat-tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+.stat-tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(200px, calc(50% - 6px)), 1fr)); gap: 12px; }
 .tile { padding: 16px 18px; }
 .tile-value { font-size: 1.6rem; font-weight: 700; letter-spacing: -0.02em; line-height: 1.15; }
 .tile-label { font-size: 0.8rem; color: var(--ink-3); font-weight: 600; margin-top: 2px; }
