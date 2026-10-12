@@ -108,6 +108,22 @@ platform plan is in the to-do list.
   labelled **unverified** (module banner + tags; marked in course.json). `modules/ids.test.ts` freezes every module and
   exercise id. **No saved progress changed** – courses only arrange existing module ids.
 
+### Next task (small, user is low on credits – keep it focused, Sonnet medium) ▶
+
+**Romaji import + colour-coded syllables.** The user's Quizlet sets only have *romaji ⇥ German*.
+1. Import (`src/lib/csv.ts` `HEADER_ALIASES` + `parseVocabCsv`, `src/modules/vocab/VocabImport.tsx`): accept a `romaji`
+   column (aliases: romaji, rōmaji, term) when there is no kana column and convert it with `toKana()` from
+   `src/lib/romaji.ts` → hiragana; words written in CAPITALS become katakana (`KOOHII` → コーヒー). Before converting,
+   turn macrons into typed vowels (ā→aa, ī→ii, ū→uu, ē→ei, ō→ou). Also accept headerless 2-column Quizlet text
+   (term⇥definition): if a column looks like romaji (only a–z, spaces, ' -), treat it as romaji. Show romaji and the
+   generated kana side by side in the preview so the user can check them. Keep ids `${source}-${kana}` as today.
+2. Colour-coded display: a small component that splits a kana word into syllables (mora: きゃ = one, っ and ー attach
+   sensibly) and shows the romaji syllables above/next to the kana, alternating two colours (e.g. red / blue, readable
+   in light and dark) so each kana lines up with its romaji. Use it in the vocab word list (`WordList.tsx`) and on the
+   vocab flashcard back; keep it out of questions where it would reveal the answer.
+3. Unit tests for the conversion (macrons, capitals → katakana, ん before vowels: `kin'en`) and the syllable split;
+   `npm test` + `npm run build`; commit and push to the work branch.
+
 ### To do 🔧 – outstanding features and fixes (in the user's priority order)
 
 1. **Visual overhaul (user's top wish).** The user finds the current look plain/cheap and the **symbols low quality**.
