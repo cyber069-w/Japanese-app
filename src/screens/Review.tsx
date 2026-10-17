@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { ModuleGlyph } from '../components/GlyphIcon';
 import { getState, useApp } from '../core/store';
 import { useCtx, useDueCounts } from '../core/hooks';
 import { buildReviewQueue, buildWeakQueue, weakCardIds } from '../core/session';
@@ -104,7 +105,7 @@ export function Review() {
         <div className="card card-pad">
           {mods.map((m) => (
             <div className="mod-row" key={m.id}>
-              <span className="serif" lang="ja">{m.icon}</span>
+              <span className="serif"><ModuleGlyph mod={m} /></span>
               <span>
                 <b>{m.name}</b>
                 <span className="faint small"> · {due.per[m.id] ?? 0} due</span>

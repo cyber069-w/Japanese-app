@@ -1,4 +1,5 @@
 import { useModuleProgress } from '../core/hooks';
+import { ModuleGlyph } from './GlyphIcon';
 import type { StudyModule } from '../core/types';
 import type { Placeholder } from '../courses/types';
 import { moduleInfo } from '../courses';
@@ -11,7 +12,7 @@ export function ModuleCard({ mod, due }: { mod: StudyModule; due: number }) {
   const body = (
     <>
       <div className="row" style={{ alignItems: 'flex-start' }}>
-        <div className="module-glyph" lang="ja">{mod.icon}</div>
+        <div className="module-glyph"><ModuleGlyph mod={mod} /></div>
         <span className="spacer" />
         {soon ? <span className="tag">coming later</span> : due > 0 ? <span className="tag tag-accent">{due} due</span> : null}
       </div>

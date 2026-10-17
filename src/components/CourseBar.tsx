@@ -1,4 +1,5 @@
 /** Top of every main screen: the course switcher and the course's preparation meter. */
+import { CourseGlyph } from './GlyphIcon';
 import { useState } from 'react';
 import { updateSettings } from '../core/store';
 import { useCourse, useCourseMeters, useDueCounts } from '../core/hooks';
@@ -13,8 +14,8 @@ const pct = (v: number) => `${Math.round(v * 100)}%`;
 
 export function CourseSeal({ course, small }: { course: CourseConfig; small?: boolean }) {
   return (
-    <span className={`seal${small ? ' seal-sm' : ''}`} lang="ja" aria-hidden="true">
-      {course.glyph}
+    <span className={`seal${small ? ' seal-sm' : ''}`} aria-hidden="true">
+      <CourseGlyph course={course} />
     </span>
   );
 }

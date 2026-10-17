@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { ModuleGlyph } from '../components/GlyphIcon';
 import { useApp } from '../core/store';
 import { useCourse, useCtx, useDueCounts } from '../core/hooks';
 import { bestStreak, heatColor, itemStats, lastDays, moduleTotals, streak, totals } from '../core/stats';
@@ -90,7 +91,7 @@ export function Stats() {
             const mt = moduleTotals(days, m.id);
             return (
               <div className="mod-row" key={m.id}>
-                <span className="serif" lang="ja">{m.icon}</span>
+                <span className="serif"><ModuleGlyph mod={m} /></span>
                 <div>
                   <div className="row" style={{ gap: 8 }}>
                     <b>{m.name}</b>

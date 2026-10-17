@@ -1,4 +1,5 @@
 import { useEffect, type ReactNode } from 'react';
+import { CourseGlyph } from './components/GlyphIcon';
 import { useApp } from './core/store';
 import { useCourse, useDueCounts } from './core/hooks';
 import { useSyncStatus } from './core/sync';
@@ -82,7 +83,7 @@ function Shell({ path, children }: { path: string; children: ReactNode }) {
     <div className="shell">
       <aside className="sidebar">
         <a className="brand" href="#/">
-          <span className="seal" lang="ja" aria-hidden="true">{course.glyph}</span>
+          <span className="seal" aria-hidden="true"><CourseGlyph course={course} /></span>
           <span>
             <div className="brand-name">Study</div>
             <div className="brand-sub">{course.name}</div>

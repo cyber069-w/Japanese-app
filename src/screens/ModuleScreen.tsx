@@ -1,4 +1,5 @@
 /** One module: choose rows/lessons, pick an exercise, open tools. */
+import { GlyphIcon, ModuleGlyph } from '../components/GlyphIcon';
 import { useMemo, useState } from 'react';
 import { getState, setSelection, useApp } from '../core/store';
 import { useCtx, useDueCounts, useSelection } from '../core/hooks';
@@ -32,7 +33,7 @@ function SoonView({ mod }: { mod: StudyModule }) {
         <Icon name="left" size={16} /> {courseOfModule(mod.id).name}
       </a>
       <div className="page-head">
-        <div className="module-glyph" style={{ width: 64, height: 64, fontSize: 34 }} lang="ja">{mod.icon}</div>
+        <div className="module-glyph" style={{ width: 64, height: 64, fontSize: 34 }}><ModuleGlyph mod={mod} /></div>
         <div className="grow">
           <h1>{mod.name}</h1>
           <div className="muted" style={{ marginTop: 4 }}>Coming later. Your progress so far is kept and returns with it.</div>
@@ -80,7 +81,7 @@ function ModuleView({ mod }: { mod: StudyModule }) {
         <Icon name="left" size={16} /> {courseOfModule(mod.id).name}
       </a>
       <div className="page-head">
-        <div className="module-glyph" style={{ width: 64, height: 64, fontSize: 34 }} lang="ja">{mod.icon}</div>
+        <div className="module-glyph" style={{ width: 64, height: 64, fontSize: 34 }}><ModuleGlyph mod={mod} /></div>
         <div className="grow">
           <h1>{mod.name}</h1>
           <div className="muted" style={{ marginTop: 4 }}>{mod.description}</div>
@@ -146,7 +147,7 @@ function ModuleView({ mod }: { mod: StudyModule }) {
                 const why = all.length === 0 ? ex.emptyMessage?.(ctx) ?? 'no content yet' : 'nothing selected';
                 return (
                   <button key={ex.id} className="card card-link ex-card" onClick={() => start(ex)} disabled={count === 0}>
-                    <span className="ex-icon" lang="ja">{ex.icon}</span>
+                    <span className="ex-icon"><GlyphIcon glyph={ex.icon} /></span>
                     <span>
                       <h3>{ex.name}</h3>
                       <span className="muted small">{ex.description}</span>
@@ -176,7 +177,7 @@ function ModuleView({ mod }: { mod: StudyModule }) {
           <div className="grid" style={{ '--min': '260px' } as React.CSSProperties}>
             {mod.tools.map((t) => (
               <a key={t.id} className="card card-link ex-card" href={`#/m/${mod.id}/t/${t.id}`}>
-                <span className="ex-icon" lang="ja">{t.icon}</span>
+                <span className="ex-icon"><GlyphIcon glyph={t.icon} /></span>
                 <span>
                   <h3>{t.name}</h3>
                   <span className="muted small">{t.description}</span>
