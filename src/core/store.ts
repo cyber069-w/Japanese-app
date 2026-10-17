@@ -46,6 +46,7 @@ export const DEFAULT_SETTINGS: Settings = {
   meaningLang: 'de',
   furigana: true,
   kanaLayer: false,
+  tutorUrls: {},
   sessionLength: 20,
   dailyGoal: 50,
   examDate: '',

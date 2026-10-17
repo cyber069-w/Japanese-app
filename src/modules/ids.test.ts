@@ -13,7 +13,8 @@ describe('progress ids', () => {
       katakana: ['read', 'recall', 'words', 'write', 'lookalikes'],
       vocab: ['meaning', 'type', 'choose', 'cards'],
       kanji: ['meaning', 'reading', 'words', 'write'],
-      grammar: ['notes', 'particles', 'order', 'forms', 'translate'],
+      // 'notes' (grammar flashcards) was replaced by the lexicon tool on purpose – grammar is looked up, not drilled as cards
+      grammar: ['particles', 'order', 'forms', 'translate'],
       numbers: ['read', 'write', 'listen'],
       listening: ['dictation', 'meaning', 'alikes', 'sentences', 'sentence-dictation'],
       speaking: ['questions', 'listen', 'intro'],

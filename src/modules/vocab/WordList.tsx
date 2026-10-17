@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { Fragment, useMemo, useState } from 'react';
 import type { StudyContext } from '../../core/types';
 import { updateSettings } from '../../core/store';
 import { Ruby } from '../../components/Ruby';
@@ -6,6 +6,7 @@ import { Icon } from '../../components/Icon';
 import { speak } from '../../lib/speech';
 import { phraseRomaji, toRomaji } from '../../lib/romaji';
 import { Syllables } from '../../components/Syllables';
+import { TutorButton } from '../../components/TutorButton';
 import { lessonLabel, vocabItems, type VocabItem } from './items';
 
 /** Source-file order: lists in the order they were added, words by their position in the file. */
@@ -27,6 +28,7 @@ export function WordList({ ctx }: { ctx: StudyContext }) {
   const [lesson, setLesson] = useState<number | 'all'>('all');
   const [source, setSource] = useState<string>('all');
   const [q, setQ] = useState('');
+  const [open, setOpen] = useState<string | null>(null);
   const lang = ctx.settings.meaningLang;
   const kana = ctx.settings.kanaLayer;
   const shown = items.filter((i) => {
@@ -74,7 +76,8 @@ export function WordList({ ctx }: { ctx: StudyContext }) {
           </thead>
           <tbody>
             {shown.map((i) => (
-              <tr key={i.id}>
+              <Fragment key={i.id}>
+              <tr className="wl-row" onClick={(e) => (e.target as HTMLElement).closest('button') || setOpen(open === i.id ? null : i.id)} aria-expanded={open === i.id}>
                 <td className="wl-play">
                   <div className="row" style={{ gap: 2, flexWrap: 'nowrap' }}>
                     <button className="icon-btn" style={{ width: 32, height: 32 }} onClick={() => speak(i.kana, ctx.settings.voiceRate)} aria-label={`Play ${phraseRomaji(i.kana)}`}>
@@ -100,6 +103,35 @@ export function WordList({ ctx }: { ctx: StudyContext }) {
                 </td>
                 {lesson === 'all' && <td className="faint wordlist-lesson">{lessonLabel(i.lesson ?? 0)}</td>}
               </tr>
+              {open === i.id && (
+                <tr className="wl-detail">
+                  <td colSpan={lesson === 'all' ? 4 : 3}>
+                    <div className="stack" style={{ '--gap': '8px' } as React.CSSProperties}>
+                      <div className="row small" style={{ gap: 16 }}>
+                        <span><span className="faint">Romaji</span> {phraseRomaji(i.kana)}</span>
+                        {kana && <span lang="ja"><span className="faint">Kana</span> {i.kana}{i.kanji ? ` · ${i.kanji}` : ''}</span>}
+                        <span><span className="faint">Deutsch</span> {i.de}</span>
+                        <span><span className="faint">English</span> {i.en}</span>
+                        <span><span className="faint">List</span> {listName(i.entry.source)} · {lessonLabel(i.lesson ?? 0)}</span>
+                      </div>
+                      <div className="row">
+                        <TutorButton
+                          small
+                          label="Ask tutor: memory aid and examples"
+                          request={() => ({
+                            courseId: 'japanese',
+                            courseName: 'Japanisch',
+                            topic: `Vokabel ${phraseRomaji(i.kana)} = ${i.de}`,
+                            context: `Wort: ${phraseRomaji(i.kana)} (${i.kana}${i.kanji ? `, ${i.kanji}` : ''})\nBedeutung: ${i.de} / ${i.en}\nLektion: ${lessonLabel(i.lesson ?? 0)}`,
+                            task: 'Gib mir eine Merkhilfe (Eselsbrücke auf Deutsch) und 3 einfache Beispielsätze auf A1-Niveau (Romaji + Deutsch), möglichst nur mit Wörtern bis zu dieser Lektion.',
+                          })}
+                        />
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              )}
+              </Fragment>
             ))}
           </tbody>
         </table>

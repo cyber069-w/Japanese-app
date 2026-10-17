@@ -17,11 +17,11 @@ Status: [ ] open · [x] done · [~] solved differently / blocked (reason in the 
 - [x] Layout clean down to ~700 px (bottom nav no longer wraps); mini window is redone in Phase 5
 
 ## Phase 3 – Japanese
-- [ ] Kana pronunciation: test all kana incl. dakuten / handakuten / combinations; best ja-JP voice, slower rate; list chars that still sound bad
-- [ ] Grammar as a lexicon: search, categories (particles, verb forms, sentence patterns) + A–Z; entry = name · rule (DE) · formation · examples (romaji, DE, kana toggle) · typical mistakes · related
-- [ ] Rewrite existing grammar notes in German + romaji without changing content; flashcards only for vocab and kana
-- [ ] "Ask tutor" in every lexicon entry, in the vocab detail view and globally in the subject (answers in German with romaji)
-- [ ] Audio with a slow option everywhere (grammar examples, kana words); "no Japanese voice installed" help
+- [x] Kana pronunciation: 118 pre-recorded sounds (macOS voice Kyoko, slower rate) for every kana incl. dakuten / handakuten / combinations / loanword sounds; used instead of browser TTS for single kana (`scripts/build-kana-audio.mjs`). Lengths all 0.32–0.55 s; not checked by ear
+- [x] Grammar as a lexicon: search, 6 categories + A–Z; entry = name · rule (DE) · formation · examples (romaji, DE, kana toggle, audio + slow) · related entries. “Typical mistakes” only shows where the source has them (none yet – not invented; the tutor button asks for them)
+- [x] Grammar notes rewritten in German + romaji (`grammar/data/lexicon.json`); grammar flashcards removed, grammar drills show romaji
+- [x] “Ask tutor” in every lexicon entry, in the vocab detail row and on every subject page; copies a prompt (German, romaji) and opens Claude / the subject’s Claude Project (Settings → Tutor)
+- [x] Audio with a slow option in the word list and lexicon; single kana from recorded files; “no Japanese voice” help already in Settings → Sound
 - [ ] Mixed-kana quiz (hiragana + katakana together)
 - [ ] Kanji module browser test, then enable again; `/m/kanji/t/*` reachable by URL while "coming later"
 

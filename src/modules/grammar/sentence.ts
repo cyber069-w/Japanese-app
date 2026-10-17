@@ -120,7 +120,7 @@ export function validOrders(chunks: Chunk[]): number[][] {
   return out;
 }
 
-const PARTICLE_ROMAJI: Record<string, string> = { は: 'wa', へ: 'e', を: 'o' };
+export const PARTICLE_ROMAJI: Record<string, string> = { は: 'wa', へ: 'e', を: 'o' };
 /** です, でした, じゃありません … are written as separate words in romaji. */
 const COPULA = /(ですか|です|でした|じゃありません|ではありません|でしょう)([。？！、]*)$/;
 

@@ -4,6 +4,7 @@ import { exportBackup, importBackup } from '../core/backup';
 import { packAvailable, unlockPack } from '../core/privatePack';
 import type { Settings as S } from '../core/types';
 import { MODULES } from '../modules';
+import { COURSES } from '../courses';
 import { hasJapaneseVoice, onVoicesChanged, speak, speechSupported, voiceName } from '../lib/speech';
 import { Icon } from '../components/Icon';
 import { SyncSettings } from './SyncSettings';
@@ -131,6 +132,25 @@ export function Settings() {
         <CoursePack />
         <SyncSettings />
         <Backup />
+
+        <section className="card card-pad">
+          <h2>Tutor</h2>
+          <p className="muted small" style={{ margin: '6px 0 4px' }}>
+            “Ask tutor” copies a prompt and opens Claude. Paste the link to a subject’s Claude Project to open that project instead of a new chat.
+          </p>
+          {COURSES.map((c) => (
+            <Row key={c.id} title={c.name}>
+              <input
+                className="input"
+                style={{ width: 'min(100%, 320px)' }}
+                placeholder="https://claude.ai/project/…"
+                value={s.tutorUrls?.[c.id] ?? ''}
+                onChange={(e) => set({ tutorUrls: { ...s.tutorUrls, [c.id]: e.target.value.trim() } })}
+                aria-label={`Claude Project link for ${c.name}`}
+              />
+            </Row>
+          ))}
+        </section>
 
         <section className="card card-pad">
           <h2>Reset</h2>

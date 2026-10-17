@@ -146,7 +146,7 @@ export const vocab: StudyModule = {
     const lessons = [...new Set(items.map((i) => i.lesson ?? 0))].sort((a, b) => a - b);
     const groups: FilterGroup[] = lessons.map((l) => ({
       id: `L${l}`,
-      label: l === 0 ? 'Intro' : `第${l}課`,
+      label: l === 0 ? 'Intro' : `Lesson ${l}`,
       sub: `${items.filter((i) => i.lesson === l).length}`,
       section: 'Lessons',
     }));

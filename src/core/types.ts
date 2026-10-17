@@ -104,6 +104,8 @@ export interface Settings {
   furigana: boolean;
   /** Show kana / kanji outside script practice. Off = romaji + German everywhere. */
   kanaLayer: boolean;
+  /** Link to each subject's Claude Project for "Ask tutor" (empty = new chat). */
+  tutorUrls: Record<string, string>;
   sessionLength: number;
   dailyGoal: number;
   examDate: string; // YYYY-MM-DD or ''

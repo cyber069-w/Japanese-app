@@ -10,6 +10,7 @@ import type { CourseConfig, CourseSection, Topic } from '../courses/types';
 import { CourseBar } from '../components/CourseBar';
 import { ModuleCard, PlaceholderCard } from '../components/ModuleCard';
 import { Icon } from '../components/Icon';
+import { TutorButton } from '../components/TutorButton';
 
 const AREAS = [
   { id: 'study', label: 'Study' },
@@ -67,7 +68,22 @@ export function CoursePage({ course }: { course: CourseConfig }) {
       </Area>
 
       <Area id="tutor" title="Tutor">
-        <Empty text={`Coming in a later update: an "Ask tutor" button that opens this course's own Claude Project and copies what you're working on.`} />
+        <div className="card card-pad stack" style={{ '--gap': '10px' } as React.CSSProperties}>
+          <p className="muted small">
+            Opens Claude with a prompt for this subject already copied – paste it and add your question. Set the link to this subject’s Claude Project in Settings → Tutor to keep everything in one place.
+          </p>
+          <div>
+            <TutorButton
+              request={() => ({
+                courseId: course.id,
+                courseName: course.name,
+                topic: course.name,
+                context: course.description,
+                task: 'Beantworte meine Frage, die ich gleich stelle. Erkläre Schritt für Schritt und prüfungsnah.',
+              })}
+            />
+          </div>
+        </div>
       </Area>
     </div>
   );

@@ -1,20 +1,21 @@
-/** Grammar: Minna no Nihongo lessons 1–10 – notes, particles, sentence building, forms, translation. */
+/**
+ * Grammar: Minna no Nihongo lessons 1–10 – a lexicon to look things up, plus drills (particles,
+ * sentence building, forms, translation). Shown in romaji + German unless the kana layer is on.
+ */
 import type { BaseItem, Exercise, Meaning, Question, RubyText, StudyContext, StudyModule } from '../../core/types';
 import { shuffle } from '../../core/session';
-import { Ruby } from '../../components/Ruby';
-import { CONFUSED, PARTICLES, chunkRuby, chunkText, parseSentence, validOrders, type Sentence } from './sentence';
-import { GrammarNotes } from './GrammarNotes';
+import { toRomaji } from '../../lib/romaji';
+import { CONFUSED, PARTICLES, PARTICLE_ROMAJI, chunkRuby, chunkText, parseSentence, sentenceRomaji, validOrders, type Chunk, type Sentence } from './sentence';
+import { Lexicon } from './Lexicon';
 import formsData from './data/forms.json';
+import LEXICON from './data/lexicon.json';
 import { POINTS, type GrammarPoint, type RawExample } from './points';
 
-interface PointItem extends BaseItem { point: GrammarPoint }
 interface ExampleItem extends BaseItem { point: GrammarPoint; ex: RawExample; s: Sentence }
 interface BlankItem extends ExampleItem { blank: { chunk: number; seg: number; particle: string } }
 interface FormItem extends BaseItem { ja: string; options: string[]; answer: number; t: Meaning }
 
 const lessonGroup = (l: number) => [`L${l}`];
-
-const pointItems: PointItem[] = POINTS.map((p) => ({ id: p.id, label: p.pattern, sub: p.title.en, groups: lessonGroup(p.lesson), lesson: p.lesson, point: p }));
 
 const exampleItems: ExampleItem[] = POINTS.flatMap((p) =>
   p.examples.map((ex, i) => {
@@ -40,6 +41,21 @@ const formItems: FormItem[] = (formsData as Array<{ id: string; lesson: number; 
 }));
 
 const tr = (m: Meaning, ctx: StudyContext) => m[ctx.settings.meaningLang];
+const kanaOn = (ctx: StudyContext) => ctx.settings.kanaLayer;
+const lex = (p: GrammarPoint) => (LEXICON as Record<string, { name: string; formation: string; rule: string }>)[p.id];
+/** Pattern + name for solutions, in romaji / German unless the kana layer is on. */
+const patternLine = (p: GrammarPoint, ctx: StudyContext) => (kanaOn(ctx) ? `${p.pattern} – ${tr(p.title, ctx)}` : `${lex(p).formation} – ${lex(p).name}`);
+const ruleText = (p: GrammarPoint, ctx: StudyContext) => (kanaOn(ctx) ? tr(p.explain, ctx) : lex(p).rule);
+const particleRomaji = (p: string) => PARTICLE_ROMAJI[p] ?? toRomaji(p);
+const chunkRomaji = (c: Chunk) => sentenceRomaji({ text: chunkText(c), chunks: [c] } as Sentence);
+/** Romaji of a sentence with one particle replaced by a blank. */
+function romajiWithBlank(e: BlankItem): string {
+  const chunks = e.s.chunks.map((ch, ci) =>
+    ci === e.blank.chunk ? { segs: ch.segs.map((seg, si) => (si === e.blank.seg ? { text: '＿', particle: true } : seg)) } : ch,
+  );
+  return sentenceRomaji({ ...e.s, chunks }).replace(/＿/g, '(   )');
+}
+const formRomaji = (o: string) => toRomaji(o).replace(/(ja|dewa|deha)arimasen/, '$1 arimasen').replace(/masendeshita$/, 'masen deshita');
 
 /** Sentence with one particle replaced by a blank. */
 function withBlank(e: BlankItem): RubyText {
@@ -54,35 +70,6 @@ function withBlank(e: BlankItem): RubyText {
   return out;
 }
 
-const notes: Exercise<PointItem> = {
-  id: 'notes',
-  selfRated: true,
-  name: 'Grammar cards',
-  description: 'See the pattern, recall what it means and how to use it – then check.',
-  icon: '文',
-  items: () => pointItems,
-  question: (it, ctx): Question => ({
-    prompt: { text: it.point.pattern, lang: 'ja', size: 'medium', instruction: `Lesson ${it.point.lesson} · what does this pattern mean?` },
-    answer: {
-      type: 'reveal',
-      back: (
-        <div className="stack" style={{ '--gap': '10px' } as React.CSSProperties}>
-          <div className="solution-main" style={{ fontSize: '1.3rem' }}>{tr(it.point.title, ctx)}</div>
-          <p className="muted">{tr(it.point.explain, ctx)}</p>
-          {it.point.examples.map((ex) => (
-            <div key={ex.ja}>
-              <Ruby text={parseSentence(ex.ja).ruby} className="serif grammar-example" />
-              <div className="faint small">{tr(ex, ctx)}</div>
-            </div>
-          ))}
-        </div>
-      ),
-    },
-    solution: { main: it.point.pattern, lang: 'ja', sub: tr(it.point.title, ctx) },
-    speak: parseSentence(it.point.examples[0].ja).spoken,
-  }),
-};
-
 const particles: Exercise<BlankItem> = {
   id: 'particles',
   name: 'Particles',
@@ -96,10 +83,14 @@ const particles: Exercise<BlankItem> = {
     const wrong = [...new Set(pool)].slice(0, 3);
     const opts = shuffle([correct, ...wrong], ctx.rng);
     return {
-      prompt: { ruby: withBlank(it), lang: 'ja', size: 'medium', instruction: 'Which particle fits?', sub: tr(it.ex, ctx) },
-      answer: { type: 'choice', options: opts.map((o) => ({ label: o, lang: 'ja' })), correct: opts.indexOf(correct) },
-      solution: { main: it.s.text, ruby: it.s.ruby, lang: 'ja', sub: `${it.point.pattern} – ${tr(it.point.title, ctx)}` },
-      hint: { text: tr(it.point.explain, ctx) },
+      prompt: kanaOn(ctx)
+        ? { ruby: withBlank(it), lang: 'ja', size: 'medium', instruction: 'Which particle fits?', sub: tr(it.ex, ctx) }
+        : { text: romajiWithBlank(it), lang: 'latin', size: 'medium', instruction: 'Which particle fits?', sub: tr(it.ex, ctx) },
+      answer: { type: 'choice', options: opts.map((o) => (kanaOn(ctx) ? { label: o, lang: 'ja' as const } : { label: particleRomaji(o), lang: 'latin' as const })), correct: opts.indexOf(correct) },
+      solution: kanaOn(ctx)
+        ? { main: it.s.text, ruby: it.s.ruby, lang: 'ja', sub: patternLine(it.point, ctx) }
+        : { main: sentenceRomaji(it.s), lang: 'latin', sub: patternLine(it.point, ctx) },
+      hint: { text: ruleText(it.point, ctx) },
       speak: it.s.spoken,
       fastMs: 4000,
     };
@@ -115,8 +106,8 @@ const order: Exercise<ExampleItem> = {
   question: (it, ctx): Question => {
     const chunks = it.s.chunks;
     const strip = (t: string) => t.replace(/[。？]$/, '');
-    const tiles = chunks.map((c) => strip(chunkText(c)));
-    const tileRuby = chunks.map((c) => chunkRuby(c).map(([b, r]) => [strip(b), r] as [string, string?]).filter(([b]) => b !== ''));
+    const tiles = chunks.map((c) => (kanaOn(ctx) ? strip(chunkText(c)) : chunkRomaji(c)));
+    const tileRuby = kanaOn(ctx) ? chunks.map((c) => chunkRuby(c).map(([b, r]) => [strip(b), r] as [string, string?]).filter(([b]) => b !== '')) : undefined;
     const solutions = validOrders(chunks);
     // shuffle the tiles until they are not already in a correct order
     let perm = chunks.map((_, i) => i);
@@ -126,9 +117,11 @@ const order: Exercise<ExampleItem> = {
     }
     return {
       prompt: { text: tr(it.ex, ctx), lang: 'latin', size: 'medium', instruction: 'Build the sentence in Japanese' },
-      answer: { type: 'order', tiles: perm.map((i) => tiles[i]), tileRuby: perm.map((i) => tileRuby[i]), solutions: solutions.map((s) => s.map((i) => perm.indexOf(i))) },
-      solution: { main: it.s.text, ruby: it.s.ruby, lang: 'ja', sub: `${it.point.pattern} – ${tr(it.point.title, ctx)}` },
-      hint: { text: tr(it.point.explain, ctx) },
+      answer: { type: 'order', tiles: perm.map((i) => tiles[i]), tileRuby: tileRuby && perm.map((i) => tileRuby[i]), solutions: solutions.map((s) => s.map((i) => perm.indexOf(i))) },
+      solution: kanaOn(ctx)
+        ? { main: it.s.text, ruby: it.s.ruby, lang: 'ja', sub: patternLine(it.point, ctx) }
+        : { main: sentenceRomaji(it.s), lang: 'latin', sub: patternLine(it.point, ctx) },
+      hint: { text: ruleText(it.point, ctx) },
       speak: it.s.spoken,
     };
   },
@@ -137,7 +130,7 @@ const order: Exercise<ExampleItem> = {
 const forms: Exercise<FormItem> = {
   id: 'forms',
   name: 'Choose the form',
-  description: 'です or じゃありません? ます, ません, ました or ませんでした?',
+  description: 'desu or ja arimasen? masu, masen, mashita or masen deshita?',
   icon: '形',
   items: () => formItems,
   question: (it, ctx): Question => {
@@ -146,9 +139,11 @@ const forms: Exercise<FormItem> = {
     const opts = shuffle(it.options.map((o, i) => ({ o, i })), ctx.rng);
     const full = parseSentence(it.ja.replace('＿＿', it.options[it.answer]));
     return {
-      prompt: { ruby, lang: 'ja', size: 'medium', instruction: 'Choose the right form', sub: tr(it.t, ctx) },
-      answer: { type: 'choice', options: opts.map(({ o }) => ({ label: o, lang: 'ja' })), correct: opts.findIndex(({ i }) => i === it.answer) },
-      solution: { main: full.text, ruby: full.ruby, lang: 'ja', sub: tr(it.t, ctx) },
+      prompt: kanaOn(ctx)
+        ? { ruby, lang: 'ja', size: 'medium', instruction: 'Choose the right form', sub: tr(it.t, ctx) }
+        : { text: sentenceRomaji(s).replace(/＿＿/, '(   )'), lang: 'latin', size: 'medium', instruction: 'Choose the right form', sub: tr(it.t, ctx) },
+      answer: { type: 'choice', options: opts.map(({ o }) => (kanaOn(ctx) ? { label: o, lang: 'ja' as const } : { label: formRomaji(o), lang: 'latin' as const })), correct: opts.findIndex(({ i }) => i === it.answer) },
+      solution: kanaOn(ctx) ? { main: full.text, ruby: full.ruby, lang: 'ja', sub: tr(it.t, ctx) } : { main: sentenceRomaji(full), lang: 'latin', sub: tr(it.t, ctx) },
       speak: full.spoken,
       fastMs: 4000,
     };
@@ -158,7 +153,7 @@ const forms: Exercise<FormItem> = {
 const translate: Exercise<ExampleItem> = {
   id: 'translate',
   name: 'Translate',
-  description: 'Read a Japanese sentence and pick the right translation.',
+  description: 'Read a Japanese sentence (in romaji) and pick the right translation.',
   icon: '訳',
   items: () => exampleItems,
   question: (it, ctx): Question => {
@@ -167,9 +162,9 @@ const translate: Exercise<ExampleItem> = {
     const wrong = [...near, ...shuffle(same, ctx.rng)].filter((e, i, a) => a.findIndex((x) => tr(x.ex, ctx) === tr(e.ex, ctx)) === i).slice(0, 3);
     const opts = shuffle([it, ...wrong], ctx.rng);
     return {
-      prompt: { ruby: it.s.ruby, lang: 'ja', size: 'medium', instruction: 'What does it mean?' },
+      prompt: kanaOn(ctx) ? { ruby: it.s.ruby, lang: 'ja', size: 'medium', instruction: 'What does it mean?' } : { text: sentenceRomaji(it.s), lang: 'latin', size: 'medium', instruction: 'What does it mean?' },
       answer: { type: 'choice', options: opts.map((o) => ({ label: tr(o.ex, ctx), lang: 'latin' })), correct: opts.indexOf(it) },
-      solution: { main: tr(it.ex, ctx), lang: 'latin', sub: `${it.point.pattern} – ${tr(it.point.title, ctx)}` },
+      solution: { main: tr(it.ex, ctx), lang: 'latin', sub: `${kanaOn(ctx) ? it.s.text : sentenceRomaji(it.s)} · ${patternLine(it.point, ctx)}` },
       speak: it.s.spoken,
       fastMs: 5000,
     };
@@ -181,12 +176,12 @@ export const grammar: StudyModule = {
   name: 'Grammar',
   nameJa: '文法',
   icon: '文',
-  description: 'Minna no Nihongo lessons 1–10: notes, particles, sentence building, forms and translation.',
+  description: 'Minna no Nihongo lessons 1–10: a lexicon to look things up, plus particles, sentence building, forms and translation.',
   status: 'ready',
-  exercises: [notes, particles, order, forms, translate],
+  exercises: [particles, order, forms, translate],
   groups: () =>
     [...new Set(POINTS.map((p) => p.lesson))].map((l) => ({
-      id: `L${l}`, label: `第${l}課`, sub: `${POINTS.filter((p) => p.lesson === l).length} points`, section: 'Lessons',
+      id: `L${l}`, label: `Lesson ${l}`, sub: `${POINTS.filter((p) => p.lesson === l).length} points`, section: 'Lessons',
     })),
   presets: [
     { id: '1-5', label: 'Lessons 1–5', groups: ['L1', 'L2', 'L3', 'L4', 'L5'] },
@@ -194,7 +189,7 @@ export const grammar: StudyModule = {
     { id: 'all', label: 'All', groups: ['L1', 'L2', 'L3', 'L4', 'L5', 'L6', 'L7', 'L8', 'L9', 'L10'] },
   ],
   defaultGroups: ['L1', 'L2', 'L3', 'L4', 'L5'],
-  tools: [{ id: 'notes', name: 'Grammar notes', description: 'Read every grammar point with examples and audio.', icon: '帳', component: GrammarNotes }],
+  tools: [{ id: 'notes', name: 'Grammar lexicon', description: 'Look up every grammar point: rule, formation, examples, related entries – searchable.', icon: '帳', component: Lexicon }],
 };
 
 /** Example sentences for other modules (listening). */

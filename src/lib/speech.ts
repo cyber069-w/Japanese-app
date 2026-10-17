@@ -3,6 +3,7 @@
  * Picks the best available ja-JP voice; does nothing if there is none.
  */
 import { useSyncExternalStore } from 'react';
+import KANA_AUDIO from '../data/kanaAudio.json';
 
 let voice: SpeechSynthesisVoice | null = null;
 let ready = false;
@@ -76,8 +77,34 @@ function utterance(text: string, rate: number) {
   return u;
 }
 
+// ---------------------------------------------------------------------------
+// Single kana: pre-recorded files (scripts/build-kana-audio.mjs) – browser voices often
+// mispronounce a lone character, and some devices have no Japanese voice at all.
+// ---------------------------------------------------------------------------
+
+const kanaFiles = KANA_AUDIO as Record<string, string>;
+let audio: HTMLAudioElement | null = null;
+
+/** The recorded file for a single kana sound (あ, ア, きゃ …), if there is one. */
+export const kanaAudioId = (text: string): string | undefined => kanaFiles[text.trim()];
+
+function playKana(id: string, rate: number) {
+  audio?.pause();
+  if (supported()) speechSynthesis.cancel();
+  const gen = ++generation;
+  const a = new Audio(`${import.meta.env.BASE_URL}audio/kana/${id}.m4a`);
+  a.playbackRate = Math.min(1.5, Math.max(0.5, rate / 0.9));
+  a.preservesPitch = true;
+  a.onended = a.onerror = () => gen === generation && setSpeaking(false);
+  audio = a;
+  setSpeaking(true);
+  a.play().catch(() => gen === generation && setSpeaking(false));
+}
+
 export function speak(text: string, rate = 0.9) {
-  speakQueue([text], rate);
+  const id = kanaAudioId(text);
+  if (id) playKana(id, rate);
+  else speakQueue([text], rate);
 }
 
 /**
@@ -87,6 +114,7 @@ export function speak(text: string, rate = 0.9) {
 export function speakQueue(texts: string[], rate = 0.9, onIndex?: (i: number | null) => void) {
   const list = texts.filter(Boolean);
   if (!supported() || !list.length) return;
+  audio?.pause();
   speechSynthesis.cancel();
   const gen = ++generation;
   list.forEach((t, i) => {
@@ -120,6 +148,7 @@ export function speakQueue(texts: string[], rate = 0.9, onIndex?: (i: number | n
 }
 
 export function stopSpeaking() {
+  audio?.pause();
   if (!supported()) return;
   generation++;
   speechSynthesis.cancel();
