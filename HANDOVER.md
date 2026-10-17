@@ -83,6 +83,11 @@ laptop. No backend, no accounts, no tracking.
     KANJIDIC2 + JMdict, example words verified), 4 exercises, browser and "My kanji list" tools. **Not browser-tested yet.**
 - **61 unit tests pass**, typecheck clean. PWA manifest, icons and workbox config are in `vite.config.ts`.
 
+### Done since (17 Oct)
+- Import accepts a `romaji` column (capital first letter → katakana, ō/ū → long vowels). Coloured syllables (`components/Syllables.tsx`)
+  in the word list and flashcards. "Per round" chips (10/50/100/All) on every module page for long sessions.
+  Vocab PDFs `Unknown-6…10.pdf` (Kapitel 1–5) were checked against `private/vocab`; the 7 missing words were added.
+
 ### To do (in this order) 🔧
 
 1. **Listening module**: a draft exists at `src/modules/listening/index.tsx` (dictation, hear→meaning, sentences).

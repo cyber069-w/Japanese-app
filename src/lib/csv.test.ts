@@ -30,4 +30,8 @@ describe('parseVocabCsv', () => {
     expect(entries).toHaveLength(1);
     expect(errors[0]).toContain('Line 3');
   });
+  it('converts a romaji column to kana, capitals to katakana', () => {
+    const { entries } = parseVocabCsv('romaji,de,lesson\ngakusei,Student,1\nItaria,Italien,3\nginkōin,Bankangestellter,1\nkōhii,Kaffee,2\nKōhii,Kaffee,2', 'x');
+    expect(entries.map((e) => e.kana)).toEqual(['がくせい', 'イタリア', 'ぎんこういん', 'こうひい', 'コーヒー']);
+  });
 });

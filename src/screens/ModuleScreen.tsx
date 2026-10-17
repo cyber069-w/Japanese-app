@@ -1,5 +1,5 @@
 /** One module: choose rows/lessons, pick an exercise, open tools. */
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { getState, setSelection, useApp } from '../core/store';
 import { useCtx, useDueCounts, useSelection } from '../core/hooks';
 import { buildReviewQueue, buildStudyQueue, buildWeakQueue, exerciseItems, filterByGroups, weakCardIds } from '../core/session';
@@ -32,11 +32,19 @@ function ModuleView({ mod }: { mod: StudyModule }) {
   const totals = moduleTotals(days, mod.id);
   const weak = useMemo(() => weakCardIds(cards, Date.now(), mod.id).length, [cards, mod.id]);
   const empty = mod.emptyState?.(ctx);
+  const [len, setLen] = useState<number>(() => {
+    try { return Number(localStorage.getItem('nihongo:len')) || 0; } catch { return 0; }
+  });
+  const chooseLen = (n: number) => {
+    setLen(n);
+    try { localStorage.setItem('nihongo:len', String(n)); } catch { /* private mode */ }
+  };
+  const length = len || ctx.settings.sessionLength;
 
   const start = (ex: Exercise) => {
     const pool = filterByGroups(exerciseItems(ex, ctx), mod.groups ? selected : undefined);
     // read the latest cards each time, so "Another round" uses fresh progress
-    const build = () => buildStudyQueue(mod, ex, ctx, selected, getState().cards, Date.now());
+    const build = () => buildStudyQueue(mod, ex, ctx, selected, getState().cards, Date.now(), length);
     startSession({
       title: `${mod.name} · ${ex.name}`,
       cards: build(),
@@ -93,6 +101,14 @@ function ModuleView({ mod }: { mod: StudyModule }) {
           <div className="section">
             <div className="section-head">
               <h2>Exercises</h2>
+              <div className="row" style={{ gap: 6 }} role="group" aria-label="Questions per round">
+                <span className="faint small">per round</span>
+                {[[0, `${ctx.settings.sessionLength}`], [50, '50'], [100, '100'], [9999, 'All']].map(([n, label]) => (
+                  <button key={n} className={`chip${len === n ? ' on' : ''}`} aria-pressed={len === n} onClick={() => chooseLen(n as number)}>
+                    {label}
+                  </button>
+                ))}
+              </div>
             </div>
             <div className="grid" style={{ '--min': '280px' } as React.CSSProperties}>
               {mod.exercises.map((ex) => {

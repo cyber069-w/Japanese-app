@@ -4,6 +4,7 @@ import { Ruby } from '../../components/Ruby';
 import { Icon } from '../../components/Icon';
 import { speak } from '../../lib/speech';
 import { toRomaji } from '../../lib/romaji';
+import { Syllables } from '../../components/Syllables';
 import { lessonLabel, vocabItems } from './items';
 
 export function WordList({ ctx }: { ctx: StudyContext }) {
@@ -56,6 +57,7 @@ export function WordList({ ctx }: { ctx: StudyContext }) {
                 <td className="ja">
                   <Ruby text={i.ruby} />
                   {i.alt && <span className="faint small"> ({i.alt})</span>}
+                  <div className="small"><Syllables text={i.kana} /></div>
                   <div className="faint tiny">{toRomaji(i.kana)}</div>
                 </td>
                 <td>

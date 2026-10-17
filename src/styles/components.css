@@ -783,3 +783,9 @@ table.table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
 .rule-alt { font-size: 0.75rem; color: var(--ink-2); }
 .rule-romaji { font-size: 0.7rem; color: var(--ink-3); overflow-wrap: anywhere; }
 .grammar-example { font-size: 1.2rem; line-height: 2; }
+
+/* Coloured syllables */
+.syl-0 { color: var(--accent); }
+.syl-1 { color: var(--bad); }
+.syl-2 { color: var(--good); }
+.syl-3 { color: var(--warn); }
