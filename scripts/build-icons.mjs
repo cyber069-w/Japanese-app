@@ -22,7 +22,7 @@ const NAMES = {
   puzzle: 'puzzle', numbers: 'numbers', headphones: 'headphones', chat: 'message-circle', ear: 'ear',
   cards: 'cards', table: 'table', import: 'file-import', text: 'file-text', writing: 'writing',
   sort: 'arrows-sort', shapes: 'category', notebook: 'notebook', help: 'help-circle', exam: 'clipboard-check',
-  math: 'math-function', keyboard: 'keyboard', list: 'list-check', diff: 'arrows-diff', kanji: 'writing-sign',
+  math: 'math-function', keyboard: 'keyboard', list: 'list-check', diff: 'arrows-diff', kanji: 'writing-sign', bell: 'bell',
 };
 
 const dir = process.argv[2];

@@ -2,6 +2,7 @@
 import { useEffect } from 'react';
 import { useCourseMeters, useDueCounts } from '../core/hooks';
 import { initFocus, useFocus } from '../core/focusStore';
+import { inboxView, openInbox, useCanvas } from '../core/canvas';
 import { COURSES } from '../courses';
 import { dayKey, formatDuration } from '../lib/date';
 import { Icon } from '../components/Icon';
@@ -15,7 +16,6 @@ function greeting(h: number) {
 }
 
 const SOON = [
-  { name: 'Canvas inbox', note: 'Deadlines and course files sorted into your subjects', icon: 'import' },
   { name: 'Mock exams', note: 'Timed tests across a whole subject', icon: 'exam' },
   { name: 'Study plan', note: 'A weekly plan from your exam dates', icon: 'calendar' },
 ];
@@ -25,6 +25,7 @@ export function Home() {
   const meters = useCourseMeters();
   const focus = useFocus();
   useEffect(initFocus, []);
+  const canvas = inboxView(useCanvas());
   const focusToday = focus.sessions.filter((s) => s.day === dayKey()).reduce((n, s) => n + s.effectiveSec, 0);
   const date = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
 
@@ -66,6 +67,19 @@ export function Home() {
             {focus.active ? <span className="subject-due">timer running</span> : <span>{focusToday ? `${formatDuration(focusToday * 1000)} today` : 'nothing logged today'}</span>}
           </span>
         </a>
+        {canvas.available && (
+          <button className="subject-tile" onClick={() => openInbox()} style={{ '--tile': 'var(--ink)', textAlign: 'left' } as React.CSSProperties}>
+            <span className="subject-icon"><Icon name="bell" size={22} /></span>
+            <span>
+              <b className="subject-name">Canvas</b>
+              <span className="subject-note">Deadlines, announcements and new files</span>
+            </span>
+            <span className="subject-meta">
+              {canvas.suggestions.length > 0 && <span className="subject-due">{canvas.suggestions.length} new deadline{canvas.suggestions.length === 1 ? '' : 's'}</span>}
+              {canvas.files.length > 0 && <span>{canvas.files.length} new files</span>}
+            </span>
+          </button>
+        )}
         {SOON.map((s) => (
           <div key={s.name} className="subject-tile soon" aria-disabled="true">
             <span className="subject-icon"><Icon name={s.icon} size={22} /></span>

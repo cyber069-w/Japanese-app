@@ -11,6 +11,7 @@ import { ModuleScreen, ToolScreen } from './screens/ModuleScreen';
 import { Review } from './screens/Review';
 import { Stats } from './screens/Stats';
 import { Focus } from './screens/Focus';
+import { InboxBell } from './components/InboxBell';
 import { FocusWidget } from './screens/FocusWidget';
 import { Settings } from './screens/Settings';
 import { SessionScreen } from './screens/Session';
@@ -124,6 +125,7 @@ function Shell({ path, children }: { path: string; children: ReactNode }) {
           Offline · no ads · your data stays yours
         </div>
       </aside>
+      <InboxBell />
       <main className="main" key={path}>
         {children}
       </main>

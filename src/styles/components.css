@@ -1275,3 +1275,31 @@ a.subject-tile:focus-visible { outline-color: var(--tile); }
   .card { border: 1px solid #ccc; background: #fff; }
   .formula-row code { color: #000; }
 }
+
+/* ============================== Canvas bell ============================== */
+
+.inbox-bell {
+  position: fixed;
+  top: 14px;
+  right: 16px;
+  z-index: 30;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  border: 1px solid var(--line-2);
+  background: var(--surface);
+  color: var(--ink);
+  display: grid;
+  place-items: center;
+}
+.inbox-bell:hover { background: var(--surface-2); }
+.inbox-bell.muted { color: var(--ink-3); opacity: 0.7; }
+.inbox-badge { position: absolute; top: -5px; right: -5px; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 999px; background: var(--bad); color: #2a160c; font-size: 0.65rem; font-weight: 700; display: grid; place-items: center; }
+.inbox-row { display: flex; align-items: center; gap: var(--space-2); padding: 8px 10px; border-radius: 10px; background: var(--paper-2); }
+.inbox-row .grow { flex: 1; min-width: 0; }
+.inbox-row.soon { outline: 1px solid var(--warn); }
+.inbox-ann { padding: 6px 10px; border-radius: 10px; background: var(--paper-2); }
+.inbox-ann summary { cursor: pointer; }
+.inbox-ann.unseen summary b::before { content: '● '; color: var(--bad); }
+.inbox-ann p { margin: 6px 0; }
+button.subject-tile { font: inherit; cursor: pointer; }

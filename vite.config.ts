@@ -4,6 +4,8 @@ import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 import { buildPrivatePack } from './scripts/pack-lib.mjs';
 import { fontGlobs } from './scripts/font-subsets.mjs';
+import { existsSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
 
 /**
  * `virtual:private-pack` = the copyrighted course content from private/.
@@ -30,12 +32,36 @@ function privatePack(): Plugin {
   };
 }
 
+/**
+ * The Canvas inbox (deadlines, announcements, new files) written by scripts/canvas/canvas_sync.py.
+ * Served by the local dev server only – it is personal and never part of a build.
+ */
+function canvasInbox(): Plugin {
+  return {
+    name: 'canvas-inbox',
+    configureServer(server) {
+      server.middlewares.use('/canvas-inbox.json', (_req, res) => {
+        const file = join(server.config.root, 'private/canvas-inbox.json');
+        res.setHeader('Content-Type', 'application/json; charset=utf-8');
+        res.setHeader('Cache-Control', 'no-store');
+        if (!existsSync(file)) {
+          res.statusCode = 404;
+          res.end('{}');
+          return;
+        }
+        res.end(readFileSync(file, 'utf8'));
+      });
+    },
+  };
+}
+
 export default defineConfig({
   // relative base so the build works on GitHub Pages (username.github.io/repo/) and anywhere else
   base: './',
   plugins: [
     react(),
     privatePack(),
+    canvasInbox(),
     VitePWA({
       registerType: 'autoUpdate',
       // icons are already matched by globPatterns below

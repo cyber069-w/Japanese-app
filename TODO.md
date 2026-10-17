@@ -48,7 +48,8 @@ Status: [ ] open · [x] done · [~] solved differently / blocked (reason in the 
 - [x] Tutor session summaries per subject (subject page → Tutor; stored on this device)
 - [x] Hiragana memory texts (based on the Tofugu pictures) moved into the encrypted course pack; katakana texts are my own and stay
 - [x] QA: 375 px (9 screens, no sideways scroll), ~700 px, 380 px widget, leather + night; production build precaches app, fonts and all 118 kana sounds. Service-worker registration not testable in the built-in browser – check once on the phone after deploying
-- [~] Canvas auto-adder – waiting for the user (Canvas URL, feed/token, folder layout); reminder noted
+- [x] Canvas: `scripts/canvas/canvas_sync.py` (daily 7:00 via launchd) sorts lecture slides etc. into the OneDrive course folders by the rules in `private/canvas-config.json`, never overwrites, recognises existing files; the app's bell shows deadlines as suggestions, filtered announcements and new files (dev server only for now)
+- [ ] Canvas inbox on the phone: needs the inbox in the sync repo (the dev server serves it locally only)
 - [~] Inbox per course for OneNote PDFs / photos, Claude drafts lessons – needs the private repo `study-content`
 - [~] Vocab lessons 6+, user's own grammar rules, hiragana notes – user supplies the material
 - [~] BWL and Recht content – needs the user's lecture material
