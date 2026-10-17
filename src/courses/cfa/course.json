@@ -1,0 +1,32 @@
+{
+  "id": "cfa",
+  "name": "CFA Level 1",
+  "subtitle": "2027 curriculum",
+  "glyph": "Σ",
+  "order": 2,
+  "description": "Ten topics with their learning modules – filled over time from your notes.",
+  "claudeProjectUrl": "",
+  "topics": [
+    { "id": "quant", "name": "Quantitative Methods", "modules": 11, "weight": [11, 14] },
+    { "id": "economics", "name": "Economics", "modules": 8, "weight": [6, 9] },
+    { "id": "corporate", "name": "Corporate Finance", "modules": 7, "weight": [6, 9] },
+    { "id": "fsa", "name": "Financial Statement Analysis", "modules": 12, "weight": [11, 14] },
+    { "id": "equities", "name": "Equities", "modules": 12, "weight": [11, 14] },
+    { "id": "fixed-income", "name": "Fixed Income", "modules": 19, "weight": [11, 14] },
+    { "id": "derivatives", "name": "Derivatives & Risk Management", "modules": 10, "weight": [6, 9] },
+    { "id": "alternatives", "name": "Alternative Investments", "modules": 7, "weight": [6, 9] },
+    { "id": "portfolio", "name": "Portfolio Construction", "modules": 6, "weight": [8, 12] },
+    { "id": "ethics", "name": "Ethical & Professional Standards", "modules": 10, "weight": [10, 15] }
+  ],
+  "study": [],
+  "exam": [
+    {
+      "title": "Tests & tools",
+      "placeholders": [
+        { "name": "Mixed questions", "description": "Questions from every topic, A/B/C like the exam.", "icon": "?" },
+        { "name": "Formula sheet", "description": "Every formula from your modules on one page.", "icon": "ƒ" },
+        { "name": "Mock exams", "description": "Full practice exams – coming later.", "icon": "✎" }
+      ]
+    }
+  ]
+}

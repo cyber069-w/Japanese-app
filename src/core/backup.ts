@@ -2,7 +2,7 @@
 import { getState, applyImport } from './store';
 import { storage, type DayLog } from './db';
 import type { CardState } from './srs';
-import type { Settings, VocabEntry } from './types';
+import type { Profile, Settings, VocabEntry } from './types';
 import { dayKey } from '../lib/date';
 
 interface BackupFile {
@@ -14,6 +14,7 @@ interface BackupFile {
   days: DayLog[];
   userVocab: VocabEntry[];
   kanjiList: string[];
+  profile?: Profile | null;
 }
 
 export async function exportBackup() {
@@ -27,6 +28,7 @@ export async function exportBackup() {
     days: Object.values(s.days),
     userVocab: s.userVocab,
     kanjiList: (await storage.get<string[]>('kanjiList')) ?? [],
+    profile: s.content.profile,
   };
   const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
   const a = document.createElement('a');
@@ -56,6 +58,8 @@ export async function importBackup(file: File): Promise<{ cards: number; days: n
     settings: data.settings,
     userVocab: [...vocab.values()],
     kanjiList: data.kanjiList && data.kanjiList.length ? data.kanjiList : undefined,
+    // keep the self-introduction on this device if it already has one
+    profile: data.profile && !s.content.profile ? data.profile : undefined,
   });
   return { cards: cards.length, days: days.length };
 }

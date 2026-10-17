@@ -31,7 +31,7 @@ export function GrammarNotes({ ctx }: { ctx: StudyContext }) {
               const s = parseSentence(ex.ja);
               return (
                 <div key={ex.ja} className="row" style={{ flexWrap: 'nowrap', alignItems: 'flex-start' }}>
-                  <button className="icon-btn" style={{ width: 34, height: 34, flex: 'none' }} onClick={() => speak(s.reading, ctx.settings.voiceRate)} aria-label="Play sentence">
+                  <button className="icon-btn" style={{ width: 34, height: 34, flex: 'none' }} onClick={() => speak(s.spoken, ctx.settings.voiceRate)} aria-label="Play sentence">
                     <Icon name="speaker" size={17} />
                   </button>
                   <div>

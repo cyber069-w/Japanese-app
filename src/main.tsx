@@ -6,6 +6,7 @@ import './styles/tokens.css';
 import './styles/base.css';
 import './styles/components.css';
 import { initStore } from './core/store';
+import { startSync } from './core/sync';
 import { App } from './App';
 
 // offline support: the service worker caches the app and updates itself in the background
@@ -13,4 +14,6 @@ registerSW({ immediate: true });
 
 initStore().then(() => {
   createRoot(document.getElementById('root')!).render(<App />);
+  // sync with your other devices in the background (only if you connected one)
+  void startSync();
 });

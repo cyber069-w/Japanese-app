@@ -32,6 +32,36 @@ export interface Content {
   hints: Record<string, Record<string, string>>;
   /** Kanji the user wants to study (overrides the default list when non-empty). */
   kanjiList: string[];
+  /** Your self-introduction (Speaking module); null until you fill it in. */
+  profile: Profile | null;
+}
+
+/**
+ * The self-introduction form. Japanese fields are what you'll say (katakana / kanji);
+ * the romaji fields are what you typed, used to suggest the katakana.
+ */
+export interface Profile {
+  name: string;
+  nameJa: string;
+  /** Country id from the list, or 'other'. */
+  country: string;
+  countryOther: string;
+  countryOtherJa: string;
+  university: string;
+  universityJa: string;
+  /** '' | '1' … '4' | 'master' */
+  year: string;
+  /** Major id from the list, or 'other'. */
+  major: string;
+  majorOtherJa: string;
+  majorOtherDe: string;
+  /** Empty = leave out. */
+  age: number | null;
+  /** "MM-DD" or '' */
+  birthday: string;
+  hobbies: string[];
+  /** Japanese fields edited by hand (no longer follow the romaji). */
+  edited: string[];
 }
 
 export interface VocabEntry {
@@ -73,6 +103,8 @@ export interface Settings {
   autoAdvance: boolean;
   /** Selected filter groups per module (persisted so your row choice is remembered). */
   selections: Record<string, string[]>;
+  /** The course shown on this device (not synced). */
+  course: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -130,6 +162,8 @@ export interface Hint {
   flags?: string[];
   /** Rule line, e.g. "か + ゛ = が" */
   rules?: string[];
+  /** Japanese text with furigana, e.g. the transcript of a listening question. */
+  ruby?: RubyText;
   /** One picture per character, for word hints (ね + こ). */
   strip?: Array<{ kana: string; keyword?: string; image?: string }>;
 }
@@ -141,8 +175,8 @@ export interface Question {
   solution: { main: string; ruby?: RubyText; lang: 'ja' | 'latin'; sub?: string; notes?: string[] };
   /** Shown on request before answering. */
   hint?: Hint;
-  /** Shown with the solution (defaults to `hint`) – may include pictures that would give the answer away. */
-  revealHint?: Hint;
+  /** Shown with the solution (defaults to `hint`) – may include pictures that would give the answer away. null = none. */
+  revealHint?: Hint | null;
   /** Japanese text for text-to-speech. */
   speak?: string;
   /** 'prompt' = the audio is part of the question (played right away, e.g. listening);
@@ -168,6 +202,10 @@ export interface Exercise<I extends BaseItem = BaseItem> {
   srs?: boolean;
   /** Items generated randomly per question (numbers) — repeated asks are fine. */
   generative?: boolean;
+  /** Shown on the exercise card when it has no items for a reason other than the filter (e.g. "Fill in your self-introduction first"). */
+  emptyMessage?: (ctx: StudyContext) => string | null;
+  /** You judge your own answer (flashcards, notes, drawing) – left out of the preparation meter when checked exercises exist. */
+  selfRated?: boolean;
 }
 
 export interface FilterGroup { id: string; label: string; sub?: string; section?: string }
@@ -202,6 +240,8 @@ export interface StudyModule {
   chart?: (ctx: StudyContext) => ChartSection[];
   /** Shown instead of exercises when the module has no content yet. */
   emptyState?: (ctx: StudyContext) => ReactNode | null;
+  /** Optional panel at the top of the module page (e.g. voice settings for Listening). */
+  banner?: ComponentType<{ ctx: StudyContext }>;
 }
 
 export const cardId = (moduleId: string, exerciseId: string, itemId: string) => `${moduleId}:${exerciseId}:${itemId}`;

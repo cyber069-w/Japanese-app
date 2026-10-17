@@ -7,6 +7,7 @@ import { startSession } from '../core/sessionConfig';
 import { moduleTotals } from '../core/stats';
 import type { Exercise, FilterGroup, StudyModule } from '../core/types';
 import { getModule, MODULES } from '../modules';
+import { courseOfModule, isUnverified, moduleInfo } from '../courses';
 import { navigate } from '../lib/router';
 import { Icon } from '../components/Icon';
 
@@ -19,7 +20,26 @@ export function ModuleScreen({ id }: { id: string }) {
       </div>
     );
   }
+  if (moduleInfo(mod.id).soon) return <SoonView mod={mod} />;
   return <ModuleView mod={mod} />;
+}
+
+/** A module the course marks as "coming later": nothing to study, progress kept. */
+function SoonView({ mod }: { mod: StudyModule }) {
+  return (
+    <div className="page">
+      <a href="#/study" className="btn btn-ghost btn-sm" style={{ marginLeft: -10, marginBottom: 14 }}>
+        <Icon name="left" size={16} /> {courseOfModule(mod.id).name}
+      </a>
+      <div className="page-head">
+        <div className="module-glyph" style={{ width: 64, height: 64, fontSize: 34 }} lang="ja">{mod.icon}</div>
+        <div className="grow">
+          <h1>{mod.name}</h1>
+          <div className="muted" style={{ marginTop: 4 }}>Coming later. Your progress so far is kept and returns with it.</div>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 function ModuleView({ mod }: { mod: StudyModule }) {
@@ -57,7 +77,7 @@ function ModuleView({ mod }: { mod: StudyModule }) {
   return (
     <div className="page">
       <a href="#/study" className="btn btn-ghost btn-sm" style={{ marginLeft: -10, marginBottom: 14 }}>
-        <Icon name="left" size={16} /> Study
+        <Icon name="left" size={16} /> {courseOfModule(mod.id).name}
       </a>
       <div className="page-head">
         <div className="module-glyph" style={{ width: 64, height: 64, fontSize: 34 }} lang="ja">{mod.icon}</div>
@@ -92,6 +112,15 @@ function ModuleView({ mod }: { mod: StudyModule }) {
         </div>
       )}
 
+      {isUnverified(mod.id) && (
+        <div className="notice warn" style={{ marginBottom: 20 }}>
+          <b>Unverified · </b>this content was written by an earlier Claude session, not taken from your textbook. It will be checked
+          against your book chapter by chapter once you send the pages.
+        </div>
+      )}
+
+      {mod.banner && <mod.banner ctx={ctx} />}
+
       {empty ? (
         empty
       ) : (
@@ -112,7 +141,9 @@ function ModuleView({ mod }: { mod: StudyModule }) {
             </div>
             <div className="grid" style={{ '--min': '280px' } as React.CSSProperties}>
               {mod.exercises.map((ex) => {
-                const count = filterByGroups(exerciseItems(ex, ctx), mod.groups ? selected : undefined).length;
+                const all = exerciseItems(ex, ctx);
+                const count = filterByGroups(all, mod.groups ? selected : undefined).length;
+                const why = all.length === 0 ? ex.emptyMessage?.(ctx) ?? 'no content yet' : 'nothing selected';
                 return (
                   <button key={ex.id} className="card card-link ex-card" onClick={() => start(ex)} disabled={count === 0}>
                     <span className="ex-icon" lang="ja">{ex.icon}</span>
@@ -121,7 +152,12 @@ function ModuleView({ mod }: { mod: StudyModule }) {
                       <span className="muted small">{ex.description}</span>
                       <span className="ex-meta">
                         <span className="tag">{ex.generative ? `${count} categor${count === 1 ? 'y' : 'ies'}` : `${count} item${count === 1 ? '' : 's'}`}</span>
-                        {count === 0 && <span className="tag tag-warn">nothing selected</span>}
+                        {count === 0 && <span className="tag tag-warn">{why}</span>}
+                        {!isUnverified(mod.id) && isUnverified(mod.id, ex.id) && (
+                          <span className="tag tag-warn" title="Written by an earlier Claude session, not taken from your material">
+                            unverified
+                          </span>
+                        )}
                       </span>
                     </span>
                   </button>

@@ -8,10 +8,10 @@ import { getSession, type SessionConfig } from '../core/sessionConfig';
 import { exerciseItems, shuffle, type SessionCard } from '../core/session';
 import { gradeFromAnswer, type Grade } from '../core/srs';
 import { recordAnswer, useApp } from '../core/store';
-import { cardId, type Question, type StudyContext } from '../core/types';
+import { cardId, type Hint, type Question, type StudyContext } from '../core/types';
 import { getModule } from '../modules';
 import { navigate } from '../lib/router';
-import { speak, speechSupported } from '../lib/speech';
+import { slowRate, speak, speechSupported, useSpeaking } from '../lib/speech';
 import { formatDuration } from '../lib/date';
 import { Icon } from '../components/Icon';
 import { Ruby } from '../components/Ruby';
@@ -87,6 +87,9 @@ function Runner({ cfg, restart }: { cfg: SessionConfig; restart: (c: SessionConf
   const audioFirst = question?.speakWhen === 'prompt';
   const play = useCallback(() => {
     if (question?.speak) speak(question.speak, settings.voiceRate);
+  }, [question, settings.voiceRate]);
+  const playSlow = useCallback(() => {
+    if (question?.speak) speak(question.speak, slowRate(settings.voiceRate));
   }, [question, settings.voiceRate]);
 
   // audio that belongs to the prompt (listening) plays right away
@@ -169,6 +172,7 @@ function Runner({ cfg, restart }: { cfg: SessionConfig; restart: (c: SessionConf
       const typing = target.tagName === 'INPUT' && (target as HTMLInputElement).value !== '';
       if (e.key === 'Escape') { e.preventDefault(); exit(); return; }
       if (e.key === '?') { e.preventDefault(); toggleHint(); return; }
+      if (e.key === ' ' && e.shiftKey && question?.speak) { e.preventDefault(); playSlow(); return; }
       if (phase === 'done') {
         if (e.key === 'Enter' || e.key === 'ArrowRight') { e.preventDefault(); next(); }
         else if (e.key === ' ' && !typing) { e.preventDefault(); play(); }
@@ -202,7 +206,7 @@ function Runner({ cfg, restart }: { cfg: SessionConfig; restart: (c: SessionConf
   const p = question.prompt;
   const progress = index / queue.length;
   const praise = PRAISE[(index * 7 + 3) % PRAISE.length];
-  const shownHint = question.revealHint ?? question.hint;
+  const shownHint = withoutRepeats(question.revealHint === null ? undefined : question.revealHint ?? question.hint, question.solution.notes);
 
   return (
     <div className="session">
@@ -227,7 +231,7 @@ function Runner({ cfg, restart }: { cfg: SessionConfig; restart: (c: SessionConf
         className={`qcard card${phase === 'done' && outcome ? (outcome.correct ? ' correct' : ' wrong shake') : ''}`}
       >
         <div className="q-tools">
-          {question.speak && speechSupported() && (audioFirst || phase === 'done' || question.answer.type === 'draw') && (
+          {question.speak && speechSupported() && !p.audioOnly && (audioFirst || phase === 'done' || question.answer.type === 'draw') && (
             <button className="icon-btn" onClick={play} aria-label="Play pronunciation" title="Play (Space)">
               <Icon name="speaker" />
             </button>
@@ -240,9 +244,7 @@ function Runner({ cfg, restart }: { cfg: SessionConfig; restart: (c: SessionConf
         </div>
         <div className="q-instruction">{p.instruction}</div>
         {p.audioOnly ? (
-          <button className="btn btn-lg" style={{ margin: '18px 0', minWidth: 160 }} onClick={play}>
-            <Icon name="speaker" size={26} /> Play again
-          </button>
+          <AudioPrompt play={play} playSlow={playSlow} />
         ) : (
           (p.text || p.ruby) && (
             <div className={`q-prompt ${p.size} ${p.lang}`} lang={p.lang === 'ja' ? 'ja' : undefined}>
@@ -289,9 +291,9 @@ function Runner({ cfg, restart }: { cfg: SessionConfig; restart: (c: SessionConf
           <div className={`feedback ${outcome.correct ? 'good' : 'bad'}`} style={{ width: '100%' }}>
             <div className="feedback-head">
               <Icon name={outcome.correct ? 'check' : 'x'} size={20} stroke={2.4} />
-              {outcome.correct ? praise : 'Not quite'}
+              <span className="nowrap">{outcome.correct ? praise : 'Not quite'}</span>
               {!outcome.correct && outcome.value && (
-                <span className="faint small" style={{ fontWeight: 500 }}>
+                <span className="faint small feedback-typed">
                   you wrote “{outcome.value}”
                 </span>
               )}
@@ -311,19 +313,54 @@ function Runner({ cfg, restart }: { cfg: SessionConfig; restart: (c: SessionConf
         <span><kbd>Enter</kbd> check / next</span>
         {question.answer.type === 'choice' && <span><kbd>1</kbd>–<kbd>{question.answer.options.length}</kbd> choose</span>}
         {question.speak && <span><kbd>Space</kbd> audio</span>}
+        {question.speak && audioFirst && <span><kbd>Shift</kbd>+<kbd>Space</kbd> slow</span>}
         {question.hint && <span><kbd>?</kbd> hint</span>}
+        {question.answer.type === 'reveal' && question.answer.record && <span><kbd>R</kbd> record</span>}
         <span><kbd>Esc</kbd> quit</span>
       </div>
     </div>
   );
 }
 
+/** Listening prompt: a big replay button that pulses while the audio plays, plus a slow replay. */
+function AudioPrompt({ play, playSlow }: { play: () => void; playSlow: () => void }) {
+  const speaking = useSpeaking();
+  if (!speechSupported()) {
+    return <div className="notice warn" style={{ margin: '12px 0' }}>This browser can’t play Japanese audio. Try Safari or Chrome.</div>;
+  }
+  return (
+    <div className="audio-prompt">
+      <button className={`audio-play${speaking ? ' speaking' : ''}`} onClick={play} aria-label="Play again" title="Play again (Space)">
+        <Icon name="speaker" size={34} />
+      </button>
+      <button className="btn btn-sm btn-ghost" onClick={playSlow} title="Slow replay (Shift+Space)">
+        <Icon name="gauge" size={16} /> Slower
+      </button>
+    </div>
+  );
+}
+
+/** The hint shown with the solution, minus lines the solution notes already say. Undefined if nothing is left. */
+function withoutRepeats(hint: Hint | undefined, notes: string[] | undefined): Hint | undefined {
+  if (!hint || !notes?.length) return hint;
+  const said = new Set(notes);
+  const h: Hint = {
+    ...hint,
+    text: hint.text && said.has(hint.text) ? undefined : hint.text,
+    rules: hint.rules?.filter((r) => !said.has(r)),
+    flags: hint.flags?.filter((f) => !said.has(f)),
+  };
+  const empty = !h.keyword && !h.text && !h.image && !h.rules?.length && !h.flags?.length && !h.strip?.length && !h.ruby;
+  return empty ? undefined : h;
+}
+
 function SolutionBlock({ q }: { q: Question }) {
   const s = q.solution;
+  const long = [...s.main].length > (s.lang === 'ja' ? 9 : 20);
   return (
     <div>
       <div className="eyebrow" style={{ marginBottom: 2 }}>Answer</div>
-      <div className={`solution-main ${s.lang}`} lang={s.lang === 'ja' ? 'ja' : undefined}>
+      <div className={`solution-main ${s.lang}${long ? ' long' : ''}`} lang={s.lang === 'ja' ? 'ja' : undefined}>
         {s.ruby ? <Ruby text={s.ruby} /> : s.main}
       </div>
       {s.sub && <div className="solution-sub">{s.sub}</div>}

@@ -137,16 +137,18 @@ export function countDue(modules: StudyModule[], ctx: StudyContext, cards: Recor
   return resolve(dueCardIds(cards, now, moduleId), modules, ctx).length;
 }
 
-export function weakCardIds(cards: Record<string, CardState>, now = Date.now(), moduleId?: string, limit = 20): string[] {
+/** Ids of the most-missed cards, optionally only from one module or a list of modules (e.g. a course). */
+export function weakCardIds(cards: Record<string, CardState>, now = Date.now(), moduleId?: string | string[], limit = 20): string[] {
+  const only = moduleId === undefined ? null : (Array.isArray(moduleId) ? moduleId : [moduleId]).map((m) => m + ':');
   return Object.values(cards)
-    .filter((c) => c.seen >= 2 && c.correct < c.seen && (!moduleId || c.id.startsWith(moduleId + ':')))
+    .filter((c) => c.seen >= 2 && c.correct < c.seen && (!only || only.some((p) => c.id.startsWith(p))))
     .sort((a, b) => weakness(b, now) - weakness(a, now))
     .slice(0, limit)
     .map((c) => c.id);
 }
 
 export function buildWeakQueue(
-  modules: StudyModule[], ctx: StudyContext, cards: Record<string, CardState>, now = Date.now(), moduleId?: string, limit = 20,
+  modules: StudyModule[], ctx: StudyContext, cards: Record<string, CardState>, now = Date.now(), moduleId?: string | string[], limit = 20,
 ): SessionCard[] {
   return shuffle(resolve(weakCardIds(cards, now, moduleId, limit), modules, ctx), ctx.rng);
 }

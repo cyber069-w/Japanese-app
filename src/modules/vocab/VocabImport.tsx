@@ -86,7 +86,7 @@ export function VocabImport({ ctx }: { ctx: StudyContext }) {
             }}
           />
         </div>
-        <textarea className="input" placeholder="…or paste your list here" value={text} onChange={(e) => setText(e.target.value)} aria-label="CSV text" />
+        <textarea className="input" placeholder="…or paste your list here" value={text} onChange={(e) => setText(e.target.value)} aria-label="CSV text" spellCheck={false} />
         {parsed && (
           <>
             {parsed.errors.length > 0 && (

@@ -8,13 +8,22 @@
  *   space          separates the word chunks (used as tiles for sentence ordering)
  */
 import type { RubyText } from '../../core/types';
-import { toHiragana } from '../../lib/romaji';
+import { toHiragana, toRomaji } from '../../lib/romaji';
 
 export interface Seg { text: string; reading?: string; particle?: boolean }
 export interface Chunk { segs: Seg[] }
-export interface Sentence { chunks: Chunk[]; ruby: RubyText; reading: string; text: string }
+export interface Sentence {
+  chunks: Chunk[];
+  ruby: RubyText;
+  /** Whole sentence in hiragana (for checking answers). */
+  reading: string;
+  text: string;
+  /** For text-to-speech: kanji replaced by their reading, katakana kept, a space between word chunks. */
+  spoken: string;
+}
 
-const isKana = (c: string) => /[぀-ヿ]/.test(c);
+/** Characters furigana can sit on: kanji, 々 and digits (2年生, 5月10日). */
+const isRubyBase = (c: string) => /[\u3400-\u9fff々〆0-9０-９]/.test(c);
 
 function parseChunk(src: string): Chunk {
   const segs: Seg[] = [];
@@ -33,9 +42,9 @@ function parseChunk(src: string): Chunk {
     } else if (c === '[') {
       const end = src.indexOf(']', i);
       const reading = src.slice(i + 1, end);
-      // furigana belongs to the trailing run of non-kana characters (the kanji)
+      // furigana belongs to the trailing run of kanji (and digits) before the bracket
       let k = buf.length;
-      while (k > 0 && !isKana(buf[k - 1])) k--;
+      while (k > 0 && isRubyBase(buf[k - 1])) k--;
       const before = buf.slice(0, k), base = buf.slice(k);
       buf = before;
       flush();
@@ -55,8 +64,8 @@ export function parseSentence(src: string): Sentence {
     if (ci < chunks.length - 1) ruby.push([' ']);
   });
   const text = chunks.map(chunkText).join('');
-  const reading = toHiragana(chunks.map((ch) => ch.segs.map((s) => s.reading ?? s.text).join('')).join(''));
-  return { chunks, ruby, reading, text };
+  const kana = chunks.map((ch) => ch.segs.map((s) => s.reading ?? s.text).join(''));
+  return { chunks, ruby, reading: toHiragana(kana.join('')), text, spoken: kana.join(' ') };
 }
 
 export const chunkText = (c: Chunk) => c.segs.map((s) => s.text).join('');
@@ -109,4 +118,36 @@ export function validOrders(chunks: Chunk[]): number[][] {
   };
   permute(head, []);
   return out;
+}
+
+const PARTICLE_ROMAJI: Record<string, string> = { は: 'wa', へ: 'e', を: 'o' };
+/** です, でした, じゃありません … are written as separate words in romaji. */
+const COPULA = /(ですか|です|でした|じゃありません|ではありません|でしょう)([。？！、]*)$/;
+
+/**
+ * Romaji with word spaces, the way textbooks print it:
+ *   私[わたし]{は} 学生[がくせい]です。 → watashi wa gakusei desu
+ */
+export function sentenceRomaji(s: Sentence): string {
+  const words: string[] = [];
+  for (const ch of s.chunks) {
+    let buf = '';
+    const flush = () => {
+      const t = buf.replace(/[。、？！?!「」]/g, '');
+      buf = '';
+      if (!t) return;
+      const m = COPULA.exec(t);
+      const head = m && m.index > 0 ? t.slice(0, m.index) : t;
+      words.push(...head.split('・').filter(Boolean).map((w) => toRomaji(w)));
+      if (m && m.index > 0) words.push(toRomaji(m[1]));
+    };
+    for (const seg of ch.segs) {
+      if (seg.particle) {
+        flush();
+        words.push(PARTICLE_ROMAJI[seg.text] ?? toRomaji(seg.text));
+      } else buf += seg.reading ?? seg.text;
+    }
+    flush();
+  }
+  return words.join(' ');
 }

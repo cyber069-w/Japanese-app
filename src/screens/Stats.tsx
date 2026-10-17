@@ -1,14 +1,17 @@
 import { useMemo } from 'react';
 import { useApp } from '../core/store';
-import { useCtx, useDueCounts } from '../core/hooks';
+import { useCourse, useCtx, useDueCounts } from '../core/hooks';
 import { bestStreak, heatColor, itemStats, lastDays, moduleTotals, streak, totals } from '../core/stats';
 import { exerciseItems } from '../core/session';
 import type { StudyModule } from '../core/types';
-import { MODULES } from '../modules';
-import { formatDuration } from '../lib/date';
+import { courseModules } from '../courses';
+import { dayKey, formatDuration } from '../lib/date';
 import { Icon } from '../components/Icon';
+import { CourseBar } from '../components/CourseBar';
 
 export function Stats() {
+  const course = useCourse();
+  const mods = useMemo(() => courseModules(course), [course]);
   const days = useApp((s) => s.days);
   const cards = useApp((s) => s.cards);
   const due = useDueCounts();
@@ -18,6 +21,7 @@ export function Stats() {
   const maxDay = Math.max(1, ...activity.map((d) => d.reviews));
 
   const tiles: Array<[string, string, Parameters<typeof Icon>[0]['name'], string?]> = [
+    [String(days[dayKey()]?.reviews ?? 0), 'answers today', 'zap'],
     [String(streak(days)), 'day streak', 'flame', 'flame'],
     [String(bestStreak(days)), 'best streak', 'sparkle'],
     [String(due.total), 'due today', 'review'],
@@ -29,6 +33,7 @@ export function Stats() {
 
   return (
     <div className="page">
+      <CourseBar />
       <div className="page-head">
         <div className="grow">
           <h1>Stats</h1>
@@ -76,9 +81,12 @@ export function Stats() {
       <div className="section">
         <div className="section-head">
           <h2>Accuracy by module</h2>
+          <span className="spacer" />
+          <span className="faint">{course.name}</span>
         </div>
         <div className="card card-pad">
-          {MODULES.filter((m) => m.status === 'ready').map((m) => {
+          {!mods.length && <div className="muted small">No modules in {course.name} yet.</div>}
+          {mods.map((m) => {
             const mt = moduleTotals(days, m.id);
             return (
               <div className="mod-row" key={m.id}>
@@ -101,9 +109,9 @@ export function Stats() {
         </div>
       </div>
 
-      <LessonProgress />
+      <LessonProgress mods={mods} />
 
-      {MODULES.filter((m) => m.chart).map((m) => (
+      {mods.filter((m) => m.chart).map((m) => (
         <Heatmap key={m.id} mod={m} />
       ))}
     </div>
@@ -155,12 +163,12 @@ function Heatmap({ mod }: { mod: StudyModule }) {
 }
 
 /** Progress per Minna no Nihongo lesson, for every module whose items carry a lesson number. */
-function LessonProgress() {
+function LessonProgress({ mods }: { mods: StudyModule[] }) {
   const ctx = useCtx();
   const cards = useApp((s) => s.cards);
   const rows = useMemo(() => {
     const out: Array<{ lesson: number; parts: Array<{ mod: StudyModule; learned: number; total: number }> }> = [];
-    for (const mod of MODULES) {
+    for (const mod of mods) {
       const ex = mod.exercises[0];
       if (!ex || ex.generative) continue;
       const items = exerciseItems(ex, ctx).filter((i) => typeof i.lesson === 'number');
@@ -180,7 +188,7 @@ function LessonProgress() {
       }
     }
     return out.sort((a, b) => a.lesson - b.lesson);
-  }, [ctx, cards]);
+  }, [ctx, cards, mods]);
   if (!rows.length) return null;
   return (
     <div className="section">

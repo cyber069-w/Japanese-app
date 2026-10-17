@@ -9,6 +9,7 @@ import { toKana } from '../lib/romaji';
 import { Ruby } from './Ruby';
 import { DrawPad } from './Strokes';
 import { Icon } from './Icon';
+import { Recorder } from './Recorder';
 
 export type Phase = 'ask' | 'done';
 
@@ -90,9 +91,11 @@ export function ChoiceAnswer({
   const n = answer.options.length;
   const cols = n === 4 ? 2 : n <= 3 ? n : 3;
   const isJa = answer.options.every((o) => o.lang === 'ja' && [...o.label].length <= 3);
+  // long Japanese options get one per row on phones instead of breaking mid-word
+  const wide = answer.options.some((o) => o.lang === 'ja' && [...o.label].length > 5);
   return (
     <div className="answer-area">
-      <div className="choices" style={{ '--cols': isJa ? cols : Math.min(cols, 2) } as React.CSSProperties}>
+      <div className={`choices${wide ? ' wide' : ''}`} style={{ '--cols': isJa ? cols : Math.min(cols, 2) } as React.CSSProperties}>
         {answer.options.map((o: ChoiceOption, i) => {
           let cls = 'choice';
           if (phase === 'done') {
@@ -151,7 +154,7 @@ export function OrderAnswer({
           </button>
         ))}
       </div>
-      <div className="order-bank">
+      <div className="order-bank" hidden={phase === 'done'}>
         {answer.tiles.map((tile, i) => (
           <button
             key={i}
@@ -255,9 +258,10 @@ export function RevealAnswer({
 }) {
   return (
     <div className="answer-area stack" style={{ '--gap': '14px' } as React.CSSProperties}>
+      {answer.record && <Recorder storageKey={answer.record} hotkey />}
       {revealed ? (
         <>
-          <div className="feedback good" style={{ background: 'var(--surface-2)' }}>{answer.back}</div>
+          <div className="feedback good reveal-back">{answer.back}</div>
           {phase === 'ask' && <GradeButtons onGrade={onGrade} />}
         </>
       ) : (

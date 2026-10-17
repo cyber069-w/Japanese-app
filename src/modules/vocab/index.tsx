@@ -1,7 +1,7 @@
 /** Vocabulary: your Minna no Nihongo lessons plus any lists you import. */
 import type { Exercise, FilterGroup, Question, StudyContext, StudyModule } from '../../core/types';
 import { shuffle } from '../../core/session';
-import { toRomaji } from '../../lib/romaji';
+import { phraseRomaji } from '../../lib/romaji';
 import { navigate } from '../../lib/router';
 import { lessonLabel, vocabAccepts, vocabItems, type VocabItem } from './items';
 import { Syllables } from '../../components/Syllables';
@@ -29,7 +29,7 @@ const solution = (it: VocabItem, ctx: StudyContext) => ({
   main: it.kanji ?? it.kana,
   ruby: it.ruby,
   lang: 'ja' as const,
-  sub: `${meaningOf(it, ctx)} · ${toRomaji(it.kana.replace(/\s/g, ' '))}`,
+  sub: `${meaningOf(it, ctx)} · ${phraseRomaji(it.kana)}`,
   notes: it.alt ? [`Also: ${it.alt}`] : undefined,
 });
 
@@ -91,6 +91,7 @@ const meaningToJa: Exercise<VocabItem> = {
 
 const flashcards: Exercise<VocabItem> = {
   id: 'cards',
+  selfRated: true,
   name: 'Flashcards',
   description: 'Say the meaning to yourself, flip, and rate how well you knew it.',
   icon: '札',
@@ -104,7 +105,7 @@ const flashcards: Exercise<VocabItem> = {
           <div className="solution-main">{meaningOf(it, ctx)}</div>
           <div className="solution-sub" lang="ja">
             <Syllables text={it.kana} />
-            {it.alt ? ` (${it.alt})` : ''} · {toRomaji(it.kana)}
+            {it.alt ? ` (${it.alt})` : ''} · {phraseRomaji(it.kana)}
           </div>
         </div>
       ),

@@ -1,4 +1,5 @@
 import type { Hint } from '../core/types';
+import { Ruby } from './Ruby';
 
 /**
  * The visual memory hint: big keyword ("MOO"), the mnemonic picture with the kana
@@ -15,6 +16,7 @@ export function HintPanel({ hint }: { hint: Hint }) {
       )}
       <div>
         {hint.keyword && <div className="hint-keyword">{hint.keyword}</div>}
+        {hint.ruby && <Ruby text={hint.ruby} className="hint-ruby serif" />}
         {hint.text && <p className="hint-text">{hint.text}</p>}
         {hint.rules && hint.rules.length > 0 && (
           <div className="hint-rules">
@@ -36,7 +38,7 @@ export function HintPanel({ hint }: { hint: Hint }) {
       {hint.strip && hint.strip.length > 0 && (
         <div className="hint-strip">
           {hint.strip.map((s, i) => (
-            <div className="hint-strip-item" key={i}>
+            <div className={`hint-strip-item${s.image ? '' : ' text-only'}`} key={i}>
               {s.image ? (
                 <div className="hint-img">
                   <img src={s.image} alt={s.keyword ?? s.kana} />

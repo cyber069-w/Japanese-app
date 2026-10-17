@@ -6,6 +6,7 @@ import type { Settings as S } from '../core/types';
 import { MODULES } from '../modules';
 import { hasJapaneseVoice, onVoicesChanged, speak, speechSupported, voiceName } from '../lib/speech';
 import { Icon } from '../components/Icon';
+import { SyncSettings } from './SyncSettings';
 
 function Row({ title, desc, children }: { title: string; desc?: ReactNode; children: ReactNode }) {
   return (
@@ -125,6 +126,7 @@ export function Settings() {
         </section>
 
         <CoursePack />
+        <SyncSettings />
         <Backup />
 
         <section className="card card-pad">
@@ -144,7 +146,10 @@ export function Settings() {
 
         <section className="card card-pad small muted stack" style={{ '--gap': '8px' } as React.CSSProperties}>
           <h2 style={{ color: 'var(--ink)' }}>About</h2>
-          <p>Nihongo – a private, ad-free Japanese study app. Everything is stored only on this device.</p>
+          <p>
+            Nihongo – a private, ad-free Japanese study app. Everything is stored on this device; if you connect sync, an encrypted copy
+            is kept in your own GitHub repository. No other servers, no tracking.
+          </p>
           <p>
             Stroke order data: <a href="https://kanjivg.tagaini.net" target="_blank" rel="noreferrer">KanjiVG</a> © Ulrich Apel, CC BY-SA 3.0.
             Kanji readings and meanings: <a href="https://www.edrdg.org/wiki/index.php/KANJIDIC_Project" target="_blank" rel="noreferrer">KANJIDIC2</a> © EDRDG, CC BY-SA 4.0.
@@ -183,7 +188,7 @@ function ResetModule() {
 function CoursePack() {
   const status = useApp((s) => s.packStatus);
   const content = useApp((s) => s.content);
-  const [available, setAvailable] = useState<boolean | null>(null);
+  const [available, setAvailable] = useState<boolean | 'offline' | null>(null);
   const [pass, setPass] = useState('');
   const [msg, setMsg] = useState<{ kind: 'good' | 'bad'; text: string } | null>(null);
   const [busy, setBusy] = useState(false);
@@ -220,7 +225,7 @@ function CoursePack() {
         {status === 'bundled' && `Loaded from your local private folder: ${packWords} words, ${pics} pictures.`}
         {status === 'unlocked' && `Unlocked: ${packWords} words, ${pics} pictures.`}
       </div>
-      {status !== 'bundled' && available && (
+      {status !== 'bundled' && available === true && (
         <form
           className="row"
           onSubmit={(e) => {
@@ -244,6 +249,7 @@ function CoursePack() {
         </form>
       )}
       {status !== 'bundled' && available === false && <p className="faint small">No encrypted pack is deployed with this copy of the app.</p>}
+      {status !== 'bundled' && available === 'offline' && <p className="faint small">You’re offline – connect to the internet to unlock the pack.</p>}
       {msg && <div className={`notice ${msg.kind}`}>{msg.text}</div>}
       {status === 'unlocked' && (
         <div>

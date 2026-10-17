@@ -3,7 +3,7 @@ import type { StudyContext } from '../../core/types';
 import { Ruby } from '../../components/Ruby';
 import { Icon } from '../../components/Icon';
 import { speak } from '../../lib/speech';
-import { toRomaji } from '../../lib/romaji';
+import { phraseRomaji, toRomaji } from '../../lib/romaji';
 import { Syllables } from '../../components/Syllables';
 import { lessonLabel, vocabItems } from './items';
 
@@ -43,7 +43,7 @@ export function WordList({ ctx }: { ctx: StudyContext }) {
               <th style={{ width: 44 }} />
               <th>Japanese</th>
               <th>{lang === 'de' ? 'Deutsch' : 'English'}</th>
-              <th>Lesson</th>
+              {lesson === 'all' && <th className="wordlist-lesson">Lesson</th>}
             </tr>
           </thead>
           <tbody>
@@ -58,13 +58,13 @@ export function WordList({ ctx }: { ctx: StudyContext }) {
                   <Ruby text={i.ruby} />
                   {i.alt && <span className="faint small"> ({i.alt})</span>}
                   <div className="small"><Syllables text={i.kana} /></div>
-                  <div className="faint tiny">{toRomaji(i.kana)}</div>
+                  <div className="faint tiny">{phraseRomaji(i.kana)}</div>
                 </td>
                 <td>
                   {i[lang]}
                   <div className="faint tiny">{lang === 'de' ? i.en : i.de}</div>
                 </td>
-                <td className="faint">{lessonLabel(i.lesson ?? 0)}</td>
+                {lesson === 'all' && <td className="faint wordlist-lesson">{lessonLabel(i.lesson ?? 0)}</td>}
               </tr>
             ))}
           </tbody>

@@ -2,6 +2,7 @@
 import type { SessionCard } from './session';
 import type { BaseItem } from './types';
 import { navigate } from '../lib/router';
+import { primeSpeech } from '../lib/speech';
 
 export interface SessionConfig {
   title: string;
@@ -18,6 +19,8 @@ let current: SessionConfig | null = null;
 
 export function startSession(cfg: SessionConfig) {
   current = cfg;
+  // called from a click – lets the first question's audio play on iOS
+  primeSpeech();
   navigate('/session');
 }
 

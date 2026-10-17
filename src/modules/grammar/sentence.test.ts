@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { chunkText, parseSentence, validOrders } from './sentence';
+import { chunkText, parseSentence, sentenceRomaji, validOrders } from './sentence';
 
 describe('parseSentence', () => {
   it('reads furigana, particles and chunks', () => {
@@ -34,5 +34,15 @@ describe('validOrders', () => {
     const s = parseSentence('奈良[なら]{は} 古[ふる]い 町[まち]です。');
     const orders = validOrders(s.chunks).map((o) => o.join(''));
     expect(orders).toEqual(['012']);
+  });
+});
+
+describe('sentenceRomaji', () => {
+  it('spaces words, particles and です like a textbook', () => {
+    expect(sentenceRomaji(parseSentence('私[わたし]{は} 学生[がくせい]です。'))).toBe('watashi wa gakusei desu');
+    expect(sentenceRomaji(parseSentence('スイス人[じん]です。'))).toBe('suisujin desu');
+    expect(sentenceRomaji(parseSentence('7時[しちじ]{に} 起[お]きます。'))).toBe('shichiji ni okimasu');
+    expect(sentenceRomaji(parseSentence('日本[にほん]{へ} 行[い]きます。'))).toBe('nihon e ikimasu');
+    expect(sentenceRomaji(parseSentence('私[わたし]{は} マクシミリアン・ヘットマンです。'))).toBe('watashi wa makushimirian hettoman desu');
   });
 });

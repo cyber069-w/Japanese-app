@@ -190,7 +190,7 @@
     },
     "examples": [
       { "ja": "エレベーター{は} あちらです。", "en": "The lift is over there (polite).", "de": "Der Aufzug ist dort drüben (höflich)." },
-      { "ja": "お国[おくに]{は} どちらです{か}。", "en": "Which country are you from?", "de": "Aus welchem Land kommen Sie?" },
+      { "ja": "お国[くに]{は} どちらです{か}。", "en": "Which country are you from?", "de": "Aus welchem Land kommen Sie?" },
       { "ja": "会社[かいしゃ]{は} どちらです{か}。", "en": "Which company do you work for?", "de": "Bei welcher Firma arbeiten Sie?" }
     ]
   },
