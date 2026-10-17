@@ -5,6 +5,31 @@ named in the phase, paste the prompt block. Do the phases in order; each one end
 `nihongo-update`. Background for every phase: `HANDOVER.md` (app, private content rules), `TODO.md` (open items),
 `ROADMAP.md`.
 
+## Two chats instead of six (the user's choice)
+
+**Chat A – phases 1–3 · Opus 5.5, effort high**
+
+```
+Read HANDOVER-PHASES.md completely (shared rules, open input, phases 1, 2 and 3), TODO.md, then build
+phases 1, 2 and 3 of my study app (~/Claude Code/nihongo-app, branch nihongo-update) one after the other,
+exactly as described there. One bundled question round at the start (my weekly plan for the day window comes
+with this message or I'll paste it), then no more questions. After each phase: npm test, npm run build,
+browser check (1280 / 700 / 375 px), commit, push, tick TODO.md. Final answer max 15 lines per phase:
+done / open / solved differently.
+```
+
+**Chat B – phases 4–6 · Sonnet 5.5, effort medium** (after chat A is merged into the branch)
+
+```
+Read HANDOVER-PHASES.md completely (shared rules, open input, phases 4, 5 and 6), TODO.md, then build
+phases 4, 5 and 6 of my study app (~/Claude Code/nihongo-app, branch nihongo-update) one after the other,
+exactly as described there. One bundled question round at the start, then no more questions. My Azure Speech
+key and region are in private/azure-speech.json – never print them. After each phase: npm test, npm run build,
+browser check, commit, push, tick TODO.md. Final answer max 15 lines per phase: done / open / solved differently.
+```
+
+The single-phase prompts below stay as the detailed spec both chats work from.
+
 ## Shared rules (they are repeated in every prompt)
 
 - Read `HANDOVER-PHASES.md` (this file, your phase only), `TODO.md` and only the files you need.
