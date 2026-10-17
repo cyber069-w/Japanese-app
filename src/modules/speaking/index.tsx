@@ -2,6 +2,7 @@
  * Speaking / oral exam prep: build your self-introduction, then answer typical
  * A1 exam questions out loud, compare with a model answer and record yourself.
  */
+import { ReadAloud } from './ReadAloud';
 import type { BaseItem, Exercise, Question, StudyContext, StudyModule } from '../../core/types';
 import { parseSentence, sentenceRomaji } from '../grammar/sentence';
 import { introLines, type Line } from './intro';
@@ -112,7 +113,8 @@ export const speaking: StudyModule = {
     })),
   banner: SpeakingBanner,
   tools: [
-    { id: 'intro', name: 'Self-introduction', description: 'Build your じこしょうかい with furigana, translation and audio.', icon: '自', component: SelfIntroTool },
+    { id: 'intro', name: 'Self-introduction', description: 'Build your self-introduction (jikoshoukai) with translation and audio.', icon: '自', component: SelfIntroTool },
+    { id: 'read', name: 'Read aloud', description: 'Say a sentence – the app shows which words it recognised.', icon: '話', component: ReadAloud },
     { id: 'questions', name: 'Question list', description: 'Every question with model answers – read, listen and prepare.', icon: '覧', component: QuestionList },
   ],
 };

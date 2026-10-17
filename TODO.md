@@ -26,7 +26,8 @@ Status: [ ] open · [x] done · [~] solved differently / blocked (reason in the 
 - [ ] Kanji module browser test, then enable again; `/m/kanji/t/*` reachable by URL while "coming later"
 
 ## Phase 4 – Speaking (voice)
-- [ ] Speak a sentence → result (see decision in the design round), shown in romaji + German, kana via toggle; document limits
+- [x] Read aloud (Speaking → Read aloud): grammar sentence in romaji + German (kana via toggle), listen normal/slow, speak, words recognised shown green/red with % and recogniser confidence. Browser speech recognition (Chrome/Edge/Safari, not Firefox; audio goes to Google/Apple). Comparison unit-tested; microphone run not tested here
+- [ ] Real pronunciation analysis (pitch accent, mora length, sounds) – needs a phoneme model or an AI audio service; not possible with browser recognition alone
 
 ## Phase 5 – Focus
 - [ ] Mini window redesigned in the new design system

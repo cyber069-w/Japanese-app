@@ -1177,3 +1177,10 @@ a.subject-tile:focus-visible { outline-color: var(--tile); }
 .wl-row { cursor: pointer; }
 .wl-row:hover td { background: var(--surface-2); }
 .wl-detail td { background: var(--paper-2); }
+
+/* ============================== Read aloud ============================== */
+
+.read-target { font-size: var(--text-xl); font-weight: 600; line-height: 1.35; letter-spacing: -0.01em; }
+.read-target .said { color: var(--good); }
+.read-target .missed, b.missed { color: var(--bad); text-decoration: underline wavy; text-underline-offset: 4px; }
+.btn.recording { background: var(--bad); border-color: var(--bad); color: var(--accent-ink); }
