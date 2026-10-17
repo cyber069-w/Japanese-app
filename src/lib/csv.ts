@@ -65,10 +65,12 @@ export function romajiToKana(word: string): string {
   return katakana ? toKatakana(kana) : kana;
 }
 
+const ROMAJI_LIKE = /^[A-Za-zāīūēōâîûêô\s'.,?!/…-]+$/;
+
 const HEADER_ALIASES: Record<string, string> = {
   kana: 'kana', hiragana: 'kana', reading: 'kana', lesung: 'kana', yomi: 'kana', japanese: 'kana', japanisch: 'kana',
   kanji: 'kanji',
-  romaji: 'romaji', romanization: 'romaji', romanisierung: 'romaji',
+  romaji: 'romaji', rōmaji: 'romaji', term: 'romaji', romanization: 'romaji', romanisierung: 'romaji',
   de: 'de', german: 'de', deutsch: 'de', bedeutung: 'de',
   en: 'en', english: 'en', englisch: 'en',
   meaning: 'meaning',
@@ -85,7 +87,13 @@ export function parseVocabCsv(text: string, source: string, meaningLang: 'de' | 
   const rows = parseCsv(text);
   const errors: string[] = [];
   if (rows.length < 2) return { entries: [], errors: ['Need a header row and at least one word.'] };
-  const header = rows[0].map((h) => HEADER_ALIASES[h.toLowerCase().trim()] ?? '');
+  let header = rows[0].map((h) => HEADER_ALIASES[h.toLowerCase().trim()] ?? '');
+  if (header.every((h) => !h) && text.split('\n')[0].includes('\t') && rows.every((r) => r.length >= 2)) {
+    // headerless Quizlet export: term ⇥ definition (the term is romaji or kana)
+    const romaji = rows.filter((r) => ROMAJI_LIKE.test(r[0])).length > rows.length / 2;
+    header = [romaji ? 'romaji' : 'kana', 'meaning'];
+    rows.unshift([]);
+  }
   const col = (name: string) => header.indexOf(name);
   if (col('kana') < 0 && col('romaji') < 0) errors.push('Missing a "kana" (or "romaji") column.');
   if (col('de') < 0 && col('en') < 0 && col('meaning') < 0) errors.push('Missing a meaning column ("de", "en" or "meaning").');

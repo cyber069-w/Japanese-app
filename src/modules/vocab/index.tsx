@@ -104,7 +104,7 @@ const flashcards: Exercise<VocabItem> = {
         <div>
           <div className="solution-main">{meaningOf(it, ctx)}</div>
           <div className="solution-sub" lang="ja">
-            <Syllables text={it.kana} />
+            <Syllables text={it.kana} romaji />
             {it.alt ? ` (${it.alt})` : ''} · {phraseRomaji(it.kana)}
           </div>
         </div>

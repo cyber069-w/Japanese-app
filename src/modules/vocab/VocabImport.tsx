@@ -3,6 +3,7 @@ import { useMemo, useRef, useState } from 'react';
 import type { MeaningLang, StudyContext } from '../../core/types';
 import { setUserVocab, useApp } from '../../core/store';
 import { parseVocabCsv } from '../../lib/csv';
+import { phraseRomaji } from '../../lib/romaji';
 import { Icon } from '../../components/Icon';
 
 const EXAMPLE = `kana,kanji,de,en,lesson
@@ -47,7 +48,7 @@ export function VocabImport({ ctx }: { ctx: StudyContext }) {
         <h2>Format</h2>
         <p className="muted small">
           One word per line with a header row. Columns: <b>kana</b> (or <b>romaji</b> – converted to kana for you; a capital first letter makes it katakana, e.g. <span lang="ja">Itaria</span> → イタリア, and ō/ū give long vowels), <b>kanji</b> (optional), <b>de</b> and/or <b>en</b> (or a single
-          <b> meaning</b> column), <b>lesson</b>. Commas, semicolons (German Excel) and tabs all work. Brackets like
+          <b> meaning</b> column), <b>lesson</b>. Quizlet export (term ⇥ definition, no header, tab-separated) works too: the term is converted from romaji. Commas, semicolons (German Excel) and tabs all work. Brackets like
           <span lang="ja"> だれ (どなた)</span> or <span lang="ja">[お]みやげ</span> mark alternatives / optional parts.
         </p>
         <pre className="card" style={{ margin: 0, padding: 12, overflowX: 'auto', fontSize: '0.85rem', background: 'var(--surface-2)' }}>{EXAMPLE}</pre>
@@ -104,6 +105,7 @@ export function VocabImport({ ctx }: { ctx: StudyContext }) {
                     <thead>
                       <tr>
                         <th>Kana</th>
+                        <th>Romaji</th>
                         <th>Kanji</th>
                         <th>Deutsch</th>
                         <th>English</th>
@@ -114,6 +116,7 @@ export function VocabImport({ ctx }: { ctx: StudyContext }) {
                       {parsed.entries.slice(0, 8).map((e) => (
                         <tr key={e.id}>
                           <td lang="ja">{e.kana}</td>
+                          <td>{phraseRomaji(e.kana)}</td>
                           <td lang="ja">{e.kanji}</td>
                           <td>{e.de}</td>
                           <td>{e.en}</td>

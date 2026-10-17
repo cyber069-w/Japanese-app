@@ -34,4 +34,9 @@ describe('parseVocabCsv', () => {
     const { entries } = parseVocabCsv('romaji,de,lesson\ngakusei,Student,1\nItaria,Italien,3\nginkōin,Bankangestellter,1\nkōhii,Kaffee,2\nKōhii,Kaffee,2', 'x');
     expect(entries.map((e) => e.kana)).toEqual(['がくせい', 'イタリア', 'ぎんこういん', 'こうひい', 'コーヒー']);
   });
+  it('reads a headerless two-column Quizlet export (romaji ⇥ German)', () => {
+    const { entries, errors } = parseVocabCsv('gakusei\tStudent/in\nKOOHII\tKaffee\nkin\'en\tRauchverbot', 'q');
+    expect(errors).toEqual([]);
+    expect(entries.map((e) => [e.kana, e.de])).toEqual([['がくせい', 'Student/in'], ['コーヒー', 'Kaffee'], ['きんえん', 'Rauchverbot']]);
+  });
 });

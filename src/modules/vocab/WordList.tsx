@@ -57,7 +57,7 @@ export function WordList({ ctx }: { ctx: StudyContext }) {
                 <td className="ja">
                   <Ruby text={i.ruby} />
                   {i.alt && <span className="faint small"> ({i.alt})</span>}
-                  <div className="small"><Syllables text={i.kana} /></div>
+                  <div className="small"><Syllables text={i.kana} romaji /></div>
                   <div className="faint tiny">{phraseRomaji(i.kana)}</div>
                 </td>
                 <td>
