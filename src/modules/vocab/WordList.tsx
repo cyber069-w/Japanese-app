@@ -40,7 +40,7 @@ export function WordList({ ctx }: { ctx: StudyContext }) {
         <table className="table">
           <thead>
             <tr>
-              <th style={{ width: 44 }} />
+              <th style={{ width: 88 }} />
               <th>Japanese</th>
               <th>{lang === 'de' ? 'Deutsch' : 'English'}</th>
               {lesson === 'all' && <th className="wordlist-lesson">Lesson</th>}
@@ -52,6 +52,9 @@ export function WordList({ ctx }: { ctx: StudyContext }) {
                 <td>
                   <button className="icon-btn" style={{ width: 34, height: 34 }} onClick={() => speak(i.kana, ctx.settings.voiceRate)} aria-label={`Play ${i.kana}`}>
                     <Icon name="speaker" size={17} />
+                  </button>
+                  <button className="icon-btn" style={{ width: 34, height: 34 }} onClick={() => speak(i.kana, Math.max(0.4, ctx.settings.voiceRate * 0.55))} aria-label={`Play ${i.kana} slowly`} title="Slow">
+                    <Icon name="clock" size={15} />
                   </button>
                 </td>
                 <td className="ja">

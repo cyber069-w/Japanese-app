@@ -136,3 +136,68 @@
   --font-serif: var(--font-sans);
   color-scheme: dark;
 }
+
+/* Accent colour per course (Japanese keeps the indigo default) */
+:root[data-course='cfa'] {
+  --accent: #2f6b4f;
+  --accent-hover: #255a41;
+  --accent-tint: #e3f0e9;
+  --accent-ink: #ffffff;
+}
+:root[data-course='bwl'] {
+  --accent: #9a6a1c;
+  --accent-hover: #845917;
+  --accent-tint: #f6ecd9;
+  --accent-ink: #ffffff;
+}
+:root[data-course='recht'] {
+  --accent: #7a3e6b;
+  --accent-hover: #66335a;
+  --accent-tint: #f3e4ef;
+  --accent-ink: #ffffff;
+}
+@media (prefers-color-scheme: dark) {
+  :root[data-course='cfa']:not([data-theme='light']) {
+  --accent: #7cc4a0;
+  --accent-hover: #98d3b6;
+  --accent-tint: #16302a;
+  --accent-ink: #0b1814;
+  }
+}
+:root[data-course='cfa'][data-theme='dark'],
+:root[data-course='cfa'][data-look='midnight'] {
+  --accent: #7cc4a0;
+  --accent-hover: #98d3b6;
+  --accent-tint: #16302a;
+  --accent-ink: #0b1814;
+}
+@media (prefers-color-scheme: dark) {
+  :root[data-course='bwl']:not([data-theme='light']) {
+  --accent: #e0b060;
+  --accent-hover: #ebc380;
+  --accent-tint: #33291a;
+  --accent-ink: #1a1307;
+  }
+}
+:root[data-course='bwl'][data-theme='dark'],
+:root[data-course='bwl'][data-look='midnight'] {
+  --accent: #e0b060;
+  --accent-hover: #ebc380;
+  --accent-tint: #33291a;
+  --accent-ink: #1a1307;
+}
+@media (prefers-color-scheme: dark) {
+  :root[data-course='recht']:not([data-theme='light']) {
+  --accent: #d79bc9;
+  --accent-hover: #e3b3d8;
+  --accent-tint: #33202e;
+  --accent-ink: #1a0f17;
+  }
+}
+:root[data-course='recht'][data-theme='dark'],
+:root[data-course='recht'][data-look='midnight'] {
+  --accent: #d79bc9;
+  --accent-hover: #e3b3d8;
+  --accent-tint: #33202e;
+  --accent-ink: #1a0f17;
+}

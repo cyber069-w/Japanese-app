@@ -27,14 +27,16 @@ function useThemeAndFurigana() {
   const theme = useApp((s) => s.settings.theme);
   const look = useApp((s) => s.settings.look);
   const furigana = useApp((s) => s.settings.furigana);
+  const courseId = useCourse().id;
   useEffect(() => {
     const root = document.documentElement;
     root.dataset.look = look;
+    root.dataset.course = courseId;
     if (theme === 'system') delete root.dataset.theme;
     else root.dataset.theme = theme;
     const dark = look === 'midnight' || theme === 'dark' || (theme === 'system' && matchMedia('(prefers-color-scheme: dark)').matches);
     document.querySelector('meta[name="theme-color"]')?.setAttribute('content', dark ? (look === 'midnight' ? '#0f1218' : '#121418') : '#f6f1e7');
-  }, [theme, look]);
+  }, [theme, look, courseId]);
   useEffect(() => {
     document.body.classList.toggle('no-furigana', !furigana);
   }, [furigana]);

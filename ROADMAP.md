@@ -8,11 +8,11 @@ Details of what exists today are in `HANDOVER.md`.
 2. Vocab lessons 6+ (user supplies; Quizlet paste now works), grammar rules reconciled with the user's own notes.
 3. Kanji module browser-test, then enable it again.
 4. Audio everywhere with a slow option (grammar examples, kana words, chapter pages).
-5. Quizlet export of a chapter or selection (term ⇥ definition).
+5. ✅ Quizlet export of chosen lessons (Vocabulary → Export to Quizlet). ✅ Slow-audio button in the word list; still to do: slow button on grammar examples and kana words.
 6. 💡 Longer "marathon" mode with a progress bar and break reminder; 💡 mixed-kana quiz (hiragana + katakana together).
 
 ## B. Look & feel (user's top wish)
-7. Replace the plain icons and single-glyph tiles with one consistent icon set; design system with one accent per course;
+7. ✅ Look setting (Washi / Midnight), ✅ Tabler icon set, ✅ accent colour per course. Still to do: type scale and spacing tokens. Original goal: replace the plain icons and single-glyph tiles with one consistent icon set; design system with one accent per course;
    two mockups first, user picks, then roll out (practice screen, Home, course page).
 
 ## C. Other courses

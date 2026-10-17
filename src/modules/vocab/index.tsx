@@ -5,6 +5,7 @@ import { phraseRomaji } from '../../lib/romaji';
 import { navigate } from '../../lib/router';
 import { lessonLabel, vocabAccepts, vocabItems, type VocabItem } from './items';
 import { Syllables } from '../../components/Syllables';
+import { QuizletExport } from './QuizletExport';
 import { VocabImport } from './VocabImport';
 import { WordList } from './WordList';
 
@@ -153,5 +154,6 @@ export const vocab: StudyModule = {
   tools: [
     { id: 'list', name: 'Word list', description: 'Browse and listen to every word by lesson.', icon: '表', component: WordList },
     { id: 'import', name: 'Import words', description: 'Add your own list from CSV or pasted text.', icon: '入', component: VocabImport },
+    { id: 'export', name: 'Export to Quizlet', description: 'Copy chosen lessons as Quizlet text (term ⇥ definition).', icon: '出', component: QuizletExport },
   ],
 };
