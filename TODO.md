@@ -30,13 +30,13 @@ Status: [ ] open · [x] done · [~] solved differently / blocked (reason in the 
 - [ ] Real pronunciation analysis (pitch accent, mora length, sounds) – needs a phoneme model or an AI audio service; not possible with browser recognition alone
 
 ## Phase 5 – Focus
-- [ ] Mini window redesigned in the new design system
-- [ ] Subject choice hidden until start: radial "flower" picker, dropdown fallback (keyboard, small windows)
-- [ ] Add vs edit clearly separated: own title, icon, colour, prefilled values, quick start/end/duration, overlap warning, delete with undo
-- [ ] Timer based on start timestamps (survives restart and sleep) – already true, keep it
-- [ ] Auto-save
-- [ ] Gaps in today's timeline detected and fillable with one tap; day coverage in %
-- [ ] Reminder when no timer is running; ask after inactivity whether the time should count
+- [x] Mini window / widget tab redesigned in the leather system (380 px tested)
+- [x] Subject choice hidden until Start (or Switch): radial flower picker with study/lecture in the centre; dropdown always below it, alone when the window is too narrow; Esc closes
+- [x] “Add time” (green, sparkle) and “Edit entry” (amber, pencil) dialogs; prefilled; start / end / duration chips; overlap warning; delete with an 8-second Undo
+- [x] Timer is a list of timestamps (survives reloads, restarts and sleep); finished sessions now keep their stretches for the timeline
+- [x] Auto-save: every change is written to IndexedDB at once and shared with open tabs
+- [x] Today timeline with gaps ≥ 10 min (tap to fill) and day coverage in % for an adjustable day window
+- [x] Reminder when no timer runs (in-app + optional system notification); “still on it?” check-in, auto-stop after 5 min without answer, and a question after sleep whether the time counts. Only while the app is open somewhere; ticker logic not run end-to-end here (no waiting 30 min)
 - [ ] Sync focus sessions between devices; lecture reminders
 
 ## Older open items (ROADMAP / HANDOVER)

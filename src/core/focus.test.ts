@@ -22,3 +22,20 @@ describe('mergeSessions', () => {
     expect(merged.map((s) => s.id)).toEqual(['s1', 's2']);
   });
 });
+
+describe('day timeline', () => {
+  it('finds coverage and gaps and cuts away time', async () => {
+    const { coverage, gaps, cutOut, stopAt, sessionFromTimes, overlapping, effectiveMs, startFocus } = await import('./focus');
+    const h = 3600_000;
+    const iv: Array<[number, number]> = [[1 * h, 2 * h], [1.5 * h, 3 * h], [5 * h, 6 * h]];
+    expect(coverage(iv, 0, 8 * h)).toBeCloseTo(3 / 8);
+    expect(gaps(iv, 0, 8 * h)).toEqual([[0, 1 * h], [3 * h, 5 * h], [6 * h, 8 * h]]);
+    let a = startFocus('study', 'CFA', 0);
+    a = cutOut(a, 1 * h, 2 * h); // asleep 1–2 h
+    expect(effectiveMs(a, 3 * h)).toBe(2 * h);
+    expect(effectiveMs(stopAt(a, 2.5 * h), 3 * h)).toBe(1.5 * h);
+    const s = sessionFromTimes('study', 'BWL', 2 * h, 4 * h);
+    expect(overlapping([s], 3 * h, 5 * h).map((x) => x.id)).toEqual([s.id]);
+    expect(overlapping([s], 4 * h, 5 * h)).toEqual([]);
+  });
+});

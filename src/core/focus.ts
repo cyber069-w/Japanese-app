@@ -15,7 +15,12 @@ export interface FocusSession {
   elapsedSec: number;
   pauses: number;
   manual: boolean;
+  /** Worked stretches [start, end] in ms (newer sessions) – used for the day timeline. */
+  segs?: Array<[number, number]>;
 }
+
+/** A question to you while the timer runs: computer was asleep, regular check-in, or no answer to a check-in. */
+export interface FocusPrompt { reason: 'away' | 'check' | 'idle'; from: number; to?: number }
 
 export interface ActiveFocus {
   kind: 'study' | 'lecture';
@@ -24,6 +29,9 @@ export interface ActiveFocus {
   /** Running or paused stretches; the last one has e = null while the clock runs. */
   segs: Array<{ s: number; e: number | null }>;
   pauses: number;
+  /** When to ask “still working on it?” next. */
+  checkAt?: number;
+  prompt?: FocusPrompt | null;
 }
 
 export const FOCUS_SUBJECTS = ['Mikro', 'Mathe/Statistik', 'BWL', 'Privatrecht', 'Finanzbuchhaltung', 'Wiss. Schreiben', 'Politikwissenschaft', 'CFA', 'Japanisch', 'Python', 'Bewerbungen'];
@@ -53,12 +61,84 @@ export const resumeFocus = (a: ActiveFocus, now: number): ActiveFocus => (isRunn
 
 export function finishFocus(a: ActiveFocus, now: number): FocusSession {
   const eff = Math.round(effectiveMs(a, now) / 1000);
+  const last = Math.max(a.startedAt, ...a.segs.map((g) => g.e ?? now));
   return {
     id: `s${a.startedAt}`, kind: a.kind, subject: a.subject, day: localDay(a.startedAt),
-    start: new Date(a.startedAt).toISOString(), end: new Date(now).toISOString(),
-    effectiveSec: eff, elapsedSec: Math.max(eff, Math.round((now - a.startedAt) / 1000)), pauses: a.pauses, manual: false,
+    start: new Date(a.startedAt).toISOString(), end: new Date(Math.min(now, last)).toISOString(),
+    effectiveSec: eff, elapsedSec: Math.max(eff, Math.round((Math.min(now, last) - a.startedAt) / 1000)), pauses: a.pauses, manual: false,
+    segs: a.segs.map((g) => [g.s, g.e ?? now] as [number, number]).filter(([x, y]) => y > x),
   };
 }
+
+/** Takes [from, to] out of the running timer (time that shouldn't count), keeping it running after `to`. */
+export function cutOut(a: ActiveFocus, from: number, to: number): ActiveFocus {
+  const kept = a.segs.flatMap((g) => {
+    const e = g.e ?? Infinity;
+    if (e <= from || g.s >= to) return [g];
+    const parts: ActiveFocus['segs'] = [];
+    if (g.s < from) parts.push({ s: g.s, e: from });
+    if (e > to) parts.push({ s: to, e: g.e });
+    return parts;
+  });
+  return { ...a, segs: kept.length ? kept : [{ s: to, e: null }], pauses: a.pauses + 1 };
+}
+
+/** Stops the timer at `at` (e.g. when you stopped working without pressing stop). */
+export function stopAt(a: ActiveFocus, at: number): ActiveFocus {
+  const segs = a.segs.filter((g) => g.s < at).map((g) => ({ ...g, e: g.e === null || g.e > at ? at : g.e }));
+  return { ...a, segs: segs.length ? segs : [{ s: at, e: at }] };
+}
+
+/** A session from start and end times (the add / edit dialog). */
+export function sessionFromTimes(kind: FocusSession['kind'], subject: string, startMs: number, endMs: number, id = `m${startMs}`): FocusSession {
+  const sec = Math.max(0, Math.round((endMs - startMs) / 1000));
+  return {
+    id, kind, subject, day: localDay(startMs), start: new Date(startMs).toISOString(), end: new Date(endMs).toISOString(),
+    effectiveSec: sec, elapsedSec: sec, pauses: 0, manual: true, segs: [[startMs, endMs]],
+  };
+}
+
+/** Worked intervals of a session. Old records without stretches never overstate: start + effective time. */
+export function sessionIntervals(s: FocusSession): Array<[number, number]> {
+  if (s.segs?.length) return s.segs;
+  const start = Date.parse(s.start);
+  return [[start, start + s.effectiveSec * 1000]];
+}
+
+export function mergeIntervals(list: Array<[number, number]>): Array<[number, number]> {
+  const out: Array<[number, number]> = [];
+  for (const [a, b] of [...list].filter(([x, y]) => y > x).sort((x, y) => x[0] - y[0])) {
+    const last = out[out.length - 1];
+    if (last && a <= last[1]) last[1] = Math.max(last[1], b);
+    else out.push([a, b]);
+  }
+  return out;
+}
+
+/** Share of [from, to] that is covered, 0…1. */
+export function coverage(intervals: Array<[number, number]>, from: number, to: number): number {
+  if (to <= from) return 0;
+  const covered = mergeIntervals(intervals).reduce((n, [a, b]) => n + Math.max(0, Math.min(b, to) - Math.max(a, from)), 0);
+  return covered / (to - from);
+}
+
+/** Uncovered stretches of [from, to] that are at least `minMs` long. */
+export function gaps(intervals: Array<[number, number]>, from: number, to: number, minMs = 10 * 60_000): Array<[number, number]> {
+  const out: Array<[number, number]> = [];
+  let cur = from;
+  for (const [a, b] of mergeIntervals(intervals)) {
+    if (b <= from) continue;
+    if (a >= to) break;
+    if (a - cur >= minMs) out.push([cur, Math.min(a, to)]);
+    cur = Math.max(cur, b);
+  }
+  if (to - cur >= minMs) out.push([cur, to]);
+  return out;
+}
+
+/** Sessions that overlap [start, end] (to warn before saving). */
+export const overlapping = (sessions: FocusSession[], start: number, end: number, exceptId?: string) =>
+  sessions.filter((s) => s.id !== exceptId && sessionIntervals(s).some(([a, b]) => a < end && b > start));
 
 export function manualSession(kind: FocusSession['kind'], subject: string, minutes: number, now: number): FocusSession {
   // `now` = when the work ended; the session is placed before it
