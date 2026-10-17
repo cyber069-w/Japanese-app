@@ -79,7 +79,7 @@ export function buildStudyQueue(
       return 0.4 + weakness(c, now) + (c.due <= now ? 0.8 : 0);
     };
     const out: SessionCard[] = [];
-    for (let i = 0; i < length; i++) out.push(sc(mod.id, ex.id, weightedSample(items, w, 1, ctx.rng)[0]));
+    for (let i = 0; i < Math.min(length, 200); i++) out.push(sc(mod.id, ex.id, weightedSample(items, w, 1, ctx.rng)[0]));
     return out;
   }
 

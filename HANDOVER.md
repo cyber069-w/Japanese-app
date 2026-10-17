@@ -96,6 +96,11 @@ platform plan is in the to-do list.
   status. Tested with unit tests (two simulated devices, conflicts, wrong password) and a two-browser e2e against a fake
   GitHub API. Needs a private repo + fine-grained token (Contents: read & write) from the user – see README.
 
+### Done since (17 Oct)
+- Import accepts a `romaji` column (capital first letter → katakana, ō/ū → long vowels). Coloured syllables (`components/Syllables.tsx`)
+  in the word list and flashcards. "Per round" chips (10/50/100/All) on every module page for long sessions.
+  Vocab PDFs `Unknown-6…10.pdf` (Kapitel 1–5) were checked against `private/vocab`; the 7 missing words were added.
+
 - **Study platform** (fourth session): the app is now multi-course. `src/courses/<id>/course.json` (auto-loaded by
   `src/courses/index.ts`): Japanese (all 8 modules; Study → Alphabets / Vocabulary / Grammar / Numbers & time, Exam
   Preparation → Listening & speaking + mock exams placeholder; **Kanji is "coming later"** – progress kept, never due),

@@ -4,6 +4,7 @@ import { shuffle } from '../../core/session';
 import { phraseRomaji } from '../../lib/romaji';
 import { navigate } from '../../lib/router';
 import { lessonLabel, vocabAccepts, vocabItems, type VocabItem } from './items';
+import { Syllables } from '../../components/Syllables';
 import { VocabImport } from './VocabImport';
 import { WordList } from './WordList';
 
@@ -103,7 +104,7 @@ const flashcards: Exercise<VocabItem> = {
         <div>
           <div className="solution-main">{meaningOf(it, ctx)}</div>
           <div className="solution-sub" lang="ja">
-            {it.kana}
+            <Syllables text={it.kana} />
             {it.alt ? ` (${it.alt})` : ''} · {phraseRomaji(it.kana)}
           </div>
         </div>

@@ -46,7 +46,7 @@ export function VocabImport({ ctx }: { ctx: StudyContext }) {
       <section className="card card-pad stack" style={{ '--gap': '12px' } as React.CSSProperties}>
         <h2>Format</h2>
         <p className="muted small">
-          One word per line with a header row. Columns: <b>kana</b>, <b>kanji</b> (optional), <b>de</b> and/or <b>en</b> (or a single
+          One word per line with a header row. Columns: <b>kana</b> (or <b>romaji</b> – converted to kana for you; a capital first letter makes it katakana, e.g. <span lang="ja">Itaria</span> → イタリア, and ō/ū give long vowels), <b>kanji</b> (optional), <b>de</b> and/or <b>en</b> (or a single
           <b> meaning</b> column), <b>lesson</b>. Commas, semicolons (German Excel) and tabs all work. Brackets like
           <span lang="ja"> だれ (どなた)</span> or <span lang="ja">[お]みやげ</span> mark alternatives / optional parts.
         </p>
