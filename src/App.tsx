@@ -11,6 +11,7 @@ import { Study } from './screens/Study';
 import { ModuleScreen, ToolScreen } from './screens/ModuleScreen';
 import { Review } from './screens/Review';
 import { Stats } from './screens/Stats';
+import { Focus } from './screens/Focus';
 import { Settings } from './screens/Settings';
 import { SessionScreen } from './screens/Session';
 import { CourseRoute, TopicPage } from './screens/Course';
@@ -20,6 +21,7 @@ const NAV: Array<{ path: string; label: string; icon: IconName }> = [
   { path: '/study', label: 'Study', icon: 'study' },
   { path: '/review', label: 'Review', icon: 'review' },
   { path: '/stats', label: 'Stats', icon: 'stats' },
+  { path: '/focus', label: 'Focus', icon: 'clock' },
   { path: '/settings', label: 'Settings', icon: 'settings' },
 ];
 
@@ -48,6 +50,7 @@ function route(path: string): ReactNode {
   if (path === '/study') return <Study />;
   if (path === '/review') return <Review />;
   if (path === '/stats') return <Stats />;
+  if (path === '/focus') return <Focus />;
   if (path === '/settings') return <Settings />;
   if ((p = match('/c/:id', path))) return <CourseRoute key={p.id} id={p.id} />;
   if ((p = match('/c/:id/t/:topic', path))) return <TopicPage key={path} courseId={p.id} topicId={p.topic} />;
