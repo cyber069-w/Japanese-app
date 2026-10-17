@@ -1,10 +1,8 @@
 /**
  * Focus log: time tracking for lectures and self-study (the former "Focus Log" app).
- * Stored on this device (kv "focus:sessions", running timer in "focus:active").
+ * Stored on this device by focusStore.ts (kv "focus:sessions", "focus:active", "focus:subjects").
  * Session records use the same fields as Focus Log's sessions.json, so that file imports as is.
  */
-import { storage } from './db';
-
 export interface FocusSession {
   id: string;
   kind: 'study' | 'lecture';
@@ -28,7 +26,7 @@ export interface ActiveFocus {
   pauses: number;
 }
 
-export const FOCUS_SUBJECTS = ['Mikro', 'Mathe/Statistik', 'BWL', 'Privatrecht', 'Finanzbuchhaltung', 'Wiss. Schreiben', 'CFA', 'Japanisch', 'Python', 'Bewerbungen'];
+export const FOCUS_SUBJECTS = ['Mikro', 'Mathe/Statistik', 'BWL', 'Privatrecht', 'Finanzbuchhaltung', 'Wiss. Schreiben', 'Politikwissenschaft', 'CFA', 'Japanisch', 'Python', 'Bewerbungen'];
 
 const localDay = (ms: number) => {
   const d = new Date(ms);
@@ -63,6 +61,7 @@ export function finishFocus(a: ActiveFocus, now: number): FocusSession {
 }
 
 export function manualSession(kind: FocusSession['kind'], subject: string, minutes: number, now: number): FocusSession {
+  // `now` = when the work ended; the session is placed before it
   const sec = Math.round(minutes * 60);
   return {
     id: `m${now}`, kind, subject, day: localDay(now), start: new Date(now - sec * 1000).toISOString(), end: new Date(now).toISOString(),
@@ -80,8 +79,3 @@ export function mergeSessions(existing: FocusSession[], jsonText: string): { mer
   ).map((s) => ({ ...s, kind: s.kind === 'lecture' ? 'lecture' : 'study', elapsedSec: s.elapsedSec ?? s.effectiveSec, pauses: s.pauses ?? 0, manual: !!s.manual }) as FocusSession);
   return { merged: [...existing, ...fresh].sort((a, b) => a.start.localeCompare(b.start)), added: fresh.length };
 }
-
-export const loadSessions = async () => (await storage.get<FocusSession[]>('focus:sessions')) ?? [];
-export const saveSessions = (list: FocusSession[]) => storage.set('focus:sessions', list);
-export const loadActive = async () => (await storage.get<ActiveFocus | null>('focus:active')) ?? null;
-export const saveActive = (a: ActiveFocus | null) => storage.set('focus:active', a);

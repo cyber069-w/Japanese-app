@@ -1,88 +1,59 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Icon } from '../components/Icon';
-import {
-  FOCUS_SUBJECTS, effectiveMs, finishFocus, isRunning, loadActive, loadSessions, manualSession, mergeSessions, pauseFocus, resumeFocus,
-  saveActive, saveSessions, startFocus, type ActiveFocus, type FocusSession,
-} from '../core/focus';
-import { Lectures } from './Lectures';
+import { effectiveMs } from '../core/focus';
+import { addManual, deleteSession, importSessions, initFocus, startLecture, useFocus } from '../core/focusStore';
 import { dayKey, formatDuration } from '../lib/date';
+import { FocusPanel, openFocusPip, pipSupported, useNow } from './FocusWidget';
+import { Lectures } from './Lectures';
 
-const clock = (ms: number) => {
-  const s = Math.floor(ms / 1000);
-  const h = Math.floor(s / 3600);
-  const m = Math.floor((s % 3600) / 60);
-  const ss = String(s % 60).padStart(2, '0');
-  return h ? `${h}:${String(m).padStart(2, '0')}:${ss}` : `${m}:${ss}`;
+const QUICK = [15, 30, 45, 60, 90, 120];
+const pad = (n: number) => String(n).padStart(2, '0');
+const timeNow = () => {
+  const d = new Date();
+  return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
 };
 
 export function Focus() {
-  const [sessions, setSessions] = useState<FocusSession[]>([]);
-  const [active, setActive] = useState<ActiveFocus | null>(null);
-  const [subject, setSubject] = useState(FOCUS_SUBJECTS[0]);
-  const [other, setOther] = useState('');
-  const [kind, setKind] = useState<'study' | 'lecture'>('study');
-  const [minutes, setMinutes] = useState('');
+  const f = useFocus();
   const [msg, setMsg] = useState('');
-  const [now, setNow] = useState(Date.now());
+  const [minutes, setMinutes] = useState('');
+  const [date, setDate] = useState(dayKey());
+  const [endTime, setEndTime] = useState(timeNow());
+  const [manualSubject, setManualSubject] = useState('');
+  const [manualKind, setManualKind] = useState<'study' | 'lecture'>('study');
   const file = useRef<HTMLInputElement>(null);
+  useEffect(initFocus, []);
 
-  useEffect(() => {
-    void loadSessions().then(setSessions);
-    void loadActive().then(setActive);
-  }, []);
-  useEffect(() => {
-    if (!active || !isRunning(active)) return;
-    const t = setInterval(() => setNow(Date.now()), 1000);
-    return () => clearInterval(t);
-  }, [active]);
+  const running = !!f.active;
+  const now = useNow(running);
+  const week = useMemo(() => {
+    const cutoff = dayKey(new Date(Date.now() - 6 * 86400_000));
+    const by = new Map<string, number>();
+    f.sessions.filter((s) => s.day >= cutoff).forEach((s) => by.set(s.subject, (by.get(s.subject) ?? 0) + s.effectiveSec));
+    return [...by.entries()].sort((a, b) => b[1] - a[1]);
+  }, [f.sessions]);
+  const maxSec = Math.max(1, ...week.map((w) => w[1]));
+  const today = f.sessions.filter((s) => s.day === dayKey()).reduce((n, s) => n + s.effectiveSec, 0) + (f.active ? Math.round(effectiveMs(f.active, now) / 1000) : 0);
+  const recent = [...f.sessions].reverse().slice(0, 12);
+  const subject = manualSubject || f.selected;
 
-  const name = subject === 'Other' ? other.trim() || 'Other' : subject;
-  const update = (a: ActiveFocus | null) => {
-    setActive(a);
-    void saveActive(a);
-  };
-  const store = (list: FocusSession[]) => {
-    setSessions(list);
-    void saveSessions(list);
-  };
-  const toggle = () => {
-    const t = Date.now();
-    setNow(t);
-    update(!active ? startFocus(kind, name, t) : isRunning(active) ? pauseFocus(active, t) : resumeFocus(active, t));
-  };
-  const stop = () => {
-    if (!active) return;
-    const s = finishFocus(active, Date.now());
-    update(null);
-    if (s.effectiveSec >= 10) store([...sessions, s]);
-    setMsg(`Saved ${formatDuration(s.effectiveSec * 1000)} of ${s.subject}.`);
-  };
-  const addManual = () => {
+  const addByHand = () => {
     const m = parseFloat(minutes.replace(',', '.'));
-    if (!(m > 0)) return setMsg('Enter the minutes first.');
-    store([...sessions, manualSession(kind, name, m, Date.now())]);
+    if (!subject) return setMsg('Pick a subject for the entry first.');
+    if (!(m > 0)) return setMsg('Choose or enter the minutes first.');
+    const end = new Date(`${date}T${endTime || '12:00'}`).getTime();
+    if (Number.isNaN(end)) return setMsg('That date or time is not valid.');
+    addManual(manualKind, subject, m, end);
     setMinutes('');
-    setMsg(`Added ${m} min of ${name}.`);
+    setMsg(`Added ${m} min of ${subject} on ${date}.`);
   };
-  const importFile = async (f: File) => {
+  const importFile = async (file: File) => {
     try {
-      const { merged, added } = mergeSessions(sessions, await f.text());
-      store(merged);
-      setMsg(`Imported ${added} sessions from Focus Log.`);
+      setMsg(`Imported ${importSessions(await file.text())} sessions from Focus Log.`);
     } catch {
       setMsg('That file is not a Focus Log sessions.json.');
     }
   };
-
-  const week = useMemo(() => {
-    const cutoff = dayKey(new Date(Date.now() - 6 * 86400_000));
-    const by = new Map<string, number>();
-    sessions.filter((s) => s.day >= cutoff).forEach((s) => by.set(s.subject, (by.get(s.subject) ?? 0) + s.effectiveSec));
-    return [...by.entries()].sort((a, b) => b[1] - a[1]);
-  }, [sessions]);
-  const maxSec = Math.max(1, ...week.map((w) => w[1]));
-  const today = sessions.filter((s) => s.day === dayKey()).reduce((n, s) => n + s.effectiveSec, 0) + (active ? Math.round(effectiveMs(active, now) / 1000) : 0);
-  const recent = [...sessions].reverse().slice(0, 12);
 
   return (
     <div className="page">
@@ -91,38 +62,19 @@ export function Focus() {
           <h1>Focus</h1>
           <div className="muted" style={{ marginTop: 4 }}>Log lectures and self-study. Today: {formatDuration(today * 1000)}.</div>
         </div>
+        <div className="row">
+          <button className="btn" onClick={() => void openFocusPip()} title={pipSupported() ? 'Small always-on-top window' : 'Small separate window'}>
+            <Icon name="laptop" size={16} /> Mini window
+          </button>
+          <a className="btn" href="#/focus-widget" target="_blank" rel="noreferrer">Widget in new tab</a>
+        </div>
       </div>
 
-      <section className="card card-pad stack" style={{ '--gap': '14px', textAlign: 'center' } as React.CSSProperties}>
-        <div style={{ fontSize: '3.4rem', fontWeight: 500, fontVariantNumeric: 'tabular-nums', lineHeight: 1.1 }} aria-live="off">
-          {clock(active ? effectiveMs(active, now) : 0)}
-        </div>
-        <div className="muted small">{active ? `${active.kind === 'lecture' ? 'Lecture · ' : ''}${active.subject}${isRunning(active) ? '' : ' · paused'}` : 'Choose a subject and start'}</div>
-        <div className="row" style={{ justifyContent: 'center' }}>
-          <button className="btn btn-primary" onClick={toggle}>
-            <Icon name={active && isRunning(active) ? 'stop' : 'play'} size={16} /> {!active ? 'Start' : isRunning(active) ? 'Pause' : 'Resume'}
-          </button>
-          {active && <button className="btn" onClick={stop}>Finish and save</button>}
-        </div>
-        {!active && (
-          <>
-            <div className="picker-chips" style={{ justifyContent: 'center' }}>
-              {[...FOCUS_SUBJECTS, 'Other'].map((s) => (
-                <button key={s} className={`chip${subject === s ? ' on' : ''}`} aria-pressed={subject === s} onClick={() => setSubject(s)}>
-                  {s}
-                </button>
-              ))}
-            </div>
-            {subject === 'Other' && <input className="input" placeholder="What are you working on?" value={other} maxLength={40} onChange={(e) => setOther(e.target.value)} />}
-            <div className="row" style={{ justifyContent: 'center' }}>
-              <button className={`chip${kind === 'study' ? ' on' : ''}`} onClick={() => setKind('study')}>Self-study</button>
-              <button className={`chip${kind === 'lecture' ? ' on' : ''}`} onClick={() => setKind('lecture')}>Lecture</button>
-            </div>
-          </>
-        )}
+      <section className="card card-pad">
+        <FocusPanel onSaved={setMsg} />
       </section>
 
-      <Lectures busy={!!active} onStart={(s) => { const t = Date.now(); setNow(t); update(startFocus('lecture', s, t)); }} />
+      <Lectures busy={running} onStart={startLecture} />
 
       <div className="section">
         <div className="section-head"><h2>Last 7 days by subject</h2></div>
@@ -144,15 +96,32 @@ export function Focus() {
 
       <div className="section">
         <div className="section-head"><h2>Add time by hand</h2></div>
-        <div className="card card-pad row">
-          <input className="input" style={{ width: 110 }} inputMode="decimal" placeholder="minutes" value={minutes} onChange={(e) => setMinutes(e.target.value)} aria-label="Minutes" />
-          <span className="muted small">for {name} ({kind === 'lecture' ? 'lecture' : 'self-study'})</span>
-          <button className="btn" onClick={addManual}>Add</button>
-          <span className="spacer" />
-          <button className="btn" onClick={() => file.current?.click()}><Icon name="upload" size={16} /> Import Focus Log file</button>
-          <input ref={file} type="file" accept=".json,application/json" hidden onChange={(e) => { const f = e.target.files?.[0]; e.target.value = ''; if (f) void importFile(f); }} />
+        <div className="card card-pad stack" style={{ '--gap': '12px' } as React.CSSProperties}>
+          <div className="picker-chips">
+            {f.subjects.map((s) => (
+              <button key={s} className={`chip${subject === s ? ' on' : ''}`} aria-pressed={subject === s} onClick={() => setManualSubject(s)}>{s}</button>
+            ))}
+          </div>
+          <div className="row">
+            {QUICK.map((q) => (
+              <button key={q} className={`chip${minutes === String(q) ? ' on' : ''}`} onClick={() => setMinutes(String(q))}>{q} min</button>
+            ))}
+            <input className="input" style={{ width: 110 }} inputMode="decimal" placeholder="other min" value={QUICK.map(String).includes(minutes) ? '' : minutes} onChange={(e) => setMinutes(e.target.value)} aria-label="Minutes" />
+          </div>
+          <div className="row">
+            <label className="small muted row" style={{ gap: 6 }}>Day <input className="input" type="date" value={date} max={dayKey()} onChange={(e) => setDate(e.target.value)} /></label>
+            <label className="small muted row" style={{ gap: 6 }}>Ended at <input className="input" type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} /></label>
+            <button className={`chip${manualKind === 'study' ? ' on' : ''}`} onClick={() => setManualKind('study')}>Self-study</button>
+            <button className={`chip${manualKind === 'lecture' ? ' on' : ''}`} onClick={() => setManualKind('lecture')}>Lecture</button>
+          </div>
+          <div className="row">
+            <button className="btn btn-primary" onClick={addByHand}>Add</button>
+            <span className="spacer" />
+            <button className="btn" onClick={() => file.current?.click()}><Icon name="upload" size={16} /> Import Focus Log file</button>
+            <input ref={file} type="file" accept=".json,application/json" hidden onChange={(e) => { const x = e.target.files?.[0]; e.target.value = ''; if (x) void importFile(x); }} />
+          </div>
+          {msg && <div className="notice good small">{msg}</div>}
         </div>
-        {msg && <div className="notice good small" style={{ marginTop: 10 }}>{msg}</div>}
       </div>
 
       {recent.length > 0 && (
@@ -167,7 +136,7 @@ export function Focus() {
                     <td>{s.subject}{s.kind === 'lecture' && <span className="faint small"> lecture</span>}</td>
                     <td>{formatDuration(s.effectiveSec * 1000)}</td>
                     <td style={{ width: 44 }}>
-                      <button className="icon-btn" style={{ width: 32, height: 32 }} aria-label="Delete session" onClick={() => confirm('Delete this session?') && store(sessions.filter((x) => x.id !== s.id))}>
+                      <button className="icon-btn" style={{ width: 32, height: 32 }} aria-label="Delete session" onClick={() => confirm('Delete this session?') && deleteSession(s.id)}>
                         <Icon name="trash" size={15} />
                       </button>
                     </td>

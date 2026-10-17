@@ -12,6 +12,7 @@ import { ModuleScreen, ToolScreen } from './screens/ModuleScreen';
 import { Review } from './screens/Review';
 import { Stats } from './screens/Stats';
 import { Focus } from './screens/Focus';
+import { FocusWidget } from './screens/FocusWidget';
 import { Settings } from './screens/Settings';
 import { SessionScreen } from './screens/Session';
 import { CourseRoute, TopicPage } from './screens/Course';
@@ -65,6 +66,7 @@ export function App() {
   useThemeAndFurigana();
   if (!ready) return null;
   if (path === '/session') return <SessionScreen />;
+  if (path === '/focus-widget') return <FocusWidget />;
   return <Shell path={path}>{route(path)}</Shell>;
 }
 
