@@ -96,8 +96,6 @@ export interface BaseItem {
 
 export interface Settings {
   theme: 'system' | 'light' | 'dark';
-  /** Visual style: warm washi paper, or the darker midnight look (always dark). */
-  look: 'washi' | 'midnight';
   leniency: Leniency;
   /** Play pronunciation (after answering, and on demand). */
   sound: boolean;

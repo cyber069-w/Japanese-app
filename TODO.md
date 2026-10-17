@@ -10,11 +10,11 @@ Status: [ ] open · [x] done · [~] solved differently / blocked (reason in the 
 - [x] Import area: CSV/TSV, Quizlet text, clipboard paste; column mapping; preview of first 10 rows; duplicates; error rows; undo
 
 ## Phase 2 – Design system & Home
-- [ ] Design round: 2–3 directions as previews, user picks direction / mode / density / accent
-- [ ] Design system: colours, type scale, spacing, components, icons, empty / loading / error states – applied everywhere
-- [ ] Home = subject tiles (existing courses + Focus) and "coming soon" tiles; neutral app name and header
-- [ ] No Japanese characters, words or motifs outside the Japanese subject (headers, titles, Review 復習/習, Stats, Settings, Session praise, logo, seal)
-- [ ] Layout clean down to ~700 px and in the mini window (bottom nav wraps "Settings" onto a 2nd row – screenshot 1)
+- [x] Design round: 3 previews shown; user sent a Monkeytype “leather” reference → leather light + night, airy, one colour per subject
+- [x] Design system: leather tokens (colours, type scale, spacing), Roboto Mono, flat components, Tabler icons, loading screen and error boundary – applied through the shared tokens
+- [x] Home = subject tiles (courses + Focus) and “coming soon” tiles; app name “Study Desk”, neutral header and icon
+- [x] No Japanese characters, words or motifs outside the Japanese subject (checked on Home, Review, Stats, Settings, Focus; kana chart moved from Stats to the kana module pages; washi/seal look removed)
+- [x] Layout clean down to ~700 px (bottom nav no longer wraps); mini window is redone in Phase 5
 
 ## Phase 3 – Japanese
 - [ ] Kana pronunciation: test all kana incl. dakuten / handakuten / combinations; best ja-JP voice, slower rate; list chars that still sound bad

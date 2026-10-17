@@ -40,7 +40,6 @@ export interface AppState {
 
 export const DEFAULT_SETTINGS: Settings = {
   theme: 'system',
-  look: 'washi',
   leniency: 'normal',
   sound: true,
   voiceRate: 0.9,

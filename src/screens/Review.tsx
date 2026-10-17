@@ -49,7 +49,7 @@ export function Review() {
       <div className="page-head">
         <div className="grow">
           <h1>Review</h1>
-          <div className="page-title-ja" lang="ja">復習</div>
+          <div className="muted" style={{ marginTop: 4 }}>Everything due, mixed across subjects.</div>
         </div>
       </div>
 
@@ -66,7 +66,6 @@ export function Review() {
 
       <div className="dash-hero">
         <div className="card hero-main">
-          <span className="big-kanji" aria-hidden="true">習</span>
           <div className="eyebrow">Everything due today</div>
           <div className="row" style={{ alignItems: 'baseline', gap: 12 }}>
             <span className="due-number">{dueHere}</span>

@@ -33,12 +33,6 @@ export function formatDuration(ms: number): string {
   return `${h} h ${pad(min % 60)} min`;
 }
 
-const WEEKDAY_JA = ['日', '月', '火', '水', '木', '金', '土'];
-/** e.g. 10月10日（土） */
-export function japaneseDate(now = new Date()): string {
-  return `${now.getMonth() + 1}月${now.getDate()}日（${WEEKDAY_JA[now.getDay()]}）`;
-}
-
 /** "just now", "5 min ago", "3 h ago", "yesterday", "4 days ago" */
 export function timeAgo(t: number, now = Date.now()): string {
   const s = Math.max(0, (now - t) / 1000);

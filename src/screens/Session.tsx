@@ -25,7 +25,7 @@ export function SessionScreen() {
     return (
       <div className="session">
         <div className="finish card">
-          <span className="serif" style={{ fontSize: '3rem' }}>空</span>
+          <Icon name="study" size={44} />
           <h2 style={{ margin: '8px 0' }}>Nothing to study here</h2>
           <p className="muted">Pick a module and an exercise to start a session.</p>
           <div className="session-actions">
@@ -51,7 +51,7 @@ export function SessionScreen() {
 
 interface Result { card: SessionCard; correct: boolean }
 
-const PRAISE = ['正解！', 'Correct', 'Nice', 'Great', 'Well done', 'すごい！'];
+const PRAISE = ['Correct', 'Nice', 'Great', 'Well done', 'Spot on', 'Yes!'];
 
 function Runner({ cfg, restart }: { cfg: SessionConfig; restart: (c: SessionConfig) => void }) {
   const settings = useApp((s) => s.settings);
@@ -386,7 +386,7 @@ function Finish({ cfg, results, ms, restart }: { cfg: SessionConfig; results: Re
   const right = firsts.filter((r) => r.correct).length;
   const pct = firsts.length ? Math.round((right / firsts.length) * 100) : 0;
   const mistakes = firsts.filter((r) => !r.correct);
-  const mood = pct >= 90 ? '素晴らしい！' : pct >= 70 ? 'いいですね！' : pct >= 40 ? 'がんばって！' : 'もう一度！';
+  const mood = pct >= 90 ? 'Excellent!' : pct >= 70 ? 'Well done!' : pct >= 40 ? 'Keep going!' : 'One more round!';
 
   return (
     <div className="session">

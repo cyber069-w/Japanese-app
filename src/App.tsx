@@ -1,5 +1,4 @@
 import { useEffect, type ReactNode } from 'react';
-import { CourseGlyph } from './components/GlyphIcon';
 import { useApp } from './core/store';
 import { useCourse, useDueCounts } from './core/hooks';
 import { useSyncStatus } from './core/sync';
@@ -26,20 +25,27 @@ const NAV: Array<{ path: string; label: string; icon: IconName }> = [
   { path: '/settings', label: 'Settings', icon: 'settings' },
 ];
 
-function useThemeAndFurigana() {
+/** Subject colour for the current screen: Focus, the open subject, or none (cream) on shared screens. */
+function accentFor(path: string, courseId: string): string | null {
+  if (path.startsWith('/focus')) return 'focus';
+  if (path === '/' || path === '/review' || path === '/stats' || path === '/settings') return null;
+  return courseId;
+}
+
+function useThemeAndFurigana(path: string) {
   const theme = useApp((s) => s.settings.theme);
-  const look = useApp((s) => s.settings.look);
   const furigana = useApp((s) => s.settings.furigana);
   const courseId = useCourse().id;
+  const accent = accentFor(path, courseId);
   useEffect(() => {
     const root = document.documentElement;
-    root.dataset.look = look;
-    root.dataset.course = courseId;
+    if (accent) root.dataset.course = accent;
+    else delete root.dataset.course;
     if (theme === 'system') delete root.dataset.theme;
     else root.dataset.theme = theme;
-    const dark = look === 'midnight' || theme === 'dark' || (theme === 'system' && matchMedia('(prefers-color-scheme: dark)').matches);
-    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', dark ? (look === 'midnight' ? '#0f1218' : '#121418') : '#f6f1e7');
-  }, [theme, look, courseId]);
+    const dark = theme === 'dark' || (theme === 'system' && matchMedia('(prefers-color-scheme: dark)').matches);
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', dark ? '#2a1a12' : '#a86948');
+  }, [theme, accent]);
   useEffect(() => {
     document.body.classList.toggle('no-furigana', !furigana);
   }, [furigana]);
@@ -63,8 +69,16 @@ function route(path: string): ReactNode {
 export function App() {
   const ready = useApp((s) => s.ready);
   const path = usePath();
-  useThemeAndFurigana();
-  if (!ready) return null;
+  useThemeAndFurigana(path);
+  if (!ready)
+    return (
+      <div className="state" aria-busy="true">
+        <div>
+          <div className="loading-bar" style={{ margin: '0 auto 14px' }} />
+          Loading your subjects…
+        </div>
+      </div>
+    );
   if (path === '/session') return <SessionScreen />;
   if (path === '/focus-widget') return <FocusWidget />;
   return <Shell path={path}>{route(path)}</Shell>;
@@ -90,10 +104,10 @@ function Shell({ path, children }: { path: string; children: ReactNode }) {
     <div className="shell">
       <aside className="sidebar">
         <a className="brand" href="#/">
-          <span className="seal" aria-hidden="true"><CourseGlyph course={course} /></span>
+          <span className="seal" aria-hidden="true"><Icon name="book" size={20} /></span>
           <span>
-            <div className="brand-name">Study</div>
-            <div className="brand-sub">{course.name}</div>
+            <div className="brand-name">Study Desk</div>
+            <div className="brand-sub">{path === '/' ? 'Choose a subject' : path.startsWith('/focus') ? 'Focus' : course.name}</div>
           </span>
         </a>
         <nav className="nav" aria-label="Main">

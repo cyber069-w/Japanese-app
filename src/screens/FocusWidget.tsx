@@ -122,7 +122,7 @@ export async function openFocusPip(): Promise<void> {
       }
     }
   }
-  for (const k of ['look', 'theme', 'course']) if (document.documentElement.dataset[k]) w.document.documentElement.dataset[k] = document.documentElement.dataset[k];
+  for (const k of ['theme', 'course']) if (document.documentElement.dataset[k]) w.document.documentElement.dataset[k] = document.documentElement.dataset[k];
   const host = w.document.createElement('div');
   w.document.body.append(host);
   const root = createRoot(host);

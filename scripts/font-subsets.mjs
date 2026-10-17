@@ -8,7 +8,7 @@
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 
-const FAMILIES = ['noto-sans-jp', 'noto-serif-jp'];
+const FAMILIES = ['roboto-mono', 'noto-sans-jp', 'noto-serif-jp'];
 
 function collectChars(dir, out) {
   for (const f of readdirSync(dir)) {

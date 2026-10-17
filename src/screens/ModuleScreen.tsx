@@ -1,5 +1,6 @@
 /** One module: choose rows/lessons, pick an exercise, open tools. */
 import { GlyphIcon, ModuleGlyph } from '../components/GlyphIcon';
+import { Heatmap } from '../components/Heatmap';
 import { useMemo, useState } from 'react';
 import { getState, setSelection, useApp } from '../core/store';
 import { useCtx, useDueCounts, useSelection } from '../core/hooks';
@@ -168,6 +169,8 @@ function ModuleView({ mod }: { mod: StudyModule }) {
           </div>
         </>
       )}
+
+      {!empty && mod.chart && <Heatmap mod={mod} />}
 
       {mod.tools && mod.tools.length > 0 && (
         <div className="section">

@@ -1,10 +1,12 @@
 import { useModuleProgress } from '../core/hooks';
+import { useApp } from '../core/store';
 import { ModuleGlyph } from './GlyphIcon';
 import type { StudyModule } from '../core/types';
 import type { Placeholder } from '../courses/types';
 import { moduleInfo } from '../courses';
 
 export function ModuleCard({ mod, due }: { mod: StudyModule; due: number }) {
+  const kanaLayer = useApp((s) => s.settings.kanaLayer);
   const progress = useModuleProgress(mod);
   const info = moduleInfo(mod.id);
   const soon = mod.status === 'soon' || info.soon;
@@ -18,7 +20,7 @@ export function ModuleCard({ mod, due }: { mod: StudyModule; due: number }) {
       </div>
       <div>
         <h3>{mod.name}</h3>
-        <div className="faint small serif" lang="ja">{mod.nameJa}</div>
+        {kanaLayer && <div className="faint small" lang="ja">{mod.nameJa}</div>}
       </div>
       <div className="meta">
         {soon ? (

@@ -41,15 +41,15 @@ export default defineConfig({
       // icons are already matched by globPatterns below
       includeManifestIcons: false,
       manifest: {
-        name: 'Study – Japanese, CFA, BWL, Recht',
-        short_name: 'Study',
+        name: 'Study Desk',
+        short_name: 'Study Desk',
         description: 'Your courses in one study app: Japanese (Minna no Nihongo), CFA Level 1, BWL and Recht – spaced repetition, offline, no ads.',
         lang: 'en',
         start_url: './',
         scope: './',
         display: 'standalone',
-        background_color: '#f6f1e7',
-        theme_color: '#f6f1e7',
+        background_color: '#a86948',
+        theme_color: '#a86948',
         icons: [
           { src: 'icons/study-192.png', sizes: '192x192', type: 'image/png' },
           { src: 'icons/study-512.png', sizes: '512x512', type: 'image/png' },
