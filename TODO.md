@@ -47,7 +47,7 @@ Status: [ ] open · [x] done · [~] solved differently / blocked (reason in the 
 - [x] CFA: lessons sync, formula sheet (search, print/PDF), worked examples in the lesson pack, mixed questions = Practice questions with several lessons selected
 - [x] Tutor session summaries per subject (subject page → Tutor; stored on this device)
 - [x] Hiragana memory texts (based on the Tofugu pictures) moved into the encrypted course pack; katakana texts are my own and stay
-- [ ] Full QA at 375 px / ~700 px, light + dark, offline and installability
+- [x] QA: 375 px (9 screens, no sideways scroll), ~700 px, 380 px widget, leather + night; production build precaches app, fonts and all 118 kana sounds. Service-worker registration not testable in the built-in browser – check once on the phone after deploying
 - [~] Canvas auto-adder – waiting for the user (Canvas URL, feed/token, folder layout); reminder noted
 - [~] Inbox per course for OneNote PDFs / photos, Claude drafts lessons – needs the private repo `study-content`
 - [~] Vocab lessons 6+, user's own grammar rules, hiragana notes – user supplies the material
