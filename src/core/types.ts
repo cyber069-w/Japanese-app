@@ -77,6 +77,8 @@ export interface VocabEntry {
   /** Where the entry came from, e.g. "mnn" (course pack) or the name of an imported list. */
   source: string;
   tags?: string[];
+  /** Position in its source list; the word list keeps this order (older imports may not have it). */
+  pos?: number;
 }
 
 export interface BaseItem {
@@ -102,6 +104,8 @@ export interface Settings {
   voiceRate: number;
   meaningLang: MeaningLang;
   furigana: boolean;
+  /** Show kana / kanji outside script practice. Off = romaji + German everywhere. */
+  kanaLayer: boolean;
   sessionLength: number;
   dailyGoal: number;
   examDate: string; // YYYY-MM-DD or ''

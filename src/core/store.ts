@@ -46,6 +46,7 @@ export const DEFAULT_SETTINGS: Settings = {
   voiceRate: 0.9,
   meaningLang: 'de',
   furigana: true,
+  kanaLayer: false,
   sessionLength: 20,
   dailyGoal: 50,
   examDate: '',

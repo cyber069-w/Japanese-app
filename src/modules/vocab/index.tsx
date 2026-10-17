@@ -1,7 +1,7 @@
 /** Vocabulary: your Minna no Nihongo lessons plus any lists you import. */
 import type { Exercise, FilterGroup, Question, StudyContext, StudyModule } from '../../core/types';
 import { shuffle } from '../../core/session';
-import { phraseRomaji } from '../../lib/romaji';
+import { matchesReading, phraseRomaji } from '../../lib/romaji';
 import { navigate } from '../../lib/router';
 import { lessonLabel, vocabAccepts, vocabItems, type VocabItem } from './items';
 import { Syllables } from '../../components/Syllables';
@@ -26,13 +26,20 @@ function distractors(it: VocabItem, pool: VocabItem[], ctx: StudyContext, n = 3)
   return out;
 }
 
-const solution = (it: VocabItem, ctx: StudyContext) => ({
-  main: it.kanji ?? it.kana,
-  ruby: it.ruby,
-  lang: 'ja' as const,
-  sub: `${meaningOf(it, ctx)} · ${phraseRomaji(it.kana)}`,
-  notes: it.alt ? [`Also: ${it.alt}`] : undefined,
-});
+/** Romaji for the word (and its alternative form) – what you see when the kana layer is off. */
+const romajiOf = (it: VocabItem) => phraseRomaji(it.kana);
+const kanaOn = (ctx: StudyContext) => ctx.settings.kanaLayer;
+
+const solution = (it: VocabItem, ctx: StudyContext) =>
+  kanaOn(ctx)
+    ? { main: it.kanji ?? it.kana, ruby: it.ruby, lang: 'ja' as const, sub: `${meaningOf(it, ctx)} · ${romajiOf(it)}`, notes: it.alt ? [`Also: ${it.alt}`] : undefined }
+    : { main: romajiOf(it), lang: 'latin' as const, sub: meaningOf(it, ctx), notes: it.alt ? [`Also: ${phraseRomaji(it.alt)}`] : undefined };
+
+/** The word as a prompt: kana/kanji with the layer on, romaji otherwise. */
+const wordPrompt = (it: VocabItem, ctx: StudyContext) =>
+  kanaOn(ctx)
+    ? { ruby: it.ruby, lang: 'ja' as const, size: [...it.label].length > 7 ? ('medium' as const) : ('large' as const), sub: it.alt ? `(${it.alt})` : undefined }
+    : { text: romajiOf(it), lang: 'latin' as const, size: romajiOf(it).length > 14 ? ('medium' as const) : ('large' as const), sub: it.alt ? `(${phraseRomaji(it.alt)})` : undefined };
 
 const jaToMeaning: Exercise<VocabItem> = {
   id: 'meaning',
@@ -43,7 +50,7 @@ const jaToMeaning: Exercise<VocabItem> = {
   question: (it, ctx): Question => {
     const opts = shuffle([it, ...distractors(it, ctx.pool as VocabItem[], ctx)], ctx.rng);
     return {
-      prompt: { ruby: it.ruby, lang: 'ja', size: [...it.label].length > 7 ? 'medium' : 'large', instruction: 'What does it mean?', sub: it.alt ? `(${it.alt})` : undefined },
+      prompt: { ...wordPrompt(it, ctx), instruction: 'What does it mean?' },
       answer: { type: 'choice', options: opts.map((o) => ({ label: meaningOf(o, ctx), lang: 'latin' })), correct: opts.indexOf(it) },
       solution: solution(it, ctx),
       speak: it.kana,
@@ -55,17 +62,20 @@ const jaToMeaning: Exercise<VocabItem> = {
 const meaningToKana: Exercise<VocabItem> = {
   id: 'type',
   name: 'Meaning → type it',
-  description: 'See the meaning, type the Japanese in romaji – it turns into kana as you type.',
+  description: 'See the meaning, type the Japanese in romaji.',
   icon: 'あ',
   // patterns with ～ aren't words you can type
   items: (ctx) => vocabItems(ctx).filter((it) => !/[～〜]/.test(it.entry.kana)),
   question: (it, ctx): Question => {
     const first = [...it.kana.replace(/[\s[\]]/g, '')];
+    const romaji = romajiOf(it);
     return {
-      prompt: { text: meaningOf(it, ctx), lang: 'latin', size: 'medium', instruction: `Type it in Japanese · ${lessonLabel(it.lesson ?? 0)}` },
-      answer: { type: 'typing', input: /^[゠-ヿ\s]+$/.test(it.kana) ? 'katakana' : 'kana', check: (v) => vocabAccepts(v, it) },
+      prompt: { text: meaningOf(it, ctx), lang: 'latin', size: 'medium', instruction: `Type it in ${kanaOn(ctx) ? 'Japanese' : 'romaji'} · ${lessonLabel(it.lesson ?? 0)}` },
+      answer: kanaOn(ctx)
+        ? { type: 'typing', input: /^[゠-ヿ\s]+$/.test(it.kana) ? 'katakana' : 'kana', check: (v) => vocabAccepts(v, it) }
+        : { type: 'typing', input: 'romaji', check: (v) => vocabAccepts(v, it) || it.answers.some((a) => matchesReading(v, a, ctx.settings.leniency)) },
       solution: solution(it, ctx),
-      hint: { text: `Starts with ${first[0]}${first.length > 2 ? first[1] : ''}… (${first.length} kana)` },
+      hint: { text: kanaOn(ctx) ? `Starts with ${first[0]}${first.length > 2 ? first[1] : ''}… (${first.length} kana)` : `Starts with “${romaji.slice(0, 2)}…” (${romaji.replace(/\s/g, '').length} letters)` },
       speak: it.kana,
       fastMs: 4000 + first.length * 400,
     };
@@ -82,7 +92,11 @@ const meaningToJa: Exercise<VocabItem> = {
     const opts = shuffle([it, ...distractors(it, ctx.pool as VocabItem[], ctx)], ctx.rng);
     return {
       prompt: { text: meaningOf(it, ctx), lang: 'latin', size: 'medium', instruction: 'Which word is it?' },
-      answer: { type: 'choice', options: opts.map((o) => ({ label: o.label, ruby: o.ruby, lang: 'ja' })), correct: opts.indexOf(it) },
+      answer: {
+        type: 'choice',
+        options: opts.map((o) => (kanaOn(ctx) ? { label: o.label, ruby: o.ruby, lang: 'ja' as const } : { label: romajiOf(o), lang: 'latin' as const })),
+        correct: opts.indexOf(it),
+      },
       solution: solution(it, ctx),
       speak: it.kana,
       fastMs: 3500,
@@ -98,16 +112,18 @@ const flashcards: Exercise<VocabItem> = {
   icon: '札',
   items: vocabItems,
   question: (it, ctx): Question => ({
-    prompt: { ruby: it.ruby, lang: 'ja', size: [...it.label].length > 7 ? 'medium' : 'large', instruction: 'Do you know it?' },
+    prompt: { ...wordPrompt(it, ctx), instruction: 'Do you know it?' },
     answer: {
       type: 'reveal',
       back: (
         <div>
           <div className="solution-main">{meaningOf(it, ctx)}</div>
-          <div className="solution-sub" lang="ja">
-            <Syllables text={it.kana} romaji />
-            {it.alt ? ` (${it.alt})` : ''} · {phraseRomaji(it.kana)}
-          </div>
+          {kanaOn(ctx) && (
+            <div className="solution-sub" lang="ja">
+              <Syllables text={it.kana} romaji />
+              {it.alt ? ` (${it.alt})` : ''} · {romajiOf(it)}
+            </div>
+          )}
         </div>
       ),
     },

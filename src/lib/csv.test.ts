@@ -40,3 +40,15 @@ describe('parseVocabCsv', () => {
     expect(entries.map((e) => [e.kana, e.de])).toEqual([['がくせい', 'Student/in'], ['コーヒー', 'Kaffee'], ['きんえん', 'Rauchverbot']]);
   });
 });
+
+describe('import helpers', () => {
+  it('guesses a headerless romaji ⇥ German list and keeps the file order and every row', async () => {
+    const { guessColumns, rowsToEntries } = await import('./csv');
+    const rows = parseCsv('watashi\tich\nanata\tSie\n... san\tAnrede\nItaria\tItalien\n\tleer');
+    const g = guessColumns(rows);
+    expect(g).toEqual({ hasHeader: false, mapping: ['romaji', 'meaning'] });
+    const { entries, errors } = rowsToEntries(rows, g.mapping, { source: 'k1', lesson: 1 });
+    expect(entries.map((e) => [e.kana, e.pos, e.lesson])).toEqual([['わたし', 0, 1], ['あなた', 1, 1], ['〜 さん', 2, 1], ['イタリア', 3, 1]]);
+    expect(errors).toEqual([{ line: 5, text: ' | leer', reason: 'no Japanese word' }]);
+  });
+});

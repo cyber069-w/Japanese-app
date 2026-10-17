@@ -123,6 +123,9 @@ export function Settings() {
           <Row title="Meaning language" desc="Language for word meanings and translations.">
             <Seg value={s.meaningLang} options={[['de', 'Deutsch'], ['en', 'English']]} onChange={(v) => set({ meaningLang: v })} />
           </Row>
+          <Row title="Show kana and kanji" desc="Off: Japanese appears in romaji with German everywhere except script practice (hiragana, katakana, kanji).">
+            <Switch checked={s.kanaLayer} onChange={(v) => set({ kanaLayer: v })} label="Show kana and kanji" />
+          </Row>
           <Row title="Furigana" desc="Show readings above kanji (exercises that test the reading always hide them).">
             <Switch checked={s.furigana} onChange={(v) => set({ furigana: v })} label="Furigana" />
           </Row>
