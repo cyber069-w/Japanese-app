@@ -4,6 +4,7 @@ import {
   FOCUS_SUBJECTS, effectiveMs, finishFocus, isRunning, loadActive, loadSessions, manualSession, mergeSessions, pauseFocus, resumeFocus,
   saveActive, saveSessions, startFocus, type ActiveFocus, type FocusSession,
 } from '../core/focus';
+import { Lectures } from './Lectures';
 import { dayKey, formatDuration } from '../lib/date';
 
 const clock = (ms: number) => {
@@ -120,6 +121,8 @@ export function Focus() {
           </>
         )}
       </section>
+
+      <Lectures busy={!!active} onStart={(s) => { const t = Date.now(); setNow(t); update(startFocus('lecture', s, t)); }} />
 
       <div className="section">
         <div className="section-head"><h2>Last 7 days by subject</h2></div>

@@ -35,6 +35,7 @@ Details of what exists today are in `HANDOVER.md`.
 15. **Focus Log integration**: ✅ Focus screen (timer, pause, manual entries, 7-day totals, import of Focus Log's sessions.json). Original app lives in `Claude Code/quick-add` (local Python server + Calendar/Reminders via AppleScript – those parts cannot run in a web app). Still to do: feed Focus time into Stats and the preparation meter, sync sessions between devices, lecture reminders.
 
 ## F. Planning & stats
+0. ✅ Lecture timetable from an Outlook .ics file (Focus → Lectures this week): recurring lectures expanded, one tap starts a lecture session. Still to do: automatic refresh (Outlook blocks browser fetches of the ICS link, so a scheduled job or the Canvas/Outlook automation in E is needed), reminders before a lecture.
 16. Daily goal in answers or minutes, 7-day overview on Home, exam date per course.
 17. 💡 Study plan from exam dates: weekly workload per course based on preparation meter and Canvas deadlines.
 18. Fix: one word counts up to 4× in "due" (once per exercise) – count items.
