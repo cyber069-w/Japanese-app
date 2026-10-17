@@ -2,6 +2,7 @@
  * Builds the private course pack from the git-ignored `private/` folder:
  *
  *   private/vocab/*.csv            Minna no Nihongo vocab (kana,kanji,de,en,lesson,tags)
+ *   private/mnemonics/<script>.json memory keywords/texts per kana id (hiragana: based on the Tofugu pictures)
  *   private/hints/<script>/<id>.jpg mnemonic pictures, e.g. private/hints/hiragana/mu.jpg
  *
  * Used by vite.config.ts (dev server) and scripts/build-pack.mjs (encrypted file).
@@ -46,5 +47,12 @@ export function buildPrivatePack(root) {
       }
     }
   }
-  return { version: 1, vocab, hints };
+  // memory texts derived from copyrighted material (Tofugu hiragana pictures): private/mnemonics/<script>.json
+  const mnemonics = {};
+  const mnemDir = join(dir, 'mnemonics');
+  if (existsSync(mnemDir)) {
+    for (const f of readdirSync(mnemDir).filter((f) => f.endsWith('.json'))) mnemonics[basename(f, '.json')] = JSON.parse(readFileSync(join(mnemDir, f), 'utf8'));
+  }
+
+  return { version: 1, vocab, hints, mnemonics };
 }

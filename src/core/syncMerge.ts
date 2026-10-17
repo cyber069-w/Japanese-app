@@ -10,6 +10,8 @@
  *    profile
  *  - resets      "reset this module" travels to the other devices
  */
+import type { FocusSession } from './focus';
+import type { CfaLesson } from '../modules/cfa/lessons';
 import type { CardState } from './srs';
 import type { DayLog } from './db';
 import type { Profile, Settings, VocabEntry } from './types';
@@ -18,8 +20,11 @@ import type { Profile, Settings, VocabEntry } from './types';
 export const DEVICE_SETTINGS = ['theme', 'voiceRate', 'sound', 'course'] as const;
 export type SyncedSettings = Omit<Settings, (typeof DEVICE_SETTINGS)[number]>;
 
-export interface Stamps { settings: number; userVocab: number; kanjiList: number; profile: number }
-export const NO_STAMPS: Stamps = { settings: 0, userVocab: 0, kanjiList: 0, profile: 0 };
+export interface Stamps { settings: number; userVocab: number; kanjiList: number; profile: number; cfaLessons: number; focusSubjects: number }
+export const NO_STAMPS: Stamps = { settings: 0, userVocab: 0, kanjiList: 0, profile: 0, cfaLessons: 0, focusSubjects: 0 };
+
+/** Focus log as it syncs: sessions from every device (merged by id), deleted ids, the subject list. */
+export interface FocusSync { sessions: FocusSession[]; deleted: string[]; subjects: string[] }
 
 export interface SyncData {
   app: 'nihongo-app';
@@ -33,6 +38,9 @@ export interface SyncData {
   userVocab: VocabEntry[];
   kanjiList: string[];
   profile: Profile | null;
+  /** Added later – missing in data from older versions. */
+  cfaLessons?: CfaLesson[];
+  focus?: FocusSync;
   stamps: Stamps;
   /** Module id → time of its last reset; older progress of that module is dropped. */
   resets: Record<string, number>;
@@ -65,11 +73,24 @@ export function mergeSync(local: SyncData, remote: SyncData | null, deviceId: st
   }
   const mergedCards = [...cards.values()].filter((c) => !(resets[moduleOf(c.id)] > c.last)).sort((a, b) => (a.id < b.id ? -1 : 1));
 
-  const pick = <K extends keyof Stamps>(k: K) => (local.stamps[k] > r.stamps[k] ? 'local' : 'remote');
+  const ls = { ...NO_STAMPS, ...local.stamps };
+  const rs = { ...NO_STAMPS, ...r.stamps };
+  const pick = <K extends keyof Stamps>(k: K) => (ls[k] > rs[k] ? 'local' : 'remote');
   const settingsFrom = pick('settings');
   const vocabFrom = pick('userVocab');
   const kanjiFrom = pick('kanjiList');
   const profileFrom = pick('profile');
+
+  // focus sessions: every device adds its own – keep all, newest edit wins, deletions stick
+  const lf = local.focus ?? { sessions: [], deleted: [], subjects: [] };
+  const rf = r.focus ?? { sessions: [], deleted: [], subjects: [] };
+  const deleted = [...new Set([...rf.deleted, ...lf.deleted])].sort();
+  const gone = new Set(deleted);
+  const sessions = new Map<string, FocusSession>();
+  for (const s of [...rf.sessions, ...lf.sessions]) {
+    const other = sessions.get(s.id);
+    if (!gone.has(s.id) && (!other || (s.at ?? 0) >= (other.at ?? 0))) sessions.set(s.id, s);
+  }
 
   return {
     app: 'nihongo-app',
@@ -82,11 +103,19 @@ export function mergeSync(local: SyncData, remote: SyncData | null, deviceId: st
     userVocab: vocabFrom === 'local' ? local.userVocab : r.userVocab,
     kanjiList: kanjiFrom === 'local' ? local.kanjiList : r.kanjiList,
     profile: profileFrom === 'local' ? local.profile : r.profile,
+    cfaLessons: (pick('cfaLessons') === 'local' ? local.cfaLessons : r.cfaLessons) ?? local.cfaLessons ?? [],
+    focus: {
+      sessions: [...sessions.values()].sort((a, b) => a.start.localeCompare(b.start) || (a.id < b.id ? -1 : 1)),
+      deleted,
+      subjects: pick('focusSubjects') === 'local' || !r.focus ? lf.subjects : rf.subjects,
+    },
     stamps: {
-      settings: Math.max(local.stamps.settings, r.stamps.settings),
-      userVocab: Math.max(local.stamps.userVocab, r.stamps.userVocab),
-      kanjiList: Math.max(local.stamps.kanjiList, r.stamps.kanjiList),
-      profile: Math.max(local.stamps.profile, r.stamps.profile),
+      settings: Math.max(ls.settings, rs.settings),
+      userVocab: Math.max(ls.userVocab, rs.userVocab),
+      kanjiList: Math.max(ls.kanjiList, rs.kanjiList),
+      profile: Math.max(ls.profile, rs.profile),
+      cfaLessons: Math.max(ls.cfaLessons, rs.cfaLessons),
+      focusSubjects: Math.max(ls.focusSubjects, rs.focusSubjects),
     },
     resets,
   };

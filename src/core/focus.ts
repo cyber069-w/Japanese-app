@@ -17,6 +17,8 @@ export interface FocusSession {
   manual: boolean;
   /** Worked stretches [start, end] in ms (newer sessions) – used for the day timeline. */
   segs?: Array<[number, number]>;
+  /** Last change (ms) – the newer edit wins when devices sync. */
+  at?: number;
 }
 
 /** A question to you while the timer runs: computer was asleep, regular check-in, or no answer to a check-in. */

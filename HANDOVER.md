@@ -170,7 +170,7 @@ platform plan is in the to-do list.
 
 The user explicitly asked that the **Tofugu pictures and the Minna no Nihongo vocab are never public**.
 
-- Raw files live in **`private/`, which is git-ignored and not in the repo**: `private/vocab/*.csv`, 46 pictures in
+- Raw files live in **`private/`, which is git-ignored and not in the repo**: `private/vocab/*.csv`, `private/mnemonics/hiragana.json` (memory texts), 46 pictures in
   `private/hints/hiragana/<id>.jpg` (ids = romaji: a, ka, shi, tsu, wo, n …), `private/PASSPHRASE.txt`.
 - **`public/pack.enc`** holds the same content, encrypted with AES-256-GCM (PBKDF2 key). It is in the repo and is safe to
   deploy. The deployed app asks for the passphrase once per device (Settings → Course pack).

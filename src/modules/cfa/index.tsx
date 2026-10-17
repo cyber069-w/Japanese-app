@@ -3,6 +3,7 @@ import type { BaseItem, Exercise, FilterGroup, Question, StudyContext, StudyModu
 import { shuffle } from '../../core/session';
 import { navigate } from '../../lib/router';
 import { CfaImport } from './CfaImport';
+import { FormulaSheet } from './FormulaSheet';
 import { CFA_TOPIC_NAMES, type CfaLesson } from './lessons';
 
 interface TermItem extends BaseItem { term: string; definition: string }
@@ -63,7 +64,7 @@ const cards: Exercise<CardItem> = {
 const questions: Exercise<QuestionItem> = {
   id: 'questions',
   name: 'Practice questions',
-  description: 'Exam-style A/B/C questions with an explanation.',
+  description: 'Exam-style A/B/C questions with an explanation – select several lessons for mixed questions.',
   icon: '?',
   items: (ctx) =>
     lessonsOf(ctx).flatMap((l) =>
@@ -101,5 +102,8 @@ export const cfa: StudyModule = {
         <button className="btn btn-primary" onClick={() => navigate('/m/cfa/t/import')}>Import a lesson</button>
       </div>
     ),
-  tools: [{ id: 'import', name: 'Import lesson', description: 'Get the prompt for Claude, paste the pack, download all lessons.', icon: '入', component: CfaImport }],
+  tools: [
+    { id: 'import', name: 'Import lesson', description: 'Get the prompt for Claude, paste the pack, download all lessons.', icon: '入', component: CfaImport },
+    { id: 'formulas', name: 'Formula sheet', description: 'Every formula and worked example from your lessons, by topic – searchable and printable.', icon: 'ƒ', component: FormulaSheet },
+  ],
 };

@@ -23,8 +23,6 @@
     {
       "title": "Tests & tools",
       "placeholders": [
-        { "name": "Mixed questions", "description": "Questions from every topic, A/B/C like the exam.", "icon": "?" },
-        { "name": "Formula sheet", "description": "Every formula from your modules on one page.", "icon": "ƒ" },
         { "name": "Mock exams", "description": "Full practice exams – coming later.", "icon": "✎" }
       ]
     }

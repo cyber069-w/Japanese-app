@@ -95,3 +95,26 @@ describe('sync file encryption', () => {
     expect(file.length).toBeLessThan(raw / 4);
   });
 });
+
+describe('mergeSync – focus log and CFA lessons', () => {
+  const ses = (id: string, at: number, subject = 'CFA') => ({
+    id, kind: 'study' as const, subject, day: '2026-10-17', start: `2026-10-17T0${id.length}:00:00Z`, end: '2026-10-17T10:00:00Z',
+    effectiveSec: 60, elapsedSec: 60, pauses: 0, manual: true, at,
+  });
+  it('keeps sessions from both devices, the newer edit, and deletions', () => {
+    const local = data({ focus: { sessions: [ses('a', 2, 'BWL'), ses('b', 1)], deleted: ['c'], subjects: ['CFA'] } });
+    const remote = data({ focus: { sessions: [ses('a', 1), ses('c', 1), ses('dd', 1)], deleted: [], subjects: ['CFA', 'BWL'] } });
+    const m = mergeSync(local, remote, 'A', 'Mac', 1);
+    expect(m.focus!.sessions.map((s) => [s.id, s.subject])).toEqual([['a', 'BWL'], ['b', 'CFA'], ['dd', 'CFA']]);
+    expect(m.focus!.deleted).toEqual(['c']);
+  });
+  it('copes with data from older versions without these fields', () => {
+    const local = data({ cfaLessons: [], focus: { sessions: [ses('a', 1)], deleted: [], subjects: ['CFA'] } });
+    const old = data();
+    delete (old as Partial<SyncData>).cfaLessons;
+    const m = mergeSync(local, { ...old, stamps: { settings: 0, userVocab: 0, kanjiList: 0, profile: 0 } as SyncData['stamps'] }, 'A', 'Mac', 1);
+    expect(m.focus!.sessions).toHaveLength(1);
+    expect(m.cfaLessons).toEqual([]);
+    expect(m.stamps.cfaLessons).toBe(0);
+  });
+});

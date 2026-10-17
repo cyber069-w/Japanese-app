@@ -70,15 +70,26 @@ export function Settings() {
           <Row title="Session length" desc="Cards per study session (mistakes come back on top).">
             <Seg value={s.sessionLength} options={[[10, '10'], [20, '20'], [30, '30'], [50, '50']]} onChange={(v) => set({ sessionLength: v })} />
           </Row>
-          <Row title="Daily goal" desc="Answers per day for the progress ring.">
-            <Seg value={s.dailyGoal} options={[[20, '20'], [50, '50'], [100, '100'], [150, '150']]} onChange={(v) => set({ dailyGoal: v })} />
+          <Row title="Daily goal" desc="Answers in the app, or minutes (your focus log or time in the app, whichever is more).">
+            <span className="row" style={{ gap: 8 }}>
+              <input className="input" style={{ width: 80 }} inputMode="numeric" value={String(s.dailyGoal)} onChange={(e) => set({ dailyGoal: Math.max(1, Number(e.target.value.replace(/\D/g, '')) || 1) })} aria-label="Daily goal" />
+              <Seg value={s.goalUnit} options={[['answers', 'answers'], ['minutes', 'minutes']]} onChange={(v) => set({ goalUnit: v })} />
+            </span>
           </Row>
           <Row title="Auto-advance" desc="Go to the next card automatically after a correct answer.">
             <Switch checked={s.autoAdvance} onChange={(v) => set({ autoAdvance: v })} label="Auto-advance" />
           </Row>
-          <Row title="Exam date" desc="Shows a countdown and review suggestions on Home.">
-            <input type="date" className="input" value={s.examDate} onChange={(e) => set({ examDate: e.target.value })} />
-          </Row>
+          {COURSES.map((c) => (
+            <Row key={c.id} title={`Exam date · ${c.name}`} desc={c.id === COURSES[0].id ? 'Shows a countdown in Stats for that subject.' : undefined}>
+              <input
+                type="date"
+                className="input"
+                value={s.examDates?.[c.id] || (c.id === 'japanese' ? s.examDate : '')}
+                onChange={(e) => set({ examDates: { ...s.examDates, [c.id]: e.target.value }, ...(c.id === 'japanese' ? { examDate: e.target.value } : {}) })}
+                aria-label={`Exam date for ${c.name}`}
+              />
+            </Row>
+          ))}
         </section>
 
         <section className="card card-pad">

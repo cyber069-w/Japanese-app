@@ -1,5 +1,4 @@
 import { createKanaModule } from '../kana/createKanaModule';
-import mnemonics from './mnemonics.json';
 import words from './words.json';
 
 export const hiragana = createKanaModule({
@@ -9,7 +8,8 @@ export const hiragana = createKanaModule({
   nameJa: 'ひらがな',
   icon: 'あ',
   description: 'The 46 basic characters, dakuten and combinations – with memory pictures.',
-  mnemonics,
+  // memory keywords come from the course pack (they are based on the Tofugu pictures)
+  mnemonics: {},
   words,
   wordsName: 'Words',
   wordsDescription: 'Read real words like ねこ, すし, がっこう.',

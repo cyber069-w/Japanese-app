@@ -31,6 +31,8 @@ export interface Content {
   vocab: VocabEntry[];
   /** Mnemonic pictures by script and kana id, e.g. hints.hiragana.mu → image URL. */
   hints: Record<string, Record<string, string>>;
+  /** Memory keyword + text by script and kana id, from the course pack (hiragana) – see also the module's own. */
+  mnemonics?: Record<string, Record<string, { kw: string; text: string }>>;
   /** Kanji the user wants to study (overrides the default list when non-empty). */
   kanjiList: string[];
   /** Your self-introduction (Speaking module); null until you fill it in. */
@@ -108,7 +110,11 @@ export interface Settings {
   tutorUrls: Record<string, string>;
   sessionLength: number;
   dailyGoal: number;
-  examDate: string; // YYYY-MM-DD or ''
+  /** What the daily goal counts: answers in the app, or minutes (focus log or app time, whichever is more). */
+  goalUnit: 'answers' | 'minutes';
+  examDate: string; // YYYY-MM-DD or '' – the first exam date (Japanese), kept for older backups
+  /** Exam date per subject id, YYYY-MM-DD. */
+  examDates: Record<string, string>;
   autoAdvance: boolean;
   /** Selected filter groups per module (persisted so your row choice is remembered). */
   selections: Record<string, string[]>;

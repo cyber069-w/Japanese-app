@@ -124,17 +124,28 @@ export function dueCardIds(cards: Record<string, CardState>, now = Date.now(), m
     .map((c) => c.id);
 }
 
+/** One card per item: a word due in several exercises is asked once (the most overdue one), the rest stay due. */
+function onePerItem(list: SessionCard[]): SessionCard[] {
+  const seen = new Set<string>();
+  return list.filter((c) => {
+    const k = `${c.moduleId}:${c.item.id}`;
+    if (seen.has(k)) return false;
+    seen.add(k);
+    return true;
+  });
+}
+
 export function buildReviewQueue(
   modules: StudyModule[], ctx: StudyContext, cards: Record<string, CardState>, now = Date.now(), limit = 50, moduleId?: string,
 ): SessionCard[] {
-  const resolved = resolve(dueCardIds(cards, now, moduleId), modules, ctx).slice(0, limit);
+  const resolved = onePerItem(resolve(dueCardIds(cards, now, moduleId), modules, ctx)).slice(0, limit);
   // Interleave modules a little so a review doesn't feel like one long block
   return shuffle(resolved, ctx.rng);
 }
 
-/** Number of due cards that can actually be reviewed (content available). */
+/** Number of due items that can actually be reviewed (content available) – a word due in 4 exercises counts once. */
 export function countDue(modules: StudyModule[], ctx: StudyContext, cards: Record<string, CardState>, now = Date.now(), moduleId?: string) {
-  return resolve(dueCardIds(cards, now, moduleId), modules, ctx).length;
+  return onePerItem(resolve(dueCardIds(cards, now, moduleId), modules, ctx)).length;
 }
 
 /** Ids of the most-missed cards, optionally only from one module or a list of modules (e.g. a course). */

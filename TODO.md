@@ -22,8 +22,8 @@ Status: [ ] open · [x] done · [~] solved differently / blocked (reason in the 
 - [x] Grammar notes rewritten in German + romaji (`grammar/data/lexicon.json`); grammar flashcards removed, grammar drills show romaji
 - [x] “Ask tutor” in every lexicon entry, in the vocab detail row and on every subject page; copies a prompt (German, romaji) and opens Claude / the subject’s Claude Project (Settings → Tutor)
 - [x] Audio with a slow option in the word list and lexicon; single kana from recorded files; “no Japanese voice” help already in Settings → Sound
-- [ ] Mixed-kana quiz (hiragana + katakana together)
-- [ ] Kanji module browser test, then enable again; `/m/kanji/t/*` reachable by URL while "coming later"
+- [x] Mixed-kana drill (Katakana → “Hiragana + katakana”, selected rows in both scripts)
+- [~] Kanji stays “coming later” (your earlier decision); its tool pages are now blocked by URL too
 
 ## Phase 4 – Speaking (voice)
 - [x] Read aloud (Speaking → Read aloud): grammar sentence in romaji + German (kana via toggle), listen normal/slow, speak, words recognised shown green/red with % and recogniser confidence. Browser speech recognition (Chrome/Edge/Safari, not Firefox; audio goes to Google/Apple). Comparison unit-tested; microphone run not tested here
@@ -37,15 +37,16 @@ Status: [ ] open · [x] done · [~] solved differently / blocked (reason in the 
 - [x] Auto-save: every change is written to IndexedDB at once and shared with open tabs
 - [x] Today timeline with gaps ≥ 10 min (tap to fill) and day coverage in % for an adjustable day window
 - [x] Reminder when no timer runs (in-app + optional system notification); “still on it?” check-in, auto-stop after 5 min without answer, and a question after sleep whether the time counts. Only while the app is open somewhere; ticker logic not run end-to-end here (no waiting 30 min)
-- [ ] Sync focus sessions between devices; lecture reminders
+- [x] Focus sessions and subjects sync between devices (merged by id, newest edit wins, deletions stick – unit-tested, not run against GitHub here)
+- [ ] Lecture reminders before a lecture starts (needs the timetable refresh job – see Canvas)
 
 ## Older open items (ROADMAP / HANDOVER)
-- [ ] Daily goal in answers or minutes, 7-day overview on Home, exam date per course
-- [ ] "Due" counts a word up to 4× (once per exercise) – count items
-- [ ] Review course filter only appears once a second course has content
-- [ ] CFA: sync lessons between devices, formula sheet page, worked examples, mixed questions across lessons
-- [ ] Tutor session-summaries list per course
-- [ ] Move Tofugu-derived memory texts out of the public code
+- [x] Daily goal as a free number in answers or minutes; exam date per subject (Stats countdown). 7-day overview: Home is now subject tiles only, so it lives in Stats (30-day answers, 14-day focus)
+- [x] “Due” counts each word once; a review asks it once (the most overdue exercise), the rest stay due
+- [x] Review course filter shows now that CFA has content (by design: hidden while only one subject has cards)
+- [x] CFA: lessons sync, formula sheet (search, print/PDF), worked examples in the lesson pack, mixed questions = Practice questions with several lessons selected
+- [x] Tutor session summaries per subject (subject page → Tutor; stored on this device)
+- [x] Hiragana memory texts (based on the Tofugu pictures) moved into the encrypted course pack; katakana texts are my own and stay
 - [ ] Full QA at 375 px / ~700 px, light + dark, offline and installability
 - [~] Canvas auto-adder – waiting for the user (Canvas URL, feed/token, folder layout); reminder noted
 - [~] Inbox per course for OneNote PDFs / photos, Claude drafts lessons – needs the private repo `study-content`

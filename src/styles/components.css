@@ -1259,3 +1259,19 @@ a.subject-tile:focus-visible { outline-color: var(--tile); }
   box-shadow: var(--shadow-lg);
 }
 @media (min-width: 900px) { .toast { bottom: 28px; } }
+
+/* ============================== CFA formula sheet ============================== */
+
+.formula-row { display: grid; grid-template-columns: minmax(120px, 0.6fr) minmax(0, 1.4fr); gap: 2px 14px; align-items: baseline; padding: 6px 0; border-top: 1px solid var(--line); }
+.formula-row code { font-family: var(--font-sans); color: var(--accent); }
+.formula-row .faint { grid-column: 2; }
+.worked { border-top: 1px solid var(--line); padding-top: 6px; }
+.worked summary { cursor: pointer; }
+@media (max-width: 560px) { .formula-row { grid-template-columns: 1fr; } .formula-row .faint { grid-column: 1; } }
+@media print {
+  .sidebar, .bottom-nav, .no-print, .course-bar { display: none !important; }
+  .shell { display: block; }
+  body { background: #fff; color: #000; }
+  .card { border: 1px solid #ccc; background: #fff; }
+  .formula-row code { color: #000; }
+}

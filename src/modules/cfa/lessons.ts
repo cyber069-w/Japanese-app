@@ -3,6 +3,7 @@
 export interface CfaTerm { term: string; definition: string }
 export interface CfaFormula { name: string; formula: string; note?: string }
 export interface CfaQuestion { q: string; options: string[]; answer: number; explain?: string }
+export interface CfaExample { title: string; problem: string; solution: string }
 
 export interface CfaLesson {
   id: string;
@@ -13,6 +14,8 @@ export interface CfaLesson {
   terms: CfaTerm[];
   formulas: CfaFormula[];
   questions: CfaQuestion[];
+  /** Worked examples (optional – older packs have none). */
+  examples?: CfaExample[];
 }
 
 export const CFA_TOPIC_NAMES: Record<string, string> = {
@@ -29,9 +32,10 @@ export const LESSON_PROMPT = `Turn the CFA Level 1 lesson I just studied into a 
   "title": "<lesson title>",
   "terms": [{ "term": "...", "definition": "short, exam-relevant" }],
   "formulas": [{ "name": "...", "formula": "plain text, e.g. PV = FV / (1 + r)^n", "note": "when to use it" }],
-  "questions": [{ "q": "...", "options": ["...", "...", "..."], "answer": 0, "explain": "why it is right" }]
+  "questions": [{ "q": "...", "options": ["...", "...", "..."], "answer": 0, "explain": "why it is right" }],
+  "examples": [{ "title": "...", "problem": "a short calculation task with numbers", "solution": "step by step, with the formula used and the result" }]
 }
-Rules: only use what is in the lesson. 8–15 terms, every formula, 8–12 questions with exactly three options (A/B/C, "answer" = index 0–2) in CFA exam style.`;
+Rules: only use what is in the lesson. 8–15 terms, every formula, 8–12 questions with exactly three options (A/B/C, "answer" = index 0–2) in CFA exam style, 2–4 worked examples for the calculations.`;
 
 const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40);
 const str = (v: unknown) => (typeof v === 'string' ? v.trim() : '');
@@ -59,11 +63,14 @@ function toLesson(raw: unknown, i: number, errors: string[]): CfaLesson | null {
     }
     questions.push({ q: str(q.q), options, answer: a, explain: str(q.explain) || undefined });
   });
-  if (!terms.length && !formulas.length && !questions.length) {
+  const examples = (Array.isArray(r.examples) ? r.examples : [])
+    .map((x: any) => ({ title: str(x?.title), problem: str(x?.problem), solution: str(x?.solution) }))
+    .filter((x) => x.problem && x.solution);
+  if (!terms.length && !formulas.length && !questions.length && !examples.length) {
     errors.push(`${title}: nothing to import (no terms, formulas or questions).`);
     return null;
   }
-  return { id: `${topic}-${module ?? 'x'}-${slug(title)}`, topic, module, title, terms, formulas, questions };
+  return { id: `${topic}-${module ?? 'x'}-${slug(title)}`, topic, module, title, terms, formulas, questions, ...(examples.length ? { examples } : {}) };
 }
 
 /** Accepts one lesson, an array, or {lessons:[…]}; tolerates a ```json fence around it. */

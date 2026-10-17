@@ -10,7 +10,7 @@ describe('progress ids', () => {
   it('keeps every module and exercise id', () => {
     expect(Object.fromEntries(MODULES.map((m) => [m.id, m.exercises.map((e) => e.id)]))).toEqual({
       hiragana: ['read', 'recall', 'words', 'write'],
-      katakana: ['read', 'recall', 'words', 'write', 'lookalikes'],
+      katakana: ['read', 'recall', 'words', 'write', 'mixed', 'lookalikes'],
       vocab: ['meaning', 'type', 'choose', 'cards'],
       kanji: ['meaning', 'reading', 'words', 'write'],
       // 'notes' (grammar flashcards) was replaced by the lexicon tool on purpose – grammar is looked up, not drilled as cards

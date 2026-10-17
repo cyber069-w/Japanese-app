@@ -38,9 +38,12 @@ export interface FocusState {
   kind: 'study' | 'lecture';
   /** "No timer running" reminder is showing. */
   nudge: boolean;
+  /** Ids of deleted sessions (so a sync doesn't bring them back) and when the subject list last changed. */
+  deleted: string[];
+  subjectsAt: number;
 }
 
-let state: FocusState = { ready: false, sessions: [], active: null, subjects: FOCUS_SUBJECTS, prefs: DEFAULT_PREFS, selected: '', kind: 'study', nudge: false };
+let state: FocusState = { ready: false, sessions: [], active: null, subjects: FOCUS_SUBJECTS, prefs: DEFAULT_PREFS, selected: '', kind: 'study', nudge: false, deleted: [], subjectsAt: 0 };
 const listeners = new Set<() => void>();
 const channel = typeof BroadcastChannel !== 'undefined' ? new BroadcastChannel('nihongo-focus') : null;
 
@@ -56,31 +59,66 @@ export const useFocus = () => useSyncExternalStore(subscribe, () => state, () =>
 export const getFocus = () => state;
 
 async function load() {
-  const [sessions, active, subjects, prefs] = await Promise.all([
+  const [sessions, active, subjects, prefs, deleted, subjectsAt] = await Promise.all([
     storage.get<FocusSession[]>('focus:sessions'),
     storage.get<ActiveFocus | null>('focus:active'),
     storage.get<string[]>('focus:subjects'),
     storage.get<Partial<FocusPrefs>>('focus:prefs'),
+    storage.get<string[]>('focus:deleted'),
+    storage.get<number>('focus:subjectsAt'),
   ]);
-  set({ ready: true, sessions: sessions ?? [], active: active ?? null, subjects: subjects ?? FOCUS_SUBJECTS, prefs: { ...DEFAULT_PREFS, ...prefs } });
+  set({
+    ready: true, sessions: sessions ?? [], active: active ?? null, subjects: subjects ?? FOCUS_SUBJECTS, prefs: { ...DEFAULT_PREFS, ...prefs },
+    deleted: deleted ?? [], subjectsAt: subjectsAt ?? 0,
+  });
 }
 
 let started = false;
+let loading: Promise<void> | null = null;
 export function initFocus() {
   if (started) return;
   started = true;
-  void load();
+  loading ??= load();
   channel?.addEventListener('message', () => void load());
   startTicker();
 }
 
-async function persist(patch: Partial<Pick<FocusState, 'sessions' | 'active' | 'subjects' | 'prefs'>>) {
+const changeListeners = new Set<() => void>();
+/** Called after sessions or subjects change on this device (the sync engine listens). */
+export function onFocusChange(l: () => void) {
+  changeListeners.add(l);
+  return () => changeListeners.delete(l);
+}
+
+async function persist(patch: Partial<Pick<FocusState, 'sessions' | 'active' | 'subjects' | 'prefs' | 'deleted'>>, fromSync = false) {
+  const subjectsChanged = 'subjects' in patch && patch.subjects !== state.subjects && patch.subjects!.join('|') !== state.subjects.join('|');
+  if (subjectsChanged && !fromSync) Object.assign(patch, { subjectsAt: Date.now() });
   set(patch);
   if ('sessions' in patch) await storage.set('focus:sessions', patch.sessions);
   if ('active' in patch) await storage.set('focus:active', patch.active ?? null);
   if ('subjects' in patch) await storage.set('focus:subjects', patch.subjects);
   if ('prefs' in patch) await storage.set('focus:prefs', patch.prefs);
+  if ('deleted' in patch) await storage.set('focus:deleted', patch.deleted);
+  if (subjectsChanged) await storage.set('focus:subjectsAt', state.subjectsAt);
   channel?.postMessage('changed');
+  if (!fromSync && ('sessions' in patch || subjectsChanged)) changeListeners.forEach((l) => l());
+}
+
+/** Takes over merged focus data from a sync. */
+export async function applyFocusSync(data: { sessions: FocusSession[]; deleted: string[]; subjects: string[] }, subjectsAt: number) {
+  const patch: Parameters<typeof persist>[0] = { sessions: data.sessions, deleted: data.deleted };
+  if (subjectsAt > state.subjectsAt) {
+    patch.subjects = data.subjects;
+    set({ subjectsAt });
+    await storage.set('focus:subjectsAt', subjectsAt);
+  }
+  await persist(patch, true);
+}
+
+/** Loads the focus data if nothing has yet (the sync engine may run before the Focus page). */
+export async function focusReady() {
+  await (loading ??= load());
+  return state;
 }
 
 const withSubject = (list: string[], s: string) => (s && !list.includes(s) ? [...list, s] : list);
@@ -120,7 +158,7 @@ export function pauseOrResume(now = Date.now()) {
 }
 
 function saveIfLong(s: FocusSession): FocusSession[] {
-  return s.effectiveSec >= 10 ? [...state.sessions, s] : state.sessions;
+  return s.effectiveSec >= 10 ? [...state.sessions, { ...s, at: Date.now() }] : state.sessions;
 }
 
 /** Stops and saves the timer; returns the saved session (null if it was shorter than 10 s). */
@@ -149,19 +187,20 @@ export function answerPrompt(answer: 'count' | 'drop' | 'stop', now = Date.now()
 }
 
 export function addManual(kind: FocusSession['kind'], subject: string, minutes: number, endMs: number) {
-  const s = manualSession(kind, subject, minutes, endMs);
+  const s = { ...manualSession(kind, subject, minutes, endMs), at: Date.now() };
   void persist({ sessions: [...state.sessions, s], subjects: withSubject(state.subjects, subject) });
 }
 /** Adds a session or replaces the one with the same id. */
-export function saveSession(s: FocusSession) {
+export function saveSession(session: FocusSession) {
+  const s = { ...session, at: Date.now() };
   const exists = state.sessions.some((x) => x.id === s.id);
   const sessions = exists ? state.sessions.map((x) => (x.id === s.id ? s : x)) : [...state.sessions, s];
-  void persist({ sessions: sessions.sort((a, b) => a.start.localeCompare(b.start)), subjects: withSubject(state.subjects, s.subject) });
+  void persist({ sessions: sessions.sort((a, b) => a.start.localeCompare(b.start)), subjects: withSubject(state.subjects, s.subject), deleted: state.deleted.filter((id) => id !== s.id) });
 }
 /** Deletes a session and returns it, so it can be restored (undo). */
 export function deleteSession(id: string): FocusSession | undefined {
   const s = state.sessions.find((x) => x.id === id);
-  void persist({ sessions: state.sessions.filter((x) => x.id !== id) });
+  void persist({ sessions: state.sessions.filter((x) => x.id !== id), deleted: [...state.deleted, id] });
   return s;
 }
 export function importSessions(json: string): number {

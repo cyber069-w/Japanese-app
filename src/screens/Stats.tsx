@@ -38,7 +38,12 @@ export function Stats() {
   const lectureWeek = focus.sessions.filter((s) => s.kind === 'lecture' && s.day >= focusDays[7].key).reduce((n, s) => n + s.effectiveSec, 0);
   const focusMax = Math.max(1, ...focusDays.map((d) => d.sec));
 
+  const exam = settings.examDates?.[course.id] || (course.id === 'japanese' ? settings.examDate : '');
+  const todayFocusMin = Math.round(focusDays[focusDays.length - 1].sec / 60);
+  const todayAppMin = Math.round((days[dayKey()]?.ms ?? 0) / 60_000);
+  const goalNow = settings.goalUnit === 'minutes' ? Math.max(todayFocusMin, todayAppMin) : days[dayKey()]?.reviews ?? 0;
   const tiles: Array<[string, string, Parameters<typeof Icon>[0]['name'], string?]> = [
+    [`${goalNow} / ${settings.dailyGoal}`, `daily goal (${settings.goalUnit})`, 'target'],
     [String(days[dayKey()]?.reviews ?? 0), 'answers today', 'zap'],
     [String(streak(days)), 'day streak', 'flame', 'flame'],
     [String(bestStreak(days)), 'best streak', 'sparkle'],
@@ -47,7 +52,7 @@ export function Stats() {
     [String(t.reviews), 'answers', 'check'],
     [formatDuration(t.ms), 'time studied', 'clock'],
     [String(learned), 'cards learned', 'book'],
-    ...(settings.examDate && daysUntil(settings.examDate) >= 0 ? [[String(daysUntil(settings.examDate)), 'days to the exam', 'calendar'] as [string, string, string]] : []),
+    ...(exam && daysUntil(exam) >= 0 ? [[String(daysUntil(exam)), `days to the ${course.name} exam`, 'calendar'] as [string, string, string]] : []),
   ];
 
   return (

@@ -9,6 +9,7 @@
  *   stamps      when settings / word lists / kanji list / profile last changed here
  *   resets      when each module was last reset
  */
+import { applyFocusSync, focusReady, getFocus, initFocus, onFocusChange } from './focusStore';
 import type { CfaLesson } from '../modules/cfa/lessons';
 import { useSyncExternalStore } from 'react';
 import bundledPack from 'virtual:private-pack';
@@ -22,6 +23,8 @@ export interface PrivatePack {
   version: 1;
   vocab: VocabEntry[];
   hints: Record<string, Record<string, string>>;
+  /** Memory keyword + text per script and kana id (older packs have none). */
+  mnemonics?: Record<string, Record<string, { kw: string; text: string }>>;
 }
 
 export type PackStatus = 'none' | 'bundled' | 'unlocked';
@@ -49,7 +52,9 @@ export const DEFAULT_SETTINGS: Settings = {
   tutorUrls: {},
   sessionLength: 20,
   dailyGoal: 50,
+  goalUnit: 'answers',
   examDate: '',
+  examDates: {},
   autoAdvance: true,
   selections: {},
   course: 'japanese', // unknown ids fall back to the first course
@@ -112,6 +117,7 @@ function composeContent(): Content {
   return {
     vocab: [...(pack?.vocab ?? []), ...state.userVocab],
     hints: pack?.hints ?? {},
+    mnemonics: pack?.mnemonics ?? {},
     kanjiList,
     profile,
     cfaLessons,
@@ -123,6 +129,10 @@ function composeContent(): Content {
 // ---------------------------------------------------------------------------
 
 export async function initStore() {
+  // the focus log syncs too, so it has to be loaded before the first sync (this also starts its reminders)
+  initFocus();
+  await focusReady();
+  onFocusChange(changed);
   const [settings, cardList, dayList, userVocab, storedPack, storedKanji, storedProfile, storedRemote, storedStamps, storedResets, storedCfa] = await Promise.all([
     storage.get<Partial<Settings>>('settings'),
     storage.allCards(),
@@ -216,11 +226,13 @@ export async function setUserVocab(list: VocabEntry[]) {
   changed();
 }
 
-/** CFA lesson packs live on this device only (not synced yet). */
+/** CFA lesson packs (synced like the other lists – the newest change wins). */
 export async function setCfaLessons(list: CfaLesson[]) {
   cfaLessons = list;
   await storage.set('cfaLessons', list);
   setState({ content: composeContent() });
+  stamp('cfaLessons');
+  changed();
 }
 
 export async function setKanjiList(list: string[]) {
@@ -303,7 +315,9 @@ export function exportSyncData(deviceId: string): SyncData {
     userVocab: state.userVocab,
     kanjiList,
     profile,
-    stamps,
+    cfaLessons,
+    focus: { sessions: getFocus().sessions, deleted: getFocus().deleted, subjects: getFocus().subjects },
+    stamps: { ...stamps, focusSubjects: getFocus().subjectsAt },
     resets,
   };
 }
@@ -349,6 +363,11 @@ export async function applySyncData(merged: SyncData, deviceId: string, deviceNa
     if (profile) await storage.set('profile', profile);
     else await storage.del('profile');
   }
+  if (final.stamps.cfaLessons !== stamps.cfaLessons && final.cfaLessons) {
+    cfaLessons = final.cfaLessons;
+    await storage.set('cfaLessons', cfaLessons);
+  }
+  if (final.focus) await applyFocusSync(final.focus, final.stamps.focusSubjects);
   stamps = final.stamps;
   resets = final.resets;
   await storage.set('stamps', stamps);

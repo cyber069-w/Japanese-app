@@ -11,6 +11,7 @@ import { CourseBar } from '../components/CourseBar';
 import { ModuleCard, PlaceholderCard } from '../components/ModuleCard';
 import { Icon } from '../components/Icon';
 import { TutorButton } from '../components/TutorButton';
+import { TutorNotes } from '../components/TutorNotes';
 
 const AREAS = [
   { id: 'study', label: 'Study' },
@@ -83,6 +84,7 @@ export function CoursePage({ course }: { course: CourseConfig }) {
               })}
             />
           </div>
+          <TutorNotes courseId={course.id} />
         </div>
       </Area>
     </div>

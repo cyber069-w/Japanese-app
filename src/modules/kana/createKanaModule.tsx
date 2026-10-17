@@ -83,7 +83,7 @@ export function createKanaModule(o: KanaModuleOptions): StudyModule {
     words.push({ id: `w-${romaji.replace(/'/g, '')}`, label: w.kana, sub: romaji, groups: rows, kana: w.kana, romaji, de: w.de, en: w.en });
   }
 
-  const mnemonicOf = (c: KanaChar) => o.mnemonics[c.id];
+  const mnemonicOf = (c: KanaChar, ctx: StudyContext) => ctx.content.mnemonics?.[o.script]?.[c.id] ?? o.mnemonics[c.id];
   const images = (ctx: StudyContext) => ctx.content.hints[o.script] ?? {};
 
   /** The visual hint for a character; `withImage` = false when the picture would give the answer away. */
@@ -91,11 +91,11 @@ export function createKanaModule(o: KanaModuleOptions): StudyModule {
     const img = images(ctx);
     const flags = FLAGS[c.id];
     if (c.type === 'basic') {
-      const m = mnemonicOf(c);
+      const m = mnemonicOf(c, ctx);
       return { keyword: m?.kw, text: m?.text, image: withImage ? img[c.id] : undefined, flags };
     }
     const base = c.base ? byKana.get(c.base) : undefined;
-    const bm = base ? mnemonicOf(base) : undefined;
+    const bm = base ? mnemonicOf(base, ctx) : undefined;
     const bimg = withImage && base ? img[base.id] : undefined;
     if (c.type === 'dakuten') {
       return {
@@ -241,6 +241,29 @@ export function createKanaModule(o: KanaModuleOptions): StudyModule {
 
   const exercises: Exercise<any>[] = [read, recall, wordsEx, write];
 
+  // Katakana also gets a mixed drill: the selected rows in both scripts, one shuffled round
+  if (o.script === 'katakana') {
+    const hira: KanaItem[] = buildKana('hiragana').map((c) => ({ ...c, id: `h-${c.id}`, label: c.kana, sub: c.romaji, groups: [c.row] }));
+    exercises.push({
+      id: 'mixed',
+      name: 'Hiragana + katakana',
+      description: 'Both scripts mixed: see a character, type how it’s read.',
+      icon: 'ア',
+      items: () => [...items, ...hira],
+      question: (c: KanaItem, ctx): Question => {
+        const isHira = c.id.startsWith('h-');
+        return {
+          prompt: { text: c.kana, lang: 'ja', size: 'hero', instruction: `Type the reading · ${isHira ? 'hiragana' : 'katakana'}` },
+          answer: { type: 'typing', input: 'romaji', check: (v) => matchesReading(v, c.kana, ctx.settings.leniency) },
+          solution: { main: c.romaji, lang: 'latin', notes: [isHira ? 'Hiragana' : 'Katakana', ...solutionNotes(c, ctx)] },
+          hint: isHira ? { flags: FLAGS[c.id.slice(2)] } : hintFor(c, ctx),
+          speak: c.kana,
+          fastMs: 2500,
+        };
+      },
+    });
+  }
+
   if (o.confusableDrill) {
     const drillItems = items.filter((c) => confusable.has(c.kana) && c.type === 'basic');
     exercises.push({
@@ -257,7 +280,7 @@ export function createKanaModule(o: KanaModuleOptions): StudyModule {
           ? {
               prompt: { text: c.kana, lang: 'ja', size: 'hero', instruction: 'Which sound is this?' },
               answer: { type: 'choice', options: opts.map((x) => ({ label: x.romaji, lang: 'latin' })), correct: opts.indexOf(c) },
-              solution: { main: c.romaji, lang: 'latin', notes: [o.mnemonics[c.id]?.text ?? ''].filter(Boolean) },
+              solution: { main: c.romaji, lang: 'latin', notes: [mnemonicOf(c, ctx)?.text ?? ''].filter(Boolean) },
               hint: hintFor(c, ctx),
               speak: c.kana,
               fastMs: 2500,
@@ -265,7 +288,7 @@ export function createKanaModule(o: KanaModuleOptions): StudyModule {
           : {
               prompt: { text: c.romaji, lang: 'latin', size: 'hero', instruction: 'Pick the right character' },
               answer: { type: 'choice', options: opts.map((x) => ({ label: x.kana, lang: 'ja' })), correct: opts.indexOf(c) },
-              solution: { main: c.kana, lang: 'ja', notes: [o.mnemonics[c.id]?.text ?? ''].filter(Boolean) },
+              solution: { main: c.kana, lang: 'ja', notes: [mnemonicOf(c, ctx)?.text ?? ''].filter(Boolean) },
               hint: hintFor(c, ctx, false),
               revealHint: hintFor(c, ctx),
               speak: c.kana,

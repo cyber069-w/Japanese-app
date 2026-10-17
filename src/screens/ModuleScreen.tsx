@@ -261,6 +261,15 @@ export function ToolScreen({ id, tool }: { id: string; tool: string }) {
     return null;
   }
   const C = t.component;
+  if (mod.status === 'soon' || moduleInfo(mod.id).soon)
+    return (
+      <div className="page">
+        <div className="empty">
+          <p style={{ marginBottom: 14 }}>{mod.name} is coming later – your progress is kept until then.</p>
+          <a className="btn" href={`#/m/${mod.id}`}>Back to {mod.name}</a>
+        </div>
+      </div>
+    );
   return (
     <div className="page">
       <a href={`#/m/${mod.id}`} className="btn btn-ghost btn-sm" style={{ marginLeft: -10, marginBottom: 14 }}>
