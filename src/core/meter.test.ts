@@ -6,7 +6,7 @@ import { getCourse } from '../courses';
 import { getModule } from '../modules';
 
 const card = (patch: Partial<CardState>): CardState => ({ ...newCard('m:e:i', 0), ...patch });
-const ctx: StudyContext = { settings: {} as StudyContext['settings'], content: { vocab: [], hints: {}, kanjiList: [], profile: null }, rng: Math.random };
+const ctx: StudyContext = { settings: {} as StudyContext['settings'], content: { vocab: [], hints: {}, kanjiList: [], profile: null, cfaLessons: [] }, rng: Math.random };
 
 describe('cardScore', () => {
   it('counts nothing until a card has been answered right on two different days', () => {

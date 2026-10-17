@@ -11,6 +11,7 @@
  * The Home, Study, Review and Stats screens only talk to modules through these
  * types, so adding a module = adding a folder and one line in modules/index.ts.
  */
+import type { CfaLesson } from '../modules/cfa/lessons';
 import type { ComponentType, ReactNode } from 'react';
 import type { Leniency } from '../lib/romaji';
 
@@ -34,6 +35,8 @@ export interface Content {
   kanjiList: string[];
   /** Your self-introduction (Speaking module); null until you fill it in. */
   profile: Profile | null;
+  /** CFA lesson packs you imported (CFA module). */
+  cfaLessons: CfaLesson[];
 }
 
 /**

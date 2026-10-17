@@ -17,6 +17,7 @@ describe('progress ids', () => {
       numbers: ['read', 'write', 'listen'],
       listening: ['dictation', 'meaning', 'alikes', 'sentences', 'sentence-dictation'],
       speaking: ['questions', 'listen', 'intro'],
+      cfa: ['terms', 'cards', 'questions'],
     });
   });
 });

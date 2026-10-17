@@ -18,7 +18,7 @@
     { "id": "portfolio", "name": "Portfolio Construction", "modules": 6, "weight": [8, 12] },
     { "id": "ethics", "name": "Ethical & Professional Standards", "modules": 10, "weight": [10, 15] }
   ],
-  "study": [],
+  "study": [{ "title": "Lessons", "note": "Key terms, formulas and questions from your imported lessons", "modules": ["cfa"] }],
   "exam": [
     {
       "title": "Tests & tools",

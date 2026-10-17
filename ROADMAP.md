@@ -16,7 +16,7 @@ Details of what exists today are in `HANDOVER.md`.
    two mockups first, user picks, then roll out (practice screen, Home, course page).
 
 ## C. Other courses
-8. **CFA Level 1**: lessons with notes, key terms, A/B/C questions as review cards, formula sheet, worked examples.
+8. **CFA Level 1**: ✅ lesson packs (Study → CFA lessons → Import lesson: prompt for Claude, paste the JSON, key-terms / flashcards / A-B-C quiz, per-lesson selection, download all). Still to do: sync lessons between devices (kept on one device for now), formula sheet page, worked examples, mixed questions across lessons.
 9. BWL and Recht: content shells exist, fill from the user's lecture material (existing skills for Mikroökonomik / Privatrecht can feed this).
 
 ## D. AI integration
@@ -32,8 +32,7 @@ Details of what exists today are in `HANDOVER.md`.
     A static PWA cannot hold a Canvas login, so this runs outside the app: a scheduled job (Claude Code scheduled task or a
     GitHub Action) using the Canvas calendar (ICS) feed or an API token, writing into the private content repo; the app
     reads from there. Needs from the user: Canvas URL, how files are organised today, which feed/token is allowed.
-15. **Focus Log integration** 💡: bring the user's Focus Log app in as a module (time tracking per course feeding the
-    "time studied" stats and the preparation meter). Needs from the user: where its code lives and its data format.
+15. **Focus Log integration**: ✅ Focus screen (timer, pause, manual entries, 7-day totals, import of Focus Log's sessions.json). Original app lives in `Claude Code/quick-add` (local Python server + Calendar/Reminders via AppleScript – those parts cannot run in a web app). Still to do: feed Focus time into Stats and the preparation meter, sync sessions between devices, lecture reminders.
 
 ## F. Planning & stats
 16. Daily goal in answers or minutes, 7-day overview on Home, exam date per course.

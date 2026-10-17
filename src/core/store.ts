@@ -9,6 +9,7 @@
  *   stamps      when settings / word lists / kanji list / profile last changed here
  *   resets      when each module was last reset
  */
+import type { CfaLesson } from '../modules/cfa/lessons';
 import { useSyncExternalStore } from 'react';
 import bundledPack from 'virtual:private-pack';
 import { storage, type DayLog } from './db';
@@ -58,12 +59,13 @@ let state: AppState = {
   settings: DEFAULT_SETTINGS,
   cards: {},
   days: {},
-  content: { vocab: [], hints: {}, kanjiList: [], profile: null },
+  content: { vocab: [], hints: {}, kanjiList: [], profile: null, cfaLessons: [] },
   packStatus: 'none',
   userVocab: [],
   version: 0,
 };
 let pack: PrivatePack | null = null;
+let cfaLessons: CfaLesson[] = [];
 let kanjiList: string[] = [];
 let profile: Profile | null = null;
 let ownDays: Record<string, DayLog> = {};
@@ -111,6 +113,7 @@ function composeContent(): Content {
     hints: pack?.hints ?? {},
     kanjiList,
     profile,
+    cfaLessons,
   };
 }
 
@@ -119,7 +122,7 @@ function composeContent(): Content {
 // ---------------------------------------------------------------------------
 
 export async function initStore() {
-  const [settings, cardList, dayList, userVocab, storedPack, storedKanji, storedProfile, storedRemote, storedStamps, storedResets] = await Promise.all([
+  const [settings, cardList, dayList, userVocab, storedPack, storedKanji, storedProfile, storedRemote, storedStamps, storedResets, storedCfa] = await Promise.all([
     storage.get<Partial<Settings>>('settings'),
     storage.allCards(),
     storage.allDays(),
@@ -130,11 +133,13 @@ export async function initStore() {
     storage.get<Record<string, DayLog[]>>('remoteDays'),
     storage.get<Stamps>('stamps'),
     storage.get<Record<string, number>>('resets'),
+    storage.get<CfaLesson[]>('cfaLessons'),
   ]);
   let packStatus: PackStatus = 'none';
   if (storedPack) { pack = storedPack; packStatus = 'unlocked'; }
   else if (bundledPack) { pack = bundledPack as PrivatePack; packStatus = 'bundled'; }
   kanjiList = storedKanji ?? [];
+  cfaLessons = storedCfa ?? [];
   profile = storedProfile ?? null;
   ownDays = Object.fromEntries(dayList.map((d) => [d.date, d]));
   remoteDays = storedRemote ?? {};
@@ -208,6 +213,13 @@ export async function setUserVocab(list: VocabEntry[]) {
   setState({ content: composeContent() });
   stamp('userVocab');
   changed();
+}
+
+/** CFA lesson packs live on this device only (not synced yet). */
+export async function setCfaLessons(list: CfaLesson[]) {
+  cfaLessons = list;
+  await storage.set('cfaLessons', list);
+  setState({ content: composeContent() });
 }
 
 export async function setKanjiList(list: string[]) {
