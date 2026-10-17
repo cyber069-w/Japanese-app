@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { ModuleGlyph } from '../components/GlyphIcon';
 import { useApp } from '../core/store';
 import { useCourse, useCtx, useDueCounts } from '../core/hooks';
@@ -9,6 +9,7 @@ import { courseModules } from '../courses';
 import { dayKey, formatDuration } from '../lib/date';
 import { Icon } from '../components/Icon';
 import { CourseBar } from '../components/CourseBar';
+import { initFocus, useFocus } from '../core/focusStore';
 
 export function Stats() {
   const course = useCourse();
@@ -20,6 +21,21 @@ export function Stats() {
   const learned = useMemo(() => Object.values(cards).filter((c) => c.step === -1).length, [cards]);
   const activity = lastDays(days, 30);
   const maxDay = Math.max(1, ...activity.map((d) => d.reviews));
+  const focus = useFocus();
+  useEffect(initFocus, []);
+  const focusDays = useMemo(() => {
+    const out: Array<{ key: string; sec: number }> = [];
+    for (let i = 13; i >= 0; i--) out.push({ key: dayKey(new Date(Date.now() - i * 86400_000)), sec: 0 });
+    focus.sessions.forEach((s) => {
+      const d = out.find((x) => x.key === s.day);
+      if (d) d.sec += s.effectiveSec;
+    });
+    return out;
+  }, [focus.sessions]);
+  const focusWeek = focusDays.slice(-7).reduce((n, d) => n + d.sec, 0);
+  const focusTotal = focus.sessions.reduce((n, s) => n + s.effectiveSec, 0);
+  const lectureWeek = focus.sessions.filter((s) => s.kind === 'lecture' && s.day >= focusDays[7].key).reduce((n, s) => n + s.effectiveSec, 0);
+  const focusMax = Math.max(1, ...focusDays.map((d) => d.sec));
 
   const tiles: Array<[string, string, Parameters<typeof Icon>[0]['name'], string?]> = [
     [String(days[dayKey()]?.reviews ?? 0), 'answers today', 'zap'],
@@ -52,6 +68,37 @@ export function Stats() {
             <div className="tile-label">{label}</div>
           </div>
         ))}
+      </div>
+
+      <div className="section">
+        <div className="section-head">
+          <h2>Focus time</h2>
+          <span className="spacer" />
+          <a href="#/focus" className="faint">Open Focus</a>
+        </div>
+        <div className="card card-pad">
+          {focus.sessions.length === 0 ? (
+            <p className="muted small">Nothing logged yet – start a timer on the Focus page.</p>
+          ) : (
+            <>
+              <div className="row small" style={{ gap: 18, marginBottom: 12 }}>
+                <span><b>{formatDuration(focusWeek * 1000)}</b> <span className="muted">last 7 days</span></span>
+                <span><b>{formatDuration(lectureWeek * 1000)}</b> <span className="muted">in lectures</span></span>
+                <span><b>{formatDuration(focusTotal * 1000)}</b> <span className="muted">in total</span></span>
+              </div>
+              <div className="chart-bars" role="img" aria-label="Focus time per day, last 14 days">
+                {focusDays.map((d, i) => (
+                  <div key={d.key} className={`${d.sec ? '' : 'zero'}${i === focusDays.length - 1 ? ' today' : ''}`} style={{ height: `${(d.sec / focusMax) * 100}%` }} title={`${d.key}: ${formatDuration(d.sec * 1000)}`} />
+                ))}
+              </div>
+              <div className="row faint tiny" style={{ marginTop: 8 }}>
+                <span>{focusDays[0].key.slice(5)}</span>
+                <span className="spacer" />
+                <span>today</span>
+              </div>
+            </>
+          )}
+        </div>
       </div>
 
       <div className="section">
