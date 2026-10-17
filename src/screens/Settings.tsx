@@ -114,7 +114,10 @@ export function Settings() {
 
         <section className="card card-pad">
           <h2>Display</h2>
-          <Row title="Theme">
+          <Row title="Look" desc="Washi: warm paper and serif type. Midnight: dark ink, bold sans type (always dark).">
+            <Seg value={s.look} options={[['washi', 'Washi'], ['midnight', 'Midnight']]} onChange={(v) => set({ look: v })} />
+          </Row>
+          <Row title="Theme" desc={s.look === 'midnight' ? 'Midnight is always dark.' : undefined}>
             <Seg value={s.theme} options={[['system', 'System'], ['light', 'Light'], ['dark', 'Dark']]} onChange={(v) => set({ theme: v })} />
           </Row>
           <Row title="Meaning language" desc="Language for word meanings and translations.">

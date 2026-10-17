@@ -103,3 +103,36 @@
   --grain-opacity: 0.12;
   color-scheme: dark;
 }
+
+/* Midnight look: always dark, cool ink, blue accent, sans-serif display type */
+:root[data-look='midnight'] {
+  --paper: #0f1218;
+  --paper-2: #131720;
+  --surface: #171b23;
+  --surface-2: #1c212b;
+  --ink: #e9ecf2;
+  --ink-2: #a3abbb;
+  --ink-3: #6f7788;
+  --line: #262c37;
+  --line-2: #323a48;
+  --track: #262c37;
+  --accent: #7aa2ff;
+  --accent-hover: #96b4ff;
+  --accent-tint: #1b2740;
+  --accent-ink: #0b1020;
+  --seal: #ff8f7a;
+  --good: #5fd1a0;
+  --good-tint: #12302a;
+  --bad: #ff8f7a;
+  --bad-tint: #35201b;
+  --warn: #ffb454;
+  --warn-tint: #35291a;
+  --hint-paper: #f7f3ea;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.35);
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.35), 0 8px 28px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 2px 6px rgba(0, 0, 0, 0.4), 0 18px 48px rgba(0, 0, 0, 0.55);
+  --grain-opacity: 0;
+  --radius: 16px;
+  --font-serif: var(--font-sans);
+  color-scheme: dark;
+}
