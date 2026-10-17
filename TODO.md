@@ -1,5 +1,7 @@
 # TODO – study platform
 
+Next work is split into phases with ready-made prompts (model + effort per phase): see `HANDOVER-PHASES.md`.
+
 Single list of everything still open. `ROADMAP.md` keeps the background; this file is ticked off as work lands.
 Status: [ ] open · [x] done · [~] solved differently / blocked (reason in the line).
 
