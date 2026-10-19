@@ -53,7 +53,7 @@ export function focusSubject(name: string, known: string[] = FOCUS_SUBJECTS): st
 }
 
 /** Course id → Focus subject name (other courses keep their own name). */
-export const COURSE_SUBJECT: Record<string, string> = { japanese: 'Japanisch', cfa: 'CFA', bwl: 'BWL', recht: 'Privatrecht' };
+export const COURSE_SUBJECT: Record<string, string> = { japanese: 'Japanisch', cfa: 'CFA', bwl: 'BWL', recht: 'Privatrecht', interview: 'Interview' };
 
 export function horizonOf(due: number | undefined, now: number): Horizon {
   if (due === undefined) return 'later';

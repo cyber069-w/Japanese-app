@@ -13,8 +13,9 @@ import { kanji } from './kanji';
 import { listening } from './listening';
 import { speaking } from './speaking';
 import { cfa } from './cfa';
+import { interview } from './interview';
 
-export const MODULES: StudyModule[] = [hiragana, katakana, vocab, kanji, grammar, numbers, listening, speaking, cfa];
+export const MODULES: StudyModule[] = [hiragana, katakana, vocab, kanji, grammar, numbers, listening, speaking, cfa, interview];
 
 export function getModule(id: string): StudyModule | undefined {
   return MODULES.find((m) => m.id === id);

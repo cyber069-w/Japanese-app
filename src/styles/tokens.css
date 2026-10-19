@@ -100,6 +100,7 @@
 :root[data-course='cfa'] { --accent: #bdecc6; --accent-hover: #d3f4d9; --accent-tint: rgba(189, 236, 198, 0.16); --accent-ink: #123320; }
 :root[data-course='bwl'] { --accent: #ffe08a; --accent-hover: #ffeab0; --accent-tint: rgba(255, 224, 138, 0.16); --accent-ink: #3a2a05; }
 :root[data-course='recht'] { --accent: #ffc6bd; --accent-hover: #ffd9d3; --accent-tint: rgba(255, 198, 189, 0.16); --accent-ink: #401812; }
+:root[data-course='interview'] { --accent: #d9c8ff; --accent-hover: #e6dbff; --accent-tint: rgba(217, 200, 255, 0.18); --accent-ink: #2a1a4a; }
 :root[data-course='focus'] { --accent: #ffcf99; --accent-hover: #ffdcb5; --accent-tint: rgba(255, 207, 153, 0.18); --accent-ink: #3d2108; }
 
 /* The same colours by name, for subject tiles on Home */
@@ -109,4 +110,5 @@
   --subject-bwl: #ffe08a;
   --subject-recht: #ffc6bd;
   --subject-focus: #ffcf99;
+  --subject-interview: #d9c8ff;
 }

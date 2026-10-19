@@ -1,0 +1,11 @@
+{
+  "id": "interview",
+  "name": "Interview",
+  "subtitle": "IB / PE interview prep",
+  "glyph": "?",
+  "order": 5,
+  "description": "Technical, behavioural and firm-specific questions – answer out loud, rate yourself, practise on camera-free recordings.",
+  "claudeProjectUrl": "",
+  "study": [{ "title": "Decks", "note": "Your question packs by deck and topic", "modules": ["interview"] }],
+  "exam": []
+}

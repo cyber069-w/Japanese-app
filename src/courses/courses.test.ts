@@ -4,7 +4,7 @@ import { ACTIVE_IDS, COURSES, courseEntries, courseModules, getCourse, isUnverif
 
 describe('course registry', () => {
   it('loads every course folder, in order', () => {
-    expect(COURSES.map((c) => c.id)).toEqual(['japanese', 'cfa', 'bwl', 'recht']);
+    expect(COURSES.map((c) => c.id)).toEqual(['japanese', 'cfa', 'bwl', 'recht', 'interview']);
     for (const c of COURSES) {
       expect(c.claudeProjectUrl).toBe('');
       expect(c.glyph.length).toBeGreaterThan(0);

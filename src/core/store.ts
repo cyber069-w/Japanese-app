@@ -9,6 +9,7 @@
  *   stamps      when settings / word lists / kanji list / profile last changed here
  *   resets      when each module was last reset
  */
+import type { InterviewQuestion } from '../modules/interview/questions';
 import { applyFocusSync, focusReady, getFocus, initFocus, onFocusChange } from './focusStore';
 import type { CfaLesson } from '../modules/cfa/lessons';
 import { useSyncExternalStore } from 'react';
@@ -76,6 +77,7 @@ let state: AppState = {
 };
 let pack: PrivatePack | null = null;
 let cfaLessons: CfaLesson[] = [];
+let interviewQs: InterviewQuestion[] = [];
 let kanjiList: string[] = [];
 let profile: Profile | null = null;
 let ownDays: Record<string, DayLog> = {};
@@ -125,6 +127,7 @@ function composeContent(): Content {
     kanjiList,
     profile,
     cfaLessons,
+    interviewQs,
   };
 }
 
@@ -137,7 +140,7 @@ export async function initStore() {
   initFocus();
   await focusReady();
   onFocusChange(changed);
-  const [settings, cardList, dayList, userVocab, storedPack, storedKanji, storedProfile, storedRemote, storedStamps, storedResets, storedCfa] = await Promise.all([
+  const [settings, cardList, dayList, userVocab, storedPack, storedKanji, storedProfile, storedRemote, storedStamps, storedResets, storedCfa, storedInterview] = await Promise.all([
     storage.get<Partial<Settings>>('settings'),
     storage.allCards(),
     storage.allDays(),
@@ -149,12 +152,14 @@ export async function initStore() {
     storage.get<Stamps>('stamps'),
     storage.get<Record<string, number>>('resets'),
     storage.get<CfaLesson[]>('cfaLessons'),
+    storage.get<InterviewQuestion[]>('interviewQs'),
   ]);
   let packStatus: PackStatus = 'none';
   if (storedPack) { pack = storedPack; packStatus = 'unlocked'; }
   else if (bundledPack) { pack = bundledPack as PrivatePack; packStatus = 'bundled'; }
   kanjiList = storedKanji ?? [];
   cfaLessons = storedCfa ?? [];
+  interviewQs = storedInterview ?? [];
   profile = storedProfile ?? null;
   ownDays = Object.fromEntries(dayList.map((d) => [d.date, d]));
   remoteDays = storedRemote ?? {};
@@ -237,6 +242,13 @@ export async function setCfaLessons(list: CfaLesson[]) {
   setState({ content: composeContent() });
   stamp('cfaLessons');
   changed();
+}
+
+/** Interview decks – device-only for now (not part of the sync file). */
+export async function setInterviewQuestions(list: InterviewQuestion[]) {
+  interviewQs = list;
+  await storage.set('interviewQs', list);
+  setState({ content: composeContent() });
 }
 
 export async function setKanjiList(list: string[]) {

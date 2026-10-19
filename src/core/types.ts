@@ -12,6 +12,7 @@
  * types, so adding a module = adding a folder and one line in modules/index.ts.
  */
 import type { CfaLesson } from '../modules/cfa/lessons';
+import type { InterviewQuestion } from '../modules/interview/questions';
 import type { ComponentType, ReactNode } from 'react';
 import type { Leniency } from '../lib/romaji';
 
@@ -39,6 +40,8 @@ export interface Content {
   profile: Profile | null;
   /** CFA lesson packs you imported (CFA module). */
   cfaLessons: CfaLesson[];
+  /** Interview decks (device-only for now). */
+  interviewQs?: InterviewQuestion[];
 }
 
 /**

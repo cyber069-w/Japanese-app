@@ -14,7 +14,7 @@
   --radius: 20px; --radius-md: 14px; --radius-sm: 10px;
   --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', 'Noto Sans JP Variable', 'Hiragino Sans', system-ui, sans-serif;
   --font-serif: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Hiragino Sans', 'Noto Sans JP Variable', system-ui, sans-serif;
-  --subject-japanese: #ff453a; --subject-cfa: #30b650; --subject-bwl: #ff9f0a; --subject-recht: #af52de; --subject-focus: #5e5ce6;
+  --subject-japanese: #ff453a; --subject-cfa: #30b650; --subject-bwl: #ff9f0a; --subject-recht: #af52de; --subject-focus: #5e5ce6; --subject-interview: #64a0ff;
   color-scheme: light;
 }
 @media (prefers-color-scheme: dark) {
@@ -26,7 +26,7 @@
     --good: #30d158; --good-tint: rgba(48, 209, 88, 0.2); --bad: #ff6961; --bad-tint: rgba(255, 105, 97, 0.2);
     --warn: #ffb340; --warn-tint: rgba(255, 179, 64, 0.2); --hint-paper: #454548;
     --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.25); --shadow: 0 2px 12px rgba(0, 0, 0, 0.25); --shadow-lg: 0 24px 64px rgba(0, 0, 0, 0.5);
-    --subject-japanese: #ff6961; --subject-cfa: #32d74b; --subject-bwl: #ffb340; --subject-recht: #bf5af2; --subject-focus: #7d7aff;
+    --subject-japanese: #ff6961; --subject-cfa: #32d74b; --subject-bwl: #ffb340; --subject-recht: #bf5af2; --subject-focus: #7d7aff; --subject-interview: #7ab0ff;
     color-scheme: dark;
   }
 }
@@ -38,7 +38,7 @@
   --good: #30d158; --good-tint: rgba(48, 209, 88, 0.2); --bad: #ff6961; --bad-tint: rgba(255, 105, 97, 0.2);
   --warn: #ffb340; --warn-tint: rgba(255, 179, 64, 0.2); --hint-paper: #454548;
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.25); --shadow: 0 2px 12px rgba(0, 0, 0, 0.25); --shadow-lg: 0 24px 64px rgba(0, 0, 0, 0.5);
-  --subject-japanese: #ff6961; --subject-cfa: #32d74b; --subject-bwl: #ffb340; --subject-recht: #bf5af2; --subject-focus: #7d7aff;
+  --subject-japanese: #ff6961; --subject-cfa: #32d74b; --subject-bwl: #ffb340; --subject-recht: #bf5af2; --subject-focus: #7d7aff; --subject-interview: #7ab0ff;
   color-scheme: dark;
 }
 
@@ -49,6 +49,7 @@
 :root[data-surface='apple'][data-course='bwl'] { --course-color: var(--subject-bwl); }
 :root[data-surface='apple'][data-course='recht'] { --course-color: var(--subject-recht); }
 :root[data-surface='apple'][data-course='focus'] { --course-color: var(--subject-focus); }
+:root[data-surface='apple'][data-course='interview'] { --course-color: var(--subject-interview); }
 @media (prefers-color-scheme: dark) {
   :root[data-surface='apple']:not([data-theme='light'])[data-course] { --accent: #0a84ff; --accent-hover: #409cff; --accent-tint: rgba(10, 132, 255, 0.22); }
 }

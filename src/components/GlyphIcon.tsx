@@ -13,10 +13,10 @@ const GLYPH_ICONS: Record<string, string> = {
 
 const MODULE_ICONS: Record<string, string> = {
   hiragana: 'hiragana', katakana: 'katakana', vocab: 'vocabulary', kanji: 'kanji', grammar: 'puzzle',
-  numbers: 'numbers', cfa: 'chart-line', listening: 'headphones', speaking: 'chat',
+  numbers: 'numbers', cfa: 'chart-line', listening: 'headphones', speaking: 'chat', interview: 'chat',
 };
 
-const COURSE_ICONS: Record<string, string> = { japanese: 'language', cfa: 'chart-line', bwl: 'bank', recht: 'scale' };
+const COURSE_ICONS: Record<string, string> = { japanese: 'language', cfa: 'chart-line', bwl: 'bank', recht: 'scale', interview: 'chat' };
 
 /** Icon for an exercise or tool glyph; falls back to the glyph itself if it has no icon. */
 export function GlyphIcon({ glyph, size = '1em' }: { glyph: string; size?: number | string }) {
