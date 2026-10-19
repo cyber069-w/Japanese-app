@@ -29,7 +29,7 @@ const NAV: Array<{ path: string; label: string; icon: IconName }> = [
 /** Subject colour for the current screen: Focus, the open subject, or none (cream) on shared screens. */
 function accentFor(path: string, courseId: string): string | null {
   if (path.startsWith('/focus')) return 'focus';
-  if (path === '/' || path === '/review' || path === '/stats' || path === '/settings') return null;
+  if (path === '/' || path === '/stats' || path === '/settings') return null;
   return courseId;
 }
 

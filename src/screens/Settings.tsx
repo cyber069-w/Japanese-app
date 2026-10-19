@@ -111,7 +111,7 @@ export function Settings() {
             <div className="row">
               <input
                 type="range"
-                min={0.5}
+                min={0.25}
                 max={1.3}
                 step={0.05}
                 value={s.voiceRate}

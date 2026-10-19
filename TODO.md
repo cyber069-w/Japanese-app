@@ -93,3 +93,10 @@ Status: [ ] open · [x] done · [~] solved differently / blocked (reason in the 
 - [ ] Decide how the looks appear in Settings (one “Look” picker vs Theme + Surfaces) once the Apple look has been tried
 - [ ] Reference screenshot for the Home layout never arrived – compare once it does
 - [ ] Files / OneNote integration on Home: only the “What to do next” rows (new files, new notes) exist; decide if a dedicated card is wanted
+
+## Polish round (19 Oct, evening)
+- [x] Glass app-icon tiles only in the Apple look (gradient, specular highlight, inner rim, coloured shadow); Leather / Glass / Flat show the original plain icons again
+- [x] Review shows the course bar and follows the course chip; review uses the course colour
+- [x] Voice speed down to 0.25× (slider, slow button and recorded kana sounds)
+- [x] Apple look: headline line-height and card spacing on course pages
+- [ ] The PWA home-screen icon (public/icons) is not redesigned yet – a glass-style app icon could be generated with scripts/make-icons.swift

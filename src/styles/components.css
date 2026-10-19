@@ -1439,5 +1439,6 @@ button.subject-tile { font: inherit; cursor: pointer; }
 .clock-center .btn { pointer-events: auto; }
 
 /* head icons (card titles) */
-.head-icon { display: inline-grid; place-items: center; width: 26px; height: 26px; margin-right: 9px; vertical-align: -6px; border-radius: 8px; color: var(--tile); background: color-mix(in oklab, var(--tile) 16%, transparent); }
+.head-icon { display: none; }
+:root[data-surface='apple'] .head-icon { display: inline-grid; place-items: center; width: 26px; height: 26px; margin-right: 9px; vertical-align: -6px; border-radius: 8px; color: var(--tile); background: color-mix(in oklab, var(--tile) 16%, transparent); }
 .glass-head h2 { display: flex; align-items: center; }

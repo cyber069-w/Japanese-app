@@ -93,7 +93,7 @@ function playKana(id: string, rate: number) {
   if (supported()) speechSynthesis.cancel();
   const gen = ++generation;
   const a = new Audio(`${import.meta.env.BASE_URL}audio/kana/${id}.m4a`);
-  a.playbackRate = Math.min(1.5, Math.max(0.5, rate / 0.9));
+  a.playbackRate = Math.min(1.5, Math.max(0.25, rate / 0.9));
   a.preservesPitch = true;
   a.onended = a.onerror = () => gen === generation && setSpeaking(false);
   audio = a;
@@ -167,4 +167,4 @@ export function primeSpeech() {
 }
 
 /** The slower speed used by the "slow" replay buttons. */
-export const slowRate = (rate: number) => Math.max(0.5, Math.round(rate * 0.65 * 100) / 100);
+export const slowRate = (rate: number) => Math.max(0.25, Math.round(rate * 0.65 * 100) / 100);

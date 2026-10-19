@@ -6,6 +6,8 @@ import { buildReviewQueue, buildWeakQueue, weakCardIds } from '../core/session';
 import { startSession } from '../core/sessionConfig';
 import { ACTIVE_MODULES, COURSES, courseModules } from '../courses';
 import { Icon } from '../components/Icon';
+import { CourseBar } from '../components/CourseBar';
+import { updateSettings } from '../core/store';
 
 function nextDueText(cards: Record<string, { id: string; due: number }>, ids: string[]) {
   const now = Date.now();
@@ -30,7 +32,12 @@ export function Review() {
   const cards = useApp((s) => s.cards);
   const due = useDueCounts();
   // 'all' or a course id
-  const [scope, setScope] = useState<string>('all');
+  const current = useApp((st) => st.settings.course);
+  const [scope, setScopeState] = useState<string>(() => (SCOPES.some((c) => c.id === current) ? current : 'all'));
+  const setScope = (id: string) => {
+    setScopeState(id);
+    if (id !== 'all') updateSettings({ course: id });
+  };
   const course = SCOPES.find((c) => c.id === scope);
   const mods = useMemo(() => (course ? courseModules(course) : ACTIVE_MODULES), [course]);
   const ids = useMemo(() => mods.map((m) => m.id), [mods]);
@@ -46,6 +53,7 @@ export function Review() {
 
   return (
     <div className="page">
+      <CourseBar />
       <div className="page-head">
         <div className="grow">
           <h1>Review</h1>

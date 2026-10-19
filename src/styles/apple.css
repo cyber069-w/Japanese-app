@@ -87,13 +87,32 @@
 :root[data-surface='apple'] .chip.on { background: var(--accent); color: #fff; }
 :root[data-surface='apple'] .tag { border-radius: 999px; }
 
-/* app-icon tiles */
-:root[data-surface='apple'] .subject-icon,
-:root[data-surface='apple'] .module-glyph,
-:root[data-surface='apple'] .head-icon {
-  color: #fff; border-radius: 24%;
-  background: linear-gradient(160deg, color-mix(in srgb, var(--tile, var(--course-color, var(--accent))) 78%, #fff), var(--tile, var(--course-color, var(--accent))));
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 1px 3px rgba(0, 0, 0, 0.18);
+/* app-icon tiles: glass squircles (gradient body, specular top highlight, inner rim, soft coloured shadow) with a heavier white glyph */
+:root[data-surface='apple'] :is(.subject-icon, .module-glyph, .head-icon, .seal) {
+  --c: var(--tile, var(--course-color, var(--accent)));
+  position: relative; isolation: isolate; overflow: hidden; color: #fff; border: 0; border-radius: 27%;
+  background:
+    radial-gradient(130% 100% at 25% -10%, color-mix(in srgb, var(--c) 40%, #fff) 0%, transparent 55%),
+    linear-gradient(165deg, color-mix(in srgb, var(--c) 72%, #fff) 0%, var(--c) 52%, color-mix(in srgb, var(--c) 80%, #000) 100%);
+  box-shadow:
+    inset 0 0 0 0.75px rgba(255, 255, 255, 0.35),
+    inset 0 -7px 12px -4px rgba(0, 0, 0, 0.22),
+    0 6px 14px -4px color-mix(in srgb, var(--c) 55%, transparent),
+    0 1px 2px rgba(0, 0, 0, 0.22);
 }
+:root[data-surface='apple'] :is(.subject-icon, .module-glyph, .head-icon, .seal)::after {
+  content: ''; position: absolute; z-index: -1; left: 6%; right: 6%; top: 3%; height: 46%; border-radius: 40% 40% 50% 50% / 55% 55% 45% 45%;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.04));
+}
+:root[data-surface='apple'] :is(.subject-icon, .module-glyph, .head-icon, .seal) svg { stroke-width: 2.15; filter: drop-shadow(0 1px 1.5px rgba(0, 0, 0, 0.28)); }
+:root[data-surface='apple'] .brand .seal { --c: #0a84ff; }
 :root[data-surface='apple'] .subject-due { color: var(--tile); }
 :root[data-surface='apple'] .today-action { color: var(--accent); }
+
+/* breathing room: headlines wrap with a real line height and cards keep their rhythm */
+:root[data-surface='apple'] :is(h1, h2, h3, h4) { line-height: 1.22; }
+:root[data-surface='apple'] .module-card { gap: 14px; padding: 20px; }
+:root[data-surface='apple'] .module-card h3 { line-height: 1.3; margin: 2px 0 4px; font-size: 1.02rem; }
+:root[data-surface='apple'] .module-card .meta { line-height: 1.4; }
+:root[data-surface='apple'] .area-title { margin: 8px 0 14px; }
+:root[data-surface='apple'] .section-head { margin-bottom: 16px; }
