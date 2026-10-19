@@ -1343,19 +1343,37 @@ button.subject-tile { font: inherit; cursor: pointer; }
 .today-sources .bad i { background: var(--bad); }
 
 /* ---- Home: frosted glass over leather ---- */
-.home { position: relative; isolation: isolate; }
-.home-bg { position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; }
-.home-bg i { position: absolute; border-radius: 50%; filter: blur(70px); opacity: 0.55; }
-.home-bg i:nth-child(1) { width: 46vmax; height: 46vmax; left: -12vmax; top: -14vmax; background: #e8a874; }
-.home-bg i:nth-child(2) { width: 40vmax; height: 40vmax; right: -10vmax; top: 18vh; background: #7a3f24; }
-.home-bg i:nth-child(3) { width: 36vmax; height: 36vmax; left: 30vw; bottom: -18vmax; background: #d98f5f; opacity: 0.4; }
+.home { position: relative; }
 
-.glass {
-  position: relative; border-radius: 24px; padding: 18px 20px; min-width: 0;
-  background: linear-gradient(145deg, color-mix(in srgb, var(--ink) 15%, transparent), color-mix(in srgb, var(--ink) 6%, transparent));
-  border: 1px solid color-mix(in srgb, var(--ink) 24%, transparent);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28), inset 0 -1px 0 rgba(0, 0, 0, 0.06), 0 10px 34px rgba(43, 22, 12, 0.22);
-  -webkit-backdrop-filter: blur(24px) saturate(165%); backdrop-filter: blur(24px) saturate(165%);
+/* flat (leather) fallback */
+.glass { position: relative; border-radius: 22px; padding: 18px 20px; min-width: 0; background: var(--surface); border: 1px solid var(--line); }
+
+/* Surface style "glass" (Settings → Display): frosted panels over a soft warm backdrop on every screen */
+:root[data-surface='glass'] { background: var(--paper); }
+:root[data-surface='glass'] body { background: transparent; }
+:root[data-surface='glass'] body::before {
+  content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background:
+    radial-gradient(60vmax 50vmax at 8% -8%, rgba(255, 214, 170, 0.20), transparent 70%),
+    radial-gradient(55vmax 50vmax at 100% 100%, rgba(60, 28, 14, 0.22), transparent 70%),
+    var(--paper);
+}
+:root[data-surface='glass'] :is(.card, .glass, .sheet, .qcard, .finish) {
+  background: linear-gradient(145deg, color-mix(in srgb, var(--ink) 13%, transparent), color-mix(in srgb, var(--ink) 6%, transparent));
+  border: 1px solid color-mix(in srgb, var(--ink) 22%, transparent);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.24), 0 8px 28px rgba(43, 22, 12, 0.18);
+  -webkit-backdrop-filter: blur(22px) saturate(140%); backdrop-filter: blur(22px) saturate(140%);
+}
+:root[data-surface='glass'] .card-link:hover { background: color-mix(in srgb, var(--ink) 18%, transparent); }
+:root[data-surface='glass'] :is(.sidebar, .bottom-nav) {
+  background: color-mix(in srgb, var(--paper) 55%, transparent);
+  -webkit-backdrop-filter: blur(24px) saturate(140%); backdrop-filter: blur(24px) saturate(140%);
+}
+:root[data-surface='glass'] .subject-tile:not(.soon) {
+  background: linear-gradient(145deg, color-mix(in srgb, var(--ink) 13%, transparent), color-mix(in srgb, var(--ink) 5%, transparent));
+  border-color: color-mix(in srgb, var(--ink) 22%, transparent); border-radius: 22px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22), 0 8px 24px rgba(43, 22, 12, 0.16);
+  -webkit-backdrop-filter: blur(20px) saturate(140%); backdrop-filter: blur(20px) saturate(140%);
 }
 .glass-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 12px; }
 .glass-head h2 { font-size: 1.05rem; margin: 0; flex: 1 1 auto; }
@@ -1368,7 +1386,6 @@ button.subject-tile { font: inherit; cursor: pointer; }
 @media (max-width: 1100px) { .b-lessons, .b-todos { grid-column: span 6; } .b-focus { grid-column: span 12; } .b-cards { grid-column: span 5; } .b-week { grid-column: span 7; } }
 @media (max-width: 760px) { .bento > * { grid-column: span 12 !important; } .glass { padding: 16px; border-radius: 22px; } }
 .big-number { font-size: 3.4rem; line-height: 1; font-weight: 700; letter-spacing: -0.02em; }
-.glass-tiles .subject-tile { background: linear-gradient(145deg, color-mix(in srgb, var(--ink) 13%, transparent), color-mix(in srgb, var(--ink) 5%, transparent)); border-color: color-mix(in srgb, var(--ink) 22%, transparent); border-radius: 22px; box-shadow: inset 0 1px 0 rgba(255,255,255,.25), 0 8px 26px rgba(43,22,12,.18); -webkit-backdrop-filter: blur(20px) saturate(160%); backdrop-filter: blur(20px) saturate(160%); }
 .home-list { margin-bottom: 8px; }
 
 .slots { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }

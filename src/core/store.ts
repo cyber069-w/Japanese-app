@@ -43,6 +43,7 @@ export interface AppState {
 
 export const DEFAULT_SETTINGS: Settings = {
   theme: 'system',
+  surface: 'glass',
   leniency: 'normal',
   sound: true,
   voiceRate: 0.9,

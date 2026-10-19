@@ -30,7 +30,6 @@ export function Home() {
 
   return (
     <div className="page home">
-      <div className="home-bg" aria-hidden="true"><i /><i /><i /></div>
       <div className="page-head">
         <div className="grow">
           <div className="eyebrow">{date}</div>
@@ -81,7 +80,7 @@ export function Home() {
       )}
 
       <div className="section-head" style={{ marginTop: 28 }}><h2>Subjects</h2></div>
-      <div className="subject-grid glass-tiles">
+      <div className="subject-grid">
         {COURSES.map((c) => {
           const n = due.perCourse[c.id] ?? 0;
           const pct = Math.round((meters[c.id]?.value ?? 0) * 100);

@@ -36,6 +36,7 @@ function accentFor(path: string, courseId: string): string | null {
 function useThemeAndFurigana(path: string) {
   const theme = useApp((s) => s.settings.theme);
   const furigana = useApp((s) => s.settings.furigana);
+  const surface = useApp((s) => s.settings.surface);
   const courseId = useCourse().id;
   const accent = accentFor(path, courseId);
   useEffect(() => {
@@ -47,6 +48,9 @@ function useThemeAndFurigana(path: string) {
     const dark = theme === 'dark' || (theme === 'system' && matchMedia('(prefers-color-scheme: dark)').matches);
     document.querySelector('meta[name="theme-color"]')?.setAttribute('content', dark ? '#2a1a12' : '#a86948');
   }, [theme, accent]);
+  useEffect(() => {
+    document.documentElement.dataset.surface = surface ?? 'glass';
+  }, [surface]);
   useEffect(() => {
     document.body.classList.toggle('no-furigana', !furigana);
   }, [furigana]);

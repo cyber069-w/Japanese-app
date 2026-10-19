@@ -17,7 +17,7 @@ import type { DayLog } from './db';
 import type { Profile, Settings, VocabEntry } from './types';
 
 /** Settings that stay on each device (voices and screens differ). */
-export const DEVICE_SETTINGS = ['theme', 'voiceRate', 'sound', 'course'] as const;
+export const DEVICE_SETTINGS = ['theme', 'surface', 'voiceRate', 'sound', 'course'] as const;
 export type SyncedSettings = Omit<Settings, (typeof DEVICE_SETTINGS)[number]>;
 
 export interface Stamps { settings: number; userVocab: number; kanjiList: number; profile: number; cfaLessons: number; focusSubjects: number }

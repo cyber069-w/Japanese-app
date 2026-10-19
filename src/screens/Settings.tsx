@@ -130,6 +130,9 @@ export function Settings() {
           <Row title="Theme" desc="Leather: the warm mid-tone look. Night: deep brown for the evening.">
             <Seg value={s.theme} options={[['system', 'System'], ['light', 'Leather'], ['dark', 'Night']]} onChange={(v) => set({ theme: v })} />
           </Row>
+          <Row title="Surfaces" desc="Glass: frosted panels over a soft warm backdrop. Flat: solid leather panels.">
+            <Seg value={s.surface ?? 'glass'} options={[['glass', 'Glass'], ['flat', 'Flat']]} onChange={(v) => set({ surface: v })} />
+          </Row>
           <Row title="Meaning language" desc="Language for word meanings and translations.">
             <Seg value={s.meaningLang} options={[['de', 'Deutsch'], ['en', 'English']]} onChange={(v) => set({ meaningLang: v })} />
           </Row>
