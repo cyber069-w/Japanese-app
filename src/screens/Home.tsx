@@ -2,8 +2,12 @@
 import { useEffect, useState } from 'react';
 import { useCourseMeters, useDueCounts } from '../core/hooks';
 import { initFocus } from '../core/focusStore';
+import { refreshCanvas } from '../core/canvas';
+import { syncNow } from '../core/sync';
+import { usePullToRefresh } from '../lib/pullToRefresh';
 import { COURSES } from '../courses';
 import { Icon } from '../components/Icon';
+import { EmptyState } from '../components/EmptyState';
 import { HeadIcon } from '../components/HeadIcon';
 import { CourseGlyph } from '../components/GlyphIcon';
 import { useToday } from '../components/todayData';
@@ -21,6 +25,7 @@ export function Home() {
   const due = useDueCounts();
   const meters = useCourseMeters();
   const t = useToday();
+  const ptr = usePullToRefresh(() => Promise.all([refreshCanvas(), syncNow()]));
   const [all, setAll] = useState(false);
   const [showDismissed, setShowDismissed] = useState(false);
   useEffect(initFocus, []);
@@ -31,6 +36,7 @@ export function Home() {
 
   return (
     <div className="page home">
+      <div className="ptr" style={{ transform: `translate(-50%, ${ptr.busy ? 14 : ptr.pull ? ptr.pull - 46 : -60}px)` }} role="status">{ptr.busy ? 'Refreshing…' : ptr.ready ? 'Release to refresh' : 'Pull to refresh'}</div>
       <div className="page-head">
         <div className="grow">
           <div className="eyebrow">{date}</div>
@@ -46,6 +52,9 @@ export function Home() {
         <WeekCard />
       </div>
 
+      {rest.length === 0 && (
+        <section className="glass home-list"><EmptyState icon="check" title="All clear" hint="No announcements, new files or open cards need you right now." /></section>
+      )}
       {rest.length > 0 && (
         <section className="glass home-list">
           <div className="glass-head"><h2><HeadIcon name="sparkle" color="#ff453a" />What to do next</h2><span className="faint tiny">{rest.length} open · fixed rules, no AI</span></div>

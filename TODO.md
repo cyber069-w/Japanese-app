@@ -90,7 +90,7 @@ Status: [ ] open · [x] done · [~] solved differently / blocked (reason in the 
 - [x] Focus → Today is now a clock: drag on the ring to pick a time range → “Log this time”; dashed gaps are tappable
 - [x] Glass on every screen + Settings → Display → Surfaces (Glass / Flat, device-only, default Glass); backdrop gradient softened
 - [x] Apple look (Settings → Display → Surfaces → Apple): neutral grouped panels, SF system font, system blue, graphite dark (follows system / Light / Dark), coloured app-icon tiles for subjects, modules and Home cards (`styles/apple.css`). Checked at 375 / 768 / 1024 / 1280 px in all three surfaces: no sideways overflow. Not checked on a real iPad/iPhone/Mac (Safari) – only the built-in browser
-- [ ] Decide how the looks appear in Settings (one “Look” picker vs Theme + Surfaces) once the Apple look has been tried
+- [x] Settings → Look: one picker (Leather · Night · Glass · Apple) + Appearance (System/Light/Dark) for Glass and Apple
 - [ ] Reference screenshot for the Home layout never arrived – compare once it does
 - [ ] Files / OneNote integration on Home: only the “What to do next” rows (new files, new notes) exist; decide if a dedicated card is wanted
 
@@ -100,3 +100,5 @@ Status: [ ] open · [x] done · [~] solved differently / blocked (reason in the 
 - [x] Voice speed down to 0.25× (slider, slow button and recorded kana sounds)
 - [x] Apple look: headline line-height and card spacing on course pages
 - [ ] The PWA home-screen icon (public/icons) is not redesigned yet – a glass-style app icon could be generated with scripts/make-icons.swift
+- [x] Empty states (lessons, to-dos, targets, all clear), pull-to-refresh on Home (phone/iPad: reloads Canvas + sync), bigger tap targets on touch screens
+- [x] FEATURES.md: purpose + full feature inventory + limits, as input for brainstorming

@@ -22,6 +22,15 @@ function Row({ title, desc, children }: { title: string; desc?: ReactNode; child
   );
 }
 
+type Look = 'leather' | 'night' | 'glass' | 'apple';
+const LOOKS: Record<Look, Partial<S>> = {
+  leather: { surface: 'flat', theme: 'light' },
+  night: { surface: 'flat', theme: 'dark' },
+  glass: { surface: 'glass', theme: 'system' },
+  apple: { surface: 'apple', theme: 'system' },
+};
+const lookOf = (s: S): Look => (s.surface === 'apple' ? 'apple' : s.surface === 'glass' ? 'glass' : s.theme === 'dark' ? 'night' : 'leather');
+
 function Seg<T extends string | number>({ value, options, onChange }: { value: T; options: Array<[T, string]>; onChange: (v: T) => void }) {
   return (
     <div className="seg" role="radiogroup">
@@ -127,12 +136,14 @@ export function Settings() {
 
         <section className="card card-pad">
           <h2>Display</h2>
-          <Row title="Surfaces" desc="Glass: frosted panels over a soft warm backdrop. Flat: solid leather panels. Apple: neutral grouped panels, system font and blue accent.">
-            <Seg value={s.surface ?? 'glass'} options={[['glass', 'Glass'], ['flat', 'Flat'], ['apple', 'Apple']]} onChange={(v) => set({ surface: v })} />
+          <Row title="Look" desc="Leather and Night: flat warm panels. Glass: frosted panels over leather. Apple: neutral panels, system font, blue accent.">
+            <Seg value={lookOf(s)} options={[['leather', 'Leather'], ['night', 'Night'], ['glass', 'Glass'], ['apple', 'Apple']]} onChange={(v) => set(LOOKS[v])} />
           </Row>
-          <Row title="Theme" desc={s.surface === 'apple' ? 'Light or graphite; System follows your device.' : 'Leather: the warm mid-tone look. Night: deep brown for the evening.'}>
-            <Seg value={s.theme} options={[['system', 'System'], ['light', s.surface === 'apple' ? 'Light' : 'Leather'], ['dark', s.surface === 'apple' ? 'Dark' : 'Night']]} onChange={(v) => set({ theme: v })} />
-          </Row>
+          {(s.surface === 'glass' || s.surface === 'apple') && (
+            <Row title="Appearance" desc="Light or dark – System follows your device.">
+              <Seg value={s.theme} options={[['system', 'System'], ['light', 'Light'], ['dark', 'Dark']]} onChange={(v) => set({ theme: v })} />
+            </Row>
+          )}
           <Row title="Meaning language" desc="Language for word meanings and translations.">
             <Seg value={s.meaningLang} options={[['de', 'Deutsch'], ['en', 'English']]} onChange={(v) => set({ meaningLang: v })} />
           </Row>

@@ -1442,3 +1442,16 @@ button.subject-tile { font: inherit; cursor: pointer; }
 .head-icon { display: none; }
 :root[data-surface='apple'] .head-icon { display: inline-grid; place-items: center; width: 26px; height: 26px; margin-right: 9px; vertical-align: -6px; border-radius: 8px; color: var(--tile); background: color-mix(in oklab, var(--tile) 16%, transparent); }
 .glass-head h2 { display: flex; align-items: center; }
+
+/* empty states */
+.empty-state { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 18px 12px; text-align: center; }
+.empty-icon { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: color-mix(in srgb, var(--ink) 10%, transparent); color: var(--ink-2); margin-bottom: 4px; }
+.empty-state .btn { margin-top: 6px; }
+
+/* phones and tablets: comfortable tap targets, pull-to-refresh hint */
+@media (pointer: coarse) {
+  .btn-sm { min-height: 40px; }
+  .chip { min-height: 44px; }
+  .todo-check { width: 26px; height: 26px; flex-basis: 26px; }
+}
+.ptr { position: fixed; top: 0; left: 50%; transform: translate(-50%, -60px); z-index: 50; padding: 8px 16px; border-radius: 999px; background: var(--surface); color: var(--ink-2); box-shadow: var(--shadow-lg); font-size: var(--text-sm); transition: transform 0.2s var(--ease); pointer-events: none; }

@@ -12,6 +12,7 @@ import { navigate } from '../../lib/router';
 import { FocusPanel, hhmm, subjectColor } from '../../screens/FocusWidget';
 import { Icon } from '../Icon';
 import { HeadIcon } from '../HeadIcon';
+import { EmptyState } from '../EmptyState';
 import type { useToday } from '../todayData';
 
 type Today = ReturnType<typeof useToday>;
@@ -26,8 +27,8 @@ export function LessonsCard({ t }: { t: Today }) {
   return (
     <section className="glass b-lessons">
       <div className="glass-head"><h2><HeadIcon name="calendar" color="#ff9f0a" />Your lessons</h2><span className="faint tiny">{lessons ? `${lessons} left today` : 'today'}</span></div>
-      {t.calendar === null && <p className="muted small">No timetable yet – import your Outlook calendar in <a href="#/focus">Focus → Lectures</a>.</p>}
-      {t.calendar && next.length === 0 && <p className="muted small">Nothing left in your day window. Enjoy the evening.</p>}
+      {t.calendar === null && <EmptyState icon="calendar" title="No timetable yet" hint="Import your Outlook calendar (.ics) to see your lectures here." action={{ label: 'Import timetable', href: '#/focus' }} />}
+      {t.calendar && next.length === 0 && <EmptyState icon="check" title="Nothing left today" hint="No lecture or free block of 45 min or more remains in your day window." />}
       <ul className="slots">
         {next.slice(0, 6).map((b) => (
           <li key={`${b.kind}${b.start}`} className={`slot ${b.kind}${b.start <= t.now ? ' now' : ''}`}>
@@ -84,7 +85,7 @@ export function TodosCard({ t }: { t: Today }) {
           </li>
         ))}
       </ul>
-      {!canvas.length && !mine.length && <p className="muted small">Nothing here yet – add your first to-do above.</p>}
+      {!canvas.length && !mine.length && <EmptyState icon="list" title="No to-dos" hint="Add one above – Canvas deadlines you accept show up here too." />}
       {mine.some((x) => x.done) && <button className="btn btn-sm btn-ghost" onClick={() => setTodos(todos.filter((y) => !y.done))}>Clear done</button>}
     </section>
   );
@@ -135,7 +136,7 @@ export function WeekCard() {
           ))}
         </ul>
       ) : (
-        <p className="muted small">Set weekly hour targets in <a href="#/focus">Focus → Targets</a> to see your progress here.</p>
+        <EmptyState icon="target" title="No weekly targets yet" hint="Set hours per subject to see your progress here." action={{ label: 'Set targets', href: '#/focus' }} />
       )}
       {exams.length > 0 && <div className="exam-chips">{exams.slice(0, 3).map(({ c, d }) => <span key={c.id}><b>{d}</b> days to {c.name}</span>)}</div>}
     </section>
