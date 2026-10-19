@@ -47,3 +47,6 @@ Dropped: push notifications, Shortcuts, **preparation meter (remove from the exi
 Not possible in a web app: AirPods posture, eye/gesture tracking, Apple Watch app, home-screen widget.
 
 ## PROGRESS
+- [x] A1 ics helper + Add to Calendar (format tested; not imported into Apple Calendar here)
+- [x] B1–B4 shutdown screen, iA Writer note (path honouring NOT tested on the Mac), per-weekday calendar reminders, Home nudges, streak on Stats
+- [x] Preparation meter removed from the UI (course bar pill + sheet, switcher, Home tiles, exam plan text); core/meter.ts stays because the exam plan still uses it to find weak sections

@@ -33,14 +33,14 @@ export function ExamPanel({ course }: { course: CourseConfig }) {
         {plan ? (
           <>
             <div className="small">
-              <b>{plan.weeksLeft} week{plan.weeksLeft === 1 ? '' : 's'}</b> left ({plan.daysLeft} days) · prepared <b>{Math.round(plan.value * 100)}%</b> · suggested <b>{plan.weeklyHours} h</b> per week
+              <b>{plan.weeksLeft} week{plan.weeksLeft === 1 ? '' : 's'}</b> left ({plan.daysLeft} days) · suggested <b>{plan.weeklyHours} h</b> per week
             </div>
             {plan.open.length > 0 ? (
-              <div className="small">Not mastered yet: {plan.open.map((o) => `${o.label} (${Math.round(o.score * 100)}%)`).join(' · ')}</div>
+              <div className="small">Needs most work: {plan.open.map((o) => o.label).join(' · ')}</div>
             ) : (
-              <div className="small muted">Every part is above 70 % – keep the reviews going.</div>
+              <div className="small muted">Every part looks solid – keep the reviews going.</div>
             )}
-            <div className="faint tiny">Rule of thumb: 2 h + up to 8 h by how unprepared you are, ×1.5 in the last 2 weeks. It is a suggestion, not a promise.</div>
+            <div className="faint tiny">Rule of thumb: 2 h + up to 8 h by how much is still open, ×1.5 in the last 2 weeks. It is a suggestion, not a promise.</div>
           </>
         ) : (
           <div className="muted small">

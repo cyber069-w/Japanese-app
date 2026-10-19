@@ -1,6 +1,6 @@
 /** Home: a frosted-glass overview – lessons, to-dos, timer, reviews, week – then what to do next and the subjects. */
 import { useEffect, useState } from 'react';
-import { useCourseMeters, useDueCounts } from '../core/hooks';
+import { useDueCounts } from '../core/hooks';
 import { initFocus } from '../core/focusStore';
 import { refreshCanvas } from '../core/canvas';
 import { syncNow } from '../core/sync';
@@ -24,7 +24,6 @@ function greeting(h: number) {
 
 export function Home() {
   const due = useDueCounts();
-  const meters = useCourseMeters();
   const t = useToday();
   const ptr = usePullToRefresh(() => Promise.all([refreshCanvas(), syncNow()]));
   const [all, setAll] = useState(false);
@@ -96,7 +95,6 @@ export function Home() {
       <div className="subject-grid">
         {COURSES.map((c) => {
           const n = due.perCourse[c.id] ?? 0;
-          const pct = Math.round((meters[c.id]?.value ?? 0) * 100);
           return (
             <a key={c.id} className="subject-tile" href={`#/c/${c.id}`} style={{ '--tile': `var(--subject-${c.id}, var(--ink))` } as React.CSSProperties}>
               <span className="subject-icon"><CourseGlyph course={c} size={22} /></span>
@@ -106,7 +104,6 @@ export function Home() {
               </span>
               <span className="subject-meta">
                 {n > 0 ? <span className="subject-due">{n} due</span> : <span>nothing due</span>}
-                <span>{pct}% prepared</span>
               </span>
             </a>
           );
