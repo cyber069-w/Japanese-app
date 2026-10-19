@@ -1484,3 +1484,8 @@ button.subject-tile { font: inherit; cursor: pointer; }
 .tp-text .done { opacity: 0.35; } .tp-text .now { background: var(--accent-tint); border-radius: 6px; }
 .tp-pause { position: absolute; right: 10px; bottom: 10px; }
 .recording-dot { color: var(--bad); }
+
+/* clubs, markdown */
+.club-dot { display: inline-block; width: 14px; height: 14px; border-radius: 50%; margin-right: 10px; vertical-align: 2px; }
+.club-swatch { width: 24px; height: 24px; border-radius: 50%; border: 0; cursor: pointer; outline-offset: 2px; }
+.markdown p, .markdown ul { margin: 0 0 10px; } .markdown ul { padding-left: 20px; } .markdown h3, .markdown h4, .markdown h5 { margin: 14px 0 6px; }

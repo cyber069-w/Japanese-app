@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useStored } from '../core/kv';
 import { isActive, type Application } from '../core/applications';
+import type { Club } from '../core/clubs';
 import type { Reading } from '../core/readings';
 import { useDueCounts } from '../core/hooks';
 import { initFocus } from '../core/focusStore';
@@ -30,6 +31,7 @@ export function Home() {
   const t = useToday();
   const [apps] = useStored<Application[]>('applications', []);
   const [readings] = useStored<Reading[]>('readings', []);
+  const [clubs] = useStored<Club[]>('clubs', []);
   const openReadings = readings.filter((r) => r.status !== 'done').length;
   const activeApps = apps.filter((a) => a.stage !== 'researching' && isActive(a)).length;
   const ptr = usePullToRefresh(() => Promise.all([refreshCanvas(), syncNow()]));
@@ -38,7 +40,7 @@ export function Home() {
   useEffect(initFocus, []);
   const date = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
   // Deadlines are in the to-do card; the list below is everything else that needs you
-  const rest = t.shown.filter((i) => i.kind !== 'deadline' && i.kind !== 'suggestion' && i.kind !== 'application');
+  const rest = t.shown.filter((i) => i.kind !== 'deadline' && i.kind !== 'suggestion' && i.kind !== 'application' && i.kind !== 'club');
   const top = all ? rest : rest.slice(0, 6);
 
   return (
@@ -119,6 +121,11 @@ export function Home() {
           <span className="subject-icon"><Icon name="user" size={22} /></span>
           <span><b className="subject-name">Applications</b><span className="subject-note">Pipeline and watchlist</span></span>
           <span className="subject-meta"><span>{activeApps ? `${activeApps} active` : 'nothing active'}</span></span>
+        </a>
+        <a className="subject-tile" href="#/clubs" style={{ '--tile': 'var(--subject-recht)' } as React.CSSProperties}>
+          <span className="subject-icon"><Icon name="user" size={22} /></span>
+          <span><b className="subject-name">Clubs</b><span className="subject-note">Notes and checklists</span></span>
+          <span className="subject-meta"><span>{clubs.length ? `${clubs.length} club${clubs.length === 1 ? '' : 's'}` : 'none yet'}</span></span>
         </a>
         <a className="subject-tile" href="#/readings" style={{ '--tile': 'var(--subject-bwl)' } as React.CSSProperties}>
           <span className="subject-icon"><Icon name="book" size={22} /></span>

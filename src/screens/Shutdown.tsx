@@ -50,7 +50,7 @@ export function Shutdown({ quickStart }: { quickStart?: boolean }) {
   const tomorrowStart = new Date(`${tomorrow}T00:00:00`).getTime();
   const lecturesTomorrow = t.lectures.filter((l) => !l.allDay && l.start >= tomorrowStart && l.start < tomorrowStart + 86_400_000);
   const readsTomorrow = beforeTomorrow(readings, lecturesTomorrow.map((l) => focusSubject(l.title)), tomorrow);
-  const dueTomorrow = t.shown.filter((i) => (i.kind === 'deadline' || i.kind === 'suggestion' || i.kind === 'application') && i.due !== undefined && i.due >= tomorrowStart && i.due < tomorrowStart + 86_400_000);
+  const dueTomorrow = t.shown.filter((i) => (i.kind === 'deadline' || i.kind === 'suggestion' || i.kind === 'application' || i.kind === 'club') && i.due !== undefined && i.due >= tomorrowStart && i.due < tomorrowStart + 86_400_000);
 
   const noteText = () => shutdownMarkdown({
     date: day, focus: numbers.rows.map((r) => ({ subject: r.subject, hours: r.hours })), cards: numbers.cards,

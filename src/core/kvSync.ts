@@ -10,7 +10,7 @@ import { stableStringify } from '../lib/stable';
 export type KvKind = 'array' | 'record';
 /** key in device storage → how to read its items. Arrays need an `id` on every item; records are keyed (e.g. by date). */
 export const SYNCED_KV: Record<string, KvKind> = {
-  todos: 'array', readings: 'array', applications: 'array', interviewQs: 'array', 'interview:attempts': 'array', 'shutdown:log': 'record',
+  todos: 'array', clubs: 'array', readings: 'array', applications: 'array', interviewQs: 'array', 'interview:attempts': 'array', 'shutdown:log': 'record',
 };
 export const isSyncedKey = (key: string) => key in SYNCED_KV;
 
