@@ -14,6 +14,7 @@ import { shutdownReminders } from '../lib/shutdownReminders';
 import { navigate } from '../lib/router';
 import { useEffect } from 'react';
 import { Icon } from '../components/Icon';
+import { InboxTriage } from '../components/InboxTriage';
 import { EmptyState } from '../components/EmptyState';
 
 const hh = (t: number) => new Date(t).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
@@ -110,6 +111,7 @@ export function Shutdown({ quickStart }: { quickStart?: boolean }) {
             </ul>
           </section>
         )}
+        <InboxTriage />
         <section className="glass b-todos" style={{ gridColumn: 'span 12' }}>
           <div className="glass-head"><h2>Tomorrow's top 3</h2><span className="faint tiny">becomes to-dos dated {tomorrow}</span></div>
           <div className="stack" style={{ '--gap': '8px' } as React.CSSProperties}>

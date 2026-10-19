@@ -9,6 +9,7 @@ import { recordClip } from '../../lib/azurePronunciation';
 import { liveSupported, startLive } from '../../lib/speechLive';
 import { openWithPrompt } from '../../lib/tutor';
 import { Icon } from '../../components/Icon';
+import type { GradingItem } from '../../screens/Grading';
 import { feedbackPrompt, sparPrompt, type InterviewQuestion } from './questions';
 import { gradeOfRating, speechStats, type Attempt } from './stats';
 import { Teleprompter } from './Teleprompter';
@@ -32,6 +33,8 @@ export function SpokenFlow({ q, warmup, onDone }: { q: InterviewQuestion; warmup
   const [saved, setSaved] = useState<Attempt | null>(null);
   const [error, setError] = useState('');
   const [tp, setTp] = useState<{ on: boolean; source: 'points' | 'script'; script: string; wpm: number }>({ on: false, source: 'points', script: '', wpm: 130 });
+  const [gq, setGq] = useStored<GradingItem[]>('grading:queue', []);
+  const [queued, setQueued] = useState(false);
   const stopRef = useRef<() => void>(() => {});
   const startedAt = useRef(0);
   const shownAt = useRef(Date.now());
@@ -157,6 +160,7 @@ export function SpokenFlow({ q, warmup, onDone }: { q: InterviewQuestion; warmup
           <div className="row">
             <button className="btn" onClick={() => void openWithPrompt('interview', feedbackPrompt(q, transcript, statLine), 'Interview feedback prompt')}><Icon name="sparkle" size={15} /> Get feedback</button>
             <button className="btn" onClick={() => void openWithPrompt('interview', sparPrompt(q, transcript), 'Interview spar prompt')}><Icon name="chat" size={15} /> Spar</button>
+            <button className="btn" disabled={!transcript.trim() || queued} onClick={() => { setGq([{ id: `g${Date.now()}`, subject: 'Interview', question: q.question, context: q.model_answer_points.join('\n'), answer: transcript, at: Date.now() }, ...gq]); setQueued(true); }}>{queued ? 'Queued for tonight' : 'Grade overnight'}</button>
             {!warmup && <button className="btn btn-ghost" onClick={again}>Try again</button>}
             {onDone && <button className="btn btn-ghost" onClick={onDone}>Done</button>}
           </div>

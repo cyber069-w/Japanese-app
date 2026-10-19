@@ -98,3 +98,8 @@ review (BWL handouts); Outlook calendar sync via key; lecture reminders; BWL/Rec
 - Which student tasks are still outside it (notes, reading, writing, group work, applications, finances)?
 - What can be automated by the Mac job or by prompts to Claude, without breaking "nothing writes out unless I press a button"?
 - Which rules (priority scores, suggested hours) are wrong for real student life, and how would we measure that?
+
+
+## Added on 19 Oct 2026 (second half)
+
+Today (#/today) · Shutdown (#/shutdown: numbers, tomorrow, top 3, iA Writer note, Calendar reminders, streak, inbox triage) · Applications (pipeline, watchlist, paste-an-email rules) · Interview course (decks, JSON packs, spoken practice with stats, feedback/spar prompts, teleprompter, daily warm-up) · Reading list + News (Mac job RSS) · Clubs · Finance (encrypted vault, study costs) · Market log · Quick capture (N) · Overnight grading and Claude drafts (Mac job, off by default) · rule outcomes, ECTS target suggestion, exam record · Sunday planning prompt · exam-date proposals from Canvas · item-by-item sync for the new stores · preparation meter removed.

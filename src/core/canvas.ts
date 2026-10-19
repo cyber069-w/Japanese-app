@@ -15,9 +15,11 @@ export interface CanvasExam { subject: string; file: string }
 /** A file the Mac job thinks is a reading (rules in canvas-config.json) – accept to add it to the reading list. */
 export interface CanvasReading { id: string; subject: string; title: string; where: string }
 export interface CanvasExamDate { id: string; subject: string; date: string; snippet: string; source?: string }
+export interface CanvasDraft { id: string; subject: string; file: string; format: 'vocab-csv' | 'cfa-json' | 'summary'; text: string; at: string }
+export interface CanvasGrading { id: string; score: number; feedback: string; at: string }
 export interface NewsItem { title: string; link: string; date: string }
 export interface NewsSource { source: string; items: NewsItem[]; error?: string }
-export interface CanvasInbox { at: string; deadlines: CanvasDeadline[]; announcements: CanvasAnnouncement[]; files: CanvasFile[]; /** file names in <subject>/Prüfungen */ exams?: CanvasExam[]; readings?: CanvasReading[]; news?: NewsSource[]; /** exam dates the Mac job found (accept / ignore) */ examDates?: CanvasExamDate[] }
+export interface CanvasInbox { at: string; deadlines: CanvasDeadline[]; announcements: CanvasAnnouncement[]; files: CanvasFile[]; /** file names in <subject>/Prüfungen */ exams?: CanvasExam[]; readings?: CanvasReading[]; news?: NewsSource[]; /** exam dates the Mac job found (accept / ignore) */ examDates?: CanvasExamDate[]; /** drafts made overnight by Claude Code on the Mac (accept / ignore) */ drafts?: CanvasDraft[]; /** feedback on your queued free-text answers */ gradings?: CanvasGrading[] }
 
 export interface CanvasPrefs {
   muted: boolean;
@@ -125,5 +127,7 @@ export function inboxView(s: State, now = Date.now()) {
   const nearSuggestions = suggestions.filter((d) => !d.due || Date.parse(d.due) - now < 14 * DAY);
   const badge = p.muted ? 0 : nearSuggestions.length + soon.length + unseenImportant.length;
   const examProposals = (inbox?.examDates ?? []).filter((x) => visible(x.subject) && !p.accepted.includes(x.id) && !p.ignored.includes(x.id) && Date.parse(x.date) > now - DAY);
-  return { examProposals, suggestions, accepted, soon, announcements, important, unseenImportant, files, badge, available: !!inbox };
+  const draftsPending = (inbox?.drafts ?? []).filter((d) => visible(d.subject) && !p.accepted.includes(d.id) && !p.ignored.includes(d.id));
+  const gradingsNew = (inbox?.gradings ?? []).filter((g) => !p.seen.includes(`g-${g.id}`));
+  return { draftsPending, gradingsNew, examProposals, suggestions, accepted, soon, announcements, important, unseenImportant, files, badge, available: !!inbox };
 }

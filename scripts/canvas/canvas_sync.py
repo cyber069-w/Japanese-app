@@ -30,6 +30,9 @@ import xml.etree.ElementTree as ET
 import urllib.request
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import claude_jobs  # noqa: E402
+
 ROOT = Path(__file__).resolve().parents[2]
 PRIVATE = ROOT / 'private'
 TOKEN = (PRIVATE / 'canvas-token.txt').read_text().strip()
@@ -235,7 +238,7 @@ DATE_RX = [
 
 
 def find_exam_dates(text, today=None):
-    """Dates (YYYY-MM-DD, today or later) that stand within ~100 characters of an exam word. Year missing → the next such date."""
+    """Dates (YYYY-MM-DD, today or later) that stand within ~100 characters of an exam word. Year missing → this year if it is recent or ahead, else next year."""
     import datetime
     today = today or datetime.date.today()
     found = {}
@@ -251,8 +254,9 @@ def find_exam_dates(text, today=None):
                     date = datetime.date(year, month, day)
                 else:
                     date = datetime.date(today.year, month, day)
-                    if date < today:
-                        date = datetime.date(today.year + 1, month, day)
+                    if date < today - datetime.timedelta(days=60):
+                        date = datetime.date(today.year + 1, month, day)  # long past this year → the coming one
+                    # a date that passed within the last 60 days is simply past (stays < today and is dropped below)
             except (ValueError, KeyError):
                 continue
             if date < today or date > today + datetime.timedelta(days=400):
@@ -334,11 +338,41 @@ def collect_inbox(new_files, readings=None):
     files = ([{'id': f"f{i}-{f['file']}", 'subject': f['course'], 'file': f['file'], 'to': f['to'], 'at': stamp} for i, f in enumerate(new_files)]
              + [{'id': f"note-{f['to']}", 'subject': f['course'], 'file': f['file'], 'to': f['to'], 'at': stamp, 'kind': 'notes'} for f in notes]
              + old.get('files', []))
+    drafts, gradings = claude_work(files, old)
     inbox = {'at': stamp, 'deadlines': sorted(deadlines.values(), key=lambda d: d['due'] or ''), 'announcements': sorted(announcements, key=lambda a: a['posted'] or '', reverse=True), 'files': files[:60], 'exams': collect_exams(),
-             'readings': readings if readings is not None else old.get('readings', []), 'news': collect_news(), 'examDates': collect_exam_dates(announcements)}
+             'readings': readings if readings is not None else old.get('readings', []), 'news': collect_news(), 'examDates': collect_exam_dates(announcements), 'drafts': drafts, 'gradings': gradings}
     inbox_file.write_text(json.dumps(inbox, ensure_ascii=False, indent=1))
     push_to_sync_repo()
     return inbox
+
+
+def read_grading_queue():
+    """Free-text answers from the app (via the sync repo, decrypted by read-queue.mjs)."""
+    node = Path.home() / '.local/node/bin/node'
+    try:
+        r = subprocess.run([str(node) if node.exists() else 'node', str(ROOT / 'scripts/canvas/read-queue.mjs')], capture_output=True, text=True, timeout=120)
+        return json.loads(r.stdout or '[]')
+    except Exception as e:
+        print(f'Grading queue not read: {e}')
+        return []
+
+
+def claude_work(files, old):
+    """Drafts for new slides/notes and overnight grading, both only if "claude.enabled" is set in canvas-config.json."""
+    cfg = claude_jobs.settings(CONFIG)
+    week = time.strftime('%Y-%m-%dT%H:%M:%S', time.localtime(time.time() - 14 * 86400))
+    drafts = [d for d in old.get('drafts', []) if d.get('at', '') > week]
+    gradings = [g for g in old.get('gradings', []) if g.get('at', '') > week]
+    if not cfg['enabled']:
+        return drafts, gradings
+    state = json.loads(STATE_FILE.read_text()) if STATE_FILE.exists() else {}
+    done = set(state.get('drafted', []))
+    budget = PRIVATE / 'claude-state.json'
+    drafts += claude_jobs.make_drafts([{'id': f['id'], 'subject': f['subject'], 'file': f['file'], 'to': f['to']} for f in files[:20]], BASE, cfg, budget, done)
+    state['drafted'] = sorted(done)[-300:]
+    STATE_FILE.write_text(json.dumps(state, ensure_ascii=False, indent=1))
+    gradings += claude_jobs.grade_queue(read_grading_queue(), {g['id'] for g in gradings}, cfg, budget)
+    return drafts, gradings
 
 
 def push_to_sync_repo():

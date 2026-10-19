@@ -23,6 +23,7 @@ class ExamDates(unittest.TestCase):
 
     def test_ignores_past_dates_and_dates_without_exam_word(self):
         self.assertEqual(cs.find_exam_dates('Zweittermin Closed-Book-Test am Freitag, 09.10.2026', T), {})
+        self.assertEqual(cs.find_exam_dates('Zweittermin Closed-Book-Test am Freitag, 09.10.', T), {})  # no year, passed 10 days ago
         self.assertEqual(cs.find_exam_dates('Abgabe der Hausaufgabe bis 25.10.2026', T), {})
 
     def test_far_future_is_ignored(self):

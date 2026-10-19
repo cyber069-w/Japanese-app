@@ -1,6 +1,7 @@
 /** Home: a frosted-glass overview – lessons, to-dos, timer, reviews, week – then what to do next and the subjects. */
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useStored } from '../core/kv';
+import { newInboxItem, type InboxItem } from '../core/inbox';
 import { isActive, type Application } from '../core/applications';
 import type { Club } from '../core/clubs';
 import type { Reading } from '../core/readings';
@@ -11,6 +12,7 @@ import { syncNow } from '../core/sync';
 import { usePullToRefresh } from '../lib/pullToRefresh';
 import { COURSES } from '../courses';
 import { Icon } from '../components/Icon';
+import { DraftSheet } from '../components/home/DraftSheet';
 import { ExamRecordBanner } from '../components/home/ExamRecord';
 import { ShutdownBanner } from '../components/home/ShutdownBanner';
 import { EmptyState } from '../components/EmptyState';
@@ -43,6 +45,20 @@ export function Home() {
   const [all, setAll] = useState(false);
   const [showDismissed, setShowDismissed] = useState(false);
   useEffect(initFocus, []);
+  const [inbox, setInbox] = useStored<InboxItem[]>('inbox', []);
+  const [capture, setCapture] = useState('');
+  const captureRef = useRef<HTMLInputElement>(null);
+  // N focuses the quick-capture field
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const el = e.target as HTMLElement;
+      if (e.key.toLowerCase() !== 'n' || e.metaKey || e.ctrlKey || e.altKey || /INPUT|TEXTAREA|SELECT/.test(el.tagName) || el.isContentEditable) return;
+      e.preventDefault();
+      captureRef.current?.focus();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
   const date = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
   // Deadlines are in the to-do card; the list below is everything else that needs you
   const rest = t.shown.filter((i) => i.kind !== 'deadline' && i.kind !== 'suggestion' && i.kind !== 'application' && i.kind !== 'club');
@@ -59,11 +75,16 @@ export function Home() {
         </div>
       </div>
 
+      <form className="capture" onSubmit={(e) => { e.preventDefault(); if (capture.trim()) { setInbox([newInboxItem(capture), ...inbox]); setCapture(''); } }}>
+        <input ref={captureRef} className="input" placeholder="Capture a thought…  (press N)" value={capture} onChange={(e) => setCapture(e.target.value)} aria-label="Quick capture" />
+        {inbox.length > 0 && <span className="faint tiny">{inbox.length} in inbox – sorted in your shutdown</span>}
+      </form>
       <ShutdownBanner />
       <ExamRecordBanner />
       {new Date().getDay() === 0 && (
         <div className="glass shutdown-banner"><Icon name="calendar" size={18} /><b className="grow">Sunday – plan next week</b><button className="btn btn-sm btn-primary" onClick={() => setSunday(true)}>Plan with Claude</button></div>
       )}
+      {t.draft && <DraftSheet draft={t.draft} onClose={t.closeDraft} />}
       {sunday && <PlanSheet t={t} report={weekly.md} onClose={() => setSunday(false)} />}
 
       <div className="bento">
@@ -128,35 +149,25 @@ export function Home() {
             </a>
           );
         })}
-        <a className="subject-tile" href="#/applications" style={{ '--tile': 'var(--subject-focus)' } as React.CSSProperties}>
-          <span className="subject-icon"><Icon name="user" size={22} /></span>
-          <span><b className="subject-name">Applications</b><span className="subject-note">Pipeline and watchlist</span></span>
-          <span className="subject-meta"><span>{activeApps ? `${activeApps} active` : 'nothing active'}</span></span>
-        </a>
-        <a className="subject-tile" href="#/finance" style={{ '--tile': 'var(--subject-cfa)' } as React.CSSProperties}>
-          <span className="subject-icon"><Icon name="lock" size={22} /></span>
-          <span><b className="subject-name">Finance</b><span className="subject-note">Study costs, password-protected</span></span>
-          <span className="subject-meta"><span>locked</span></span>
-        </a>
-        <a className="subject-tile" href="https://monkeytype.com" target="_blank" rel="noreferrer" style={{ '--tile': 'var(--subject-bwl)' } as React.CSSProperties}>
-          <span className="subject-icon"><Icon name="keyboard" size={22} /></span>
-          <span><b className="subject-name">Monkeytype</b><span className="subject-note">Typing practice ↗</span></span>
-          <span className="subject-meta"><span>opens monkeytype.com</span></span>
-        </a>
-        <a className="subject-tile" href="#/market" style={{ '--tile': 'var(--subject-interview)' } as React.CSSProperties}>
-          <span className="subject-icon"><Icon name="chart-line" size={22} /></span>
-          <span><b className="subject-name">Market log</b><span className="subject-note">One line a day → interview cards</span></span>
-        </a>
-        <a className="subject-tile" href="#/clubs" style={{ '--tile': 'var(--subject-recht)' } as React.CSSProperties}>
-          <span className="subject-icon"><Icon name="user" size={22} /></span>
-          <span><b className="subject-name">Clubs</b><span className="subject-note">Notes and checklists</span></span>
-          <span className="subject-meta"><span>{clubs.length ? `${clubs.length} club${clubs.length === 1 ? '' : 's'}` : 'none yet'}</span></span>
-        </a>
-        <a className="subject-tile" href="#/readings" style={{ '--tile': 'var(--subject-bwl)' } as React.CSSProperties}>
-          <span className="subject-icon"><Icon name="book" size={22} /></span>
-          <span><b className="subject-name">Reading list</b><span className="subject-note">Readings and news</span></span>
-          <span className="subject-meta"><span>{openReadings ? `${openReadings} open` : 'nothing open'}</span></span>
-        </a>
+      </div>
+
+      <div className="section-head" style={{ marginTop: 28 }}><h2>Tools</h2></div>
+      <div className="tool-grid">
+        {[
+          { href: '#/applications', icon: 'user', name: 'Applications', meta: activeApps ? `${activeApps} active` : 'pipeline, watchlist' },
+          { href: '#/readings', icon: 'book', name: 'Reading list', meta: openReadings ? `${openReadings} open` : 'readings, news' },
+          { href: '#/clubs', icon: 'user', name: 'Clubs', meta: clubs.length ? `${clubs.length} club${clubs.length === 1 ? '' : 's'}` : 'notes, checklists' },
+          { href: '#/finance', icon: 'lock', name: 'Finance', meta: 'study costs, locked' },
+          { href: '#/market', icon: 'chart-line', name: 'Market log', meta: 'one line a day' },
+          { href: '#/grading', icon: 'pen', name: 'Overnight grading', meta: 'feedback by morning' },
+          { href: '#/shutdown', icon: 'clock', name: 'Shutdown', meta: 'close the day' },
+          { href: 'https://monkeytype.com', icon: 'keyboard', name: 'Monkeytype', meta: 'typing ↗', ext: true },
+        ].map((x) => (
+          <a key={x.name} className="tool-tile" href={x.href} {...(x.ext ? { target: '_blank', rel: 'noreferrer' } : {})}>
+            <span className="tool-icon"><Icon name={x.icon} size={18} /></span>
+            <span><b>{x.name}</b><small>{x.meta}</small></span>
+          </a>
+        ))}
       </div>
     </div>
   );

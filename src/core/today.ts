@@ -13,13 +13,14 @@ export const HORIZON_LABEL: Record<Horizon, string> = {
 };
 const BOOST: Record<Horizon, number> = { overdue: 40, soon: 35, today: 25, tomorrow: 12, week: 5, later: 0 };
 
-export type TodayKind = 'exam' | 'club' | 'warmup' | 'application' | 'deadline' | 'suggestion' | 'announcement' | 'cards' | 'file' | 'lecture' | 'gap' | 'notes';
+export type TodayKind = 'draft' | 'grading' | 'exam' | 'club' | 'warmup' | 'application' | 'deadline' | 'suggestion' | 'announcement' | 'cards' | 'file' | 'lecture' | 'gap' | 'notes';
 
 export type TodayAction =
   | { type: 'study'; label: string; href: string }
   | { type: 'timer'; label: string; subject: string }
   | { type: 'link'; label: string; url: string }
   | { type: 'focus'; label: string }
+  | { type: 'draft'; label: string; draft: { id: string; subject: string; file: string; format: string; text: string } }
   | { type: 'exam'; label: string; proposal: { id: string; subject: string; date: string; snippet: string } }
   | { type: 'tutor'; label: string; subject: string; topic: string; notes?: boolean };
 
@@ -77,6 +78,8 @@ export interface TodayInput {
   gaps: Array<[number, number]>;
   warmup?: boolean;
   examProposals?: Array<{ id: string; subject: string; date: string; snippet: string }>;
+  drafts?: Array<{ id: string; subject: string; file: string; format: string; text: string }>;
+  gradings?: number;
   clubs?: Array<{ id: string; title: string; club: string; due: number }>;
   applications?: Array<{ id: string; title: string; company: string; due: number; kind: 'deadline' | 'next' }>;
 }
@@ -112,6 +115,10 @@ export function buildItems(inp: TodayInput): TodayItem[] {
   if (inp.warmup) {
     add({ id: `warmup:${new Date(now).toDateString()}`, kind: 'warmup', subject: 'Interview', title: 'Daily 60-second warm-up', why: ['Interview'], horizon: 'today', base: 26, action: { type: 'study', label: 'Start', href: '#/m/interview/t/warmup' } });
   }
+  for (const d of inp.drafts ?? []) {
+    add({ id: `draft:${d.id}`, kind: 'draft', subject: focusSubject(d.subject), title: `Draft ready: ${d.file}`, why: ['Claude draft', d.format === 'cfa-json' ? 'CFA pack' : d.format === 'vocab-csv' ? 'vocab' : 'summary'], horizon: 'today', base: 31, action: { type: 'draft', label: 'Review draft', draft: d } });
+  }
+  if (inp.gradings) add({ id: `grading:${inp.gradings}`, kind: 'grading', subject: '–', title: `Overnight feedback ready (${inp.gradings})`, why: ['Grading'], horizon: 'today', base: 34, action: { type: 'study', label: 'Open', href: '#/grading' } });
   for (const x of inp.examProposals ?? []) {
     add({ id: `exam:${x.id}`, kind: 'exam', subject: focusSubject(x.subject), title: `Exam date found: ${x.date} – “${x.snippet.slice(0, 90)}”`, why: ['Canvas', 'exam date'], due: new Date(`${x.date}T09:00:00`).getTime(), horizon: 'today', base: 36, action: { type: 'exam', label: 'Accept date', proposal: x } });
   }

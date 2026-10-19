@@ -1489,3 +1489,16 @@ button.subject-tile { font: inherit; cursor: pointer; }
 .club-dot { display: inline-block; width: 14px; height: 14px; border-radius: 50%; margin-right: 10px; vertical-align: 2px; }
 .club-swatch { width: 24px; height: 24px; border-radius: 50%; border: 0; cursor: pointer; outline-offset: 2px; }
 .markdown p, .markdown ul { margin: 0 0 10px; } .markdown ul { padding-left: 20px; } .markdown h3, .markdown h4, .markdown h5 { margin: 14px 0 6px; }
+
+/* Home → Tools: compact tiles */
+.tool-grid { display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr)); }
+.tool-tile { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 16px; color: var(--ink); text-decoration: none; background: var(--surface); border: 1px solid var(--line); }
+.tool-tile b { display: block; font-size: var(--text-sm); } .tool-tile small { color: var(--ink-3); font-size: var(--text-xs); }
+.tool-tile:hover { background: var(--surface-2); }
+.tool-icon { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 10px; flex: none; background: var(--accent-tint); color: var(--ink); }
+:root[data-surface='glass'] .tool-tile { background: linear-gradient(145deg, color-mix(in srgb, var(--ink) 12%, transparent), color-mix(in srgb, var(--ink) 5%, transparent)); border-color: color-mix(in srgb, var(--ink) 20%, transparent); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); }
+:root[data-surface='apple'] .tool-tile { border: 0; box-shadow: var(--shadow); }
+:root[data-surface='apple'] .tool-icon { color: #fff; background: linear-gradient(160deg, color-mix(in srgb, var(--accent) 70%, #fff), var(--accent)); border-radius: 26%; }
+
+.capture { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
+.capture .input { flex: 1 1 260px; max-width: 520px; }
