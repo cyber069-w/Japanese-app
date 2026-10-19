@@ -15,6 +15,7 @@ import { Applications } from './screens/Applications';
 import { Readings } from './screens/Readings';
 import { Clubs } from './screens/Clubs';
 import { Finance } from './screens/Finance';
+import { Today } from './screens/Today';
 import { Focus } from './screens/Focus';
 import { InboxBell } from './components/InboxBell';
 import { FocusWidget } from './screens/FocusWidget';
@@ -34,7 +35,7 @@ const NAV: Array<{ path: string; label: string; icon: IconName }> = [
 /** Subject colour for the current screen: Focus, the open subject, or none (cream) on shared screens. */
 function accentFor(path: string, courseId: string): string | null {
   if (path.startsWith('/focus')) return 'focus';
-  if (path === '/' || path.startsWith('/shutdown') || path === '/applications' || path === '/readings' || path.startsWith('/clubs') || path === '/finance' || path === '/stats' || path === '/settings') return null;
+  if (path === '/' || path.startsWith('/shutdown') || path === '/applications' || path === '/readings' || path.startsWith('/clubs') || path === '/finance' || path === '/today' || path === '/stats' || path === '/settings') return null;
   return courseId;
 }
 
@@ -74,6 +75,7 @@ function route(path: string): ReactNode {
   if (path === '/readings') return <Readings />;
   if (path === '/clubs') return <Clubs />;
   if (path === '/finance') return <Finance />;
+  if (path === '/today') return <Today />;
   if ((p = match('/clubs/:id', path))) return <Clubs id={p.id} />;
   if (path === '/shutdown/quick') return <Shutdown quickStart />;
   if (path === '/settings') return <Settings />;

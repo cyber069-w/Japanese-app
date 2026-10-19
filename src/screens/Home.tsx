@@ -50,6 +50,7 @@ export function Home() {
         <div className="grow">
           <div className="eyebrow">{date}</div>
           <h1 style={{ marginTop: 6 }}>{greeting(new Date().getHours())}</h1>
+          <a className="small" href="#/today">Just what matters now →</a>
         </div>
       </div>
 
@@ -126,6 +127,11 @@ export function Home() {
           <span className="subject-icon"><Icon name="lock" size={22} /></span>
           <span><b className="subject-name">Finance</b><span className="subject-note">Study costs, password-protected</span></span>
           <span className="subject-meta"><span>locked</span></span>
+        </a>
+        <a className="subject-tile" href="https://monkeytype.com" target="_blank" rel="noreferrer" style={{ '--tile': 'var(--subject-bwl)' } as React.CSSProperties}>
+          <span className="subject-icon"><Icon name="keyboard" size={22} /></span>
+          <span><b className="subject-name">Monkeytype</b><span className="subject-note">Typing practice ↗</span></span>
+          <span className="subject-meta"><span>opens monkeytype.com</span></span>
         </a>
         <a className="subject-tile" href="#/clubs" style={{ '--tile': 'var(--subject-recht)' } as React.CSSProperties}>
           <span className="subject-icon"><Icon name="user" size={22} /></span>

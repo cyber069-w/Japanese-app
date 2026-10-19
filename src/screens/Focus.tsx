@@ -11,7 +11,7 @@ import { Icon } from '../components/Icon';
 import { Sheet } from '../components/Sheet';
 import { coverage, effectiveMs, gaps, overlapping, sessionFromTimes, sessionIntervals, type FocusSession } from '../core/focus';
 import {
-  addSubject, dayWindow, deleteSession, enableNotifications, importSessions, initFocus, removeSubject, saveSession, setPrefs, startLecture, useFocus,
+  addSubject, startTimer, dayWindow, deleteSession, enableNotifications, importSessions, initFocus, removeSubject, saveSession, setPrefs, startLecture, useFocus,
 } from '../core/focusStore';
 import { dayKey, formatDuration } from '../lib/date';
 import { FocusPanel, hhmm, openFocusPip, pipSupported, subjectColor, useNow } from './FocusWidget';
@@ -81,6 +81,7 @@ export function Focus() {
             <Icon name="laptop" size={16} /> Mini window
           </button>
           <a className="btn" href="#/focus-widget" target="_blank" rel="noreferrer">Widget tab</a>
+          <a className="btn" href="https://monkeytype.com" target="_blank" rel="noreferrer" title="Opens Monkeytype and starts a Typing timer" onClick={() => { if (!f.active) startTimer('Typing', 'study'); }}>Monkeytype ↗</a>
         </div>
       </div>
 
