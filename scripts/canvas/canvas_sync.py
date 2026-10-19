@@ -186,6 +186,16 @@ def collect_notes():
     return out
 
 
+def collect_exams():
+    """File names in <subject>/Prüfungen, for the exam area in the app (names only)."""
+    out = []
+    for folder in sorted({c['folder'] for c in CONFIG['courses']}):
+        d = BASE / folder / 'Prüfungen'
+        if d.is_dir():
+            out += [{'subject': folder, 'file': f.name} for f in sorted(d.iterdir()) if f.is_file() and not f.name.startswith('.')]
+    return out
+
+
 def collect_inbox(new_files):
     """Upcoming deadlines (not yet submitted), announcements of the last 30 days and recently fetched files."""
     since = time.strftime('%Y-%m-%dT00:00:00Z', time.gmtime(time.time() - 30 * 86400))
@@ -219,7 +229,7 @@ def collect_inbox(new_files):
     files = ([{'id': f"f{i}-{f['file']}", 'subject': f['course'], 'file': f['file'], 'to': f['to'], 'at': stamp} for i, f in enumerate(new_files)]
              + [{'id': f"note-{f['to']}", 'subject': f['course'], 'file': f['file'], 'to': f['to'], 'at': stamp, 'kind': 'notes'} for f in notes]
              + old.get('files', []))
-    inbox = {'at': stamp, 'deadlines': sorted(deadlines.values(), key=lambda d: d['due'] or ''), 'announcements': sorted(announcements, key=lambda a: a['posted'] or '', reverse=True), 'files': files[:60]}
+    inbox = {'at': stamp, 'deadlines': sorted(deadlines.values(), key=lambda d: d['due'] or ''), 'announcements': sorted(announcements, key=lambda a: a['posted'] or '', reverse=True), 'files': files[:60], 'exams': collect_exams()}
     inbox_file.write_text(json.dumps(inbox, ensure_ascii=False, indent=1))
     push_to_sync_repo()
     return inbox
@@ -269,6 +279,8 @@ def main():
                 state[sid] = {'path': str(match), 'updated': f['updated'], 'size': f['size'], 'existing': True}
                 report['existing'].append({**entry, 'to': str(match.relative_to(BASE))})
                 continue
+            if not rule and course.get('exams') and guess(f['name'], f['module']) == 'Prüfungen':
+                rule = {'to': 'Prüfungen'}  # per course switch "exams": true in canvas-config.json
             if not rule:
                 report['optional'].append({**entry, 'to': guess(f['name'], f['module'])})
                 continue

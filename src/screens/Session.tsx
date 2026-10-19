@@ -13,6 +13,7 @@ import { getModule } from '../modules';
 import { navigate } from '../lib/router';
 import { slowRate, speak, speechSupported, useSpeaking } from '../lib/speech';
 import { formatDuration } from '../lib/date';
+import { weakTopics } from '../core/exam';
 import { Icon } from '../components/Icon';
 import { Ruby } from '../components/Ruby';
 import { HintPanel } from '../components/HintPanel';
@@ -71,6 +72,12 @@ function Runner({ cfg, restart }: { cfg: SessionConfig; restart: (c: SessionConf
   const shownAt = useRef(Date.now());
   const requeued = useRef(new Map<string, number>());
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const [left, setLeft] = useState(cfg.mock ? cfg.mock.minutes * 60 : null);
+  useEffect(() => {
+    if (!cfg.mock) return;
+    const t = setInterval(() => setLeft(Math.max(0, cfg.mock!.minutes * 60 - Math.round((Date.now() - startedAt.current) / 1000))), 1000);
+    return () => clearInterval(t);
+  }, [cfg.mock]);
 
   const card = queue[index] as SessionCard | undefined;
   const mod = card ? getModule(card.moduleId) : undefined;
@@ -117,7 +124,7 @@ function Runner({ cfg, restart }: { cfg: SessionConfig; restart: (c: SessionConf
     const ms = Date.now() - shownAt.current;
     recordAnswer(cardId(card.moduleId, card.exerciseId, card.item.id), card.moduleId, grade, ms, ex.srs !== false);
     setResults((r) => [...r, { card, correct }]);
-    if (!correct && !ex.generative) {
+    if (!correct && !ex.generative && !cfg.mock) {
       // bring the item back a few cards later (max. twice per session)
       const k = `${card.moduleId}:${card.exerciseId}:${card.item.id}`;
       const n = requeued.current.get(k) ?? 0;
@@ -199,7 +206,7 @@ function Runner({ cfg, restart }: { cfg: SessionConfig; restart: (c: SessionConf
   useEffect(() => () => clearTimeout(timer.current), []);
 
   // ----- finished -----
-  if (!card || !question || !mod || !ex) {
+  if (!card || !question || !mod || !ex || left === 0) {
     return <Finish cfg={cfg} results={results} ms={Date.now() - startedAt.current} restart={restart} />;
   }
 
@@ -218,6 +225,7 @@ function Runner({ cfg, restart }: { cfg: SessionConfig; restart: (c: SessionConf
           <span style={{ width: `${progress * 100}%` }} />
         </div>
         <div className="session-count">
+          {left !== null && <b style={{ marginRight: 10 }} aria-label="Time left">{Math.floor(left / 60)}:{String(left % 60).padStart(2, '0')}</b>}
           {Math.min(index + 1, queue.length)} / {queue.length}
         </div>
       </div>
@@ -397,6 +405,14 @@ function Finish({ cfg, results, ms, restart }: { cfg: SessionConfig; results: Re
         <p className="muted">
           {right} of {firsts.length} right on the first try · {formatDuration(ms)}
         </p>
+        {cfg.mock && mistakes.length > 0 && (
+          <div className="section" style={{ marginTop: 22 }}>
+            <div className="eyebrow" style={{ marginBottom: 10 }}>Weak topics</div>
+            <div className="mistake-list">
+              {weakTopics(mistakes.map((m) => m.card), (id) => getModule(id)?.name ?? id).map((t) => <span key={t.name}>{t.name} · {t.n} wrong</span>)}
+            </div>
+          </div>
+        )}
         {mistakes.length > 0 && (
           <div className="section" style={{ marginTop: 22 }}>
             <div className="eyebrow" style={{ marginBottom: 10 }}>To practise</div>
@@ -415,11 +431,12 @@ function Finish({ cfg, results, ms, restart }: { cfg: SessionConfig; results: Re
                 restart({
                   ...cfg,
                   title: 'Mistakes',
+                  mock: undefined,
                   cards: shuffle(mistakes.map((m) => ({ ...m.card, key: m.card.key + '~m' }))),
                 })
               }
             >
-              <Icon name="refresh" size={18} /> Practise mistakes
+              <Icon name="refresh" size={18} /> {cfg.mock ? 'Drill these' : 'Practise mistakes'}
             </button>
           )}
           {cfg.rebuild && (

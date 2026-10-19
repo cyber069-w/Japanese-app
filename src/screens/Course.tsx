@@ -9,6 +9,7 @@ import { courseModules, entryInfo, getCourse } from '../courses';
 import type { CourseConfig, CourseSection, Topic } from '../courses/types';
 import { CourseBar } from '../components/CourseBar';
 import { ModuleCard, PlaceholderCard } from '../components/ModuleCard';
+import { ExamPanel } from '../components/ExamPanel';
 import { Icon } from '../components/Icon';
 import { TutorButton } from '../components/TutorButton';
 import { TutorNotes } from '../components/TutorNotes';
@@ -60,8 +61,8 @@ export function CoursePage({ course }: { course: CourseConfig }) {
       </Area>
 
       <Area id="exam" title="Exam Preparation">
+        <ExamPanel course={course} />
         <Sections sections={course.exam} />
-        {!course.exam.length && <Empty text="Mixed tests and mock exams will appear here once the course has content." />}
       </Area>
 
       <Area id="imports" title="Imports">

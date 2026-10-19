@@ -11,7 +11,8 @@ import { logHistory } from './history';
 export interface CanvasDeadline { id: string; course: string; subject: string; title: string; due: string | null; url?: string; kind: string }
 export interface CanvasAnnouncement { id: string; course: string; subject: string; title: string; posted: string; text: string; url?: string }
 export interface CanvasFile { id: string; subject: string; file: string; to: string; at: string; /** OneNote PDF export found in a Notizen folder */ kind?: 'notes' }
-export interface CanvasInbox { at: string; deadlines: CanvasDeadline[]; announcements: CanvasAnnouncement[]; files: CanvasFile[] }
+export interface CanvasExam { subject: string; file: string }
+export interface CanvasInbox { at: string; deadlines: CanvasDeadline[]; announcements: CanvasAnnouncement[]; files: CanvasFile[]; /** file names in <subject>/Prüfungen */ exams?: CanvasExam[] }
 
 export interface CanvasPrefs {
   muted: boolean;

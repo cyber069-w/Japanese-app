@@ -73,3 +73,8 @@ Status: [ ] open · [x] done · [~] solved differently / blocked (reason in the 
 ## Phase 4 – Time targets + weekly report
 - [x] Focus → Targets: hours per subject per week, suggestion from the last 2 weeks (0.5 h steps), done-vs-target bars, “Block 1 h for X tomorrow” → planned block in Today's “Your day”
 - [x] Stats → Weekly report (this / last week): focus, target, lectures, cards + accuracy, Canvas deadlines due / still open, new files; PDF (print), Markdown download, copy for the planning chat. “Finished deadlines” is not tracked by Canvas data – shown as due / still open instead
+
+## Phase 5 – Exam mode
+- [x] Course page → Exam Preparation: from 6 weeks before the exam date: weeks left, sections below 70 %, suggested weekly hours (rule of thumb, shown in the UI)
+- [x] Old exams: `"exams": true` per course in private/canvas-config.json makes the Mac job also fetch files it classifies as Prüfungen into <subject>/Prüfungen; the exam area lists the file names (needs a Canvas run – not run against Canvas here)
+- [x] Mock exam: mixed, timed (questions + minutes adjustable), no repeats after a mistake, weak topics + “Drill these”. Japanese = vocab + grammar + listening; other subjects = all their checked modules

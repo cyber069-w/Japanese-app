@@ -13,6 +13,8 @@ export interface SessionConfig {
   back: string;
   /** Build a fresh session with the same settings ("Again" button). */
   rebuild?: () => SessionCard[];
+  /** Mock exam: a countdown ends the session, wrong cards are not asked again, the result lists weak topics. */
+  mock?: { minutes: number };
 }
 
 let current: SessionConfig | null = null;
