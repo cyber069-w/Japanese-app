@@ -87,8 +87,8 @@ export async function assess(cfg: AzureConfig, wav: Blob, referenceText: string)
   return a;
 }
 
-/** Records from the microphone until stop() (or 20 s). */
-export async function recordClip(): Promise<{ stop: () => void; done: Promise<Blob> }> {
+/** Records from the microphone until stop() (or maxMs, default 20 s). */
+export async function recordClip(maxMs = 20_000): Promise<{ stop: () => void; done: Promise<Blob> }> {
   const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } });
   const rec = new MediaRecorder(stream);
   const chunks: Blob[] = [];
@@ -100,6 +100,6 @@ export async function recordClip(): Promise<{ stop: () => void; done: Promise<Bl
     };
   });
   rec.start();
-  const limit = setTimeout(() => rec.state === 'recording' && rec.stop(), 20_000);
+  const limit = setTimeout(() => rec.state === 'recording' && rec.stop(), maxMs);
   return { stop: () => { clearTimeout(limit); if (rec.state === 'recording') rec.stop(); }, done };
 }

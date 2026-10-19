@@ -4,7 +4,7 @@ import type { StudyContext } from '../../core/types';
 import { setInterviewQuestions } from '../../core/store';
 import { useStored } from '../../core/kv';
 import type { Application } from '../../core/applications';
-import { askTutor } from '../../lib/tutor';
+import { openWithPrompt } from '../../lib/tutor';
 import { Icon } from '../../components/Icon';
 import { DECKS, deckLabel, FIT_TOPICS, mergeQuestions, packPrompt, parseInterviewPack, TECH_TOPICS, type Deck } from './questions';
 
@@ -22,7 +22,7 @@ export function InterviewImport({ ctx }: { ctx: StudyContext }) {
 
   const pickDeck = (d: Deck) => { setDeck(d); setTopics([d === 'technical' ? TECH_TOPICS[0] : d === 'behavioural' ? FIT_TOPICS[0] : 'Why this firm?']); };
   const prompt = () => packPrompt({ deck, topics, firm: app?.company, role: app?.role });
-  const copy = async () => { setMsg((await askTutor({ courseId: 'interview', courseName: 'Interview', topic: `Interview pack: ${deckLabel(deck)}`, context: '', task: prompt() })) ? 'Prompt copied – paste it into Claude (⌘V), then paste the answer below.' : 'Claude opened – copying was blocked, copy the prompt from the box below.'); };
+  const copy = async () => { setMsg((await openWithPrompt('interview', prompt(), `Interview pack prompt (${deckLabel(deck)})`)) ? 'Prompt copied – paste it into Claude (⌘V), then paste the answer below.' : 'Claude opened – copying was blocked, copy the prompt from the box below.'); };
   const save = async () => {
     if (!parsed?.questions.length) return;
     await setInterviewQuestions(mergeQuestions(existing, parsed.questions));

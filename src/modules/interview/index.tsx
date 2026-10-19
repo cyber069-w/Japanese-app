@@ -2,6 +2,8 @@
 import type { BaseItem, Exercise, FilterGroup, Question, StudyContext, StudyModule } from '../../core/types';
 import { navigate } from '../../lib/router';
 import { InterviewImport } from './InterviewImport';
+import { Practice } from './Practice';
+import { Warmup } from './Warmup';
 import { DECKS, deckLabel, type InterviewQuestion } from './questions';
 
 interface QItem extends BaseItem { q: InterviewQuestion }
@@ -57,6 +59,8 @@ export const interview: StudyModule = {
       </div>
     ),
   tools: [
+    { id: 'practice', name: 'Spoken practice', description: 'Answer out loud: 20 s prep, record, transcript, speaking stats, self-rating, feedback and sparring prompts.', icon: '話', component: Practice },
+    { id: 'warmup', name: 'Daily warm-up', description: 'One question a day, 60 seconds, one take – with streak and trend.', icon: '試', component: Warmup },
     { id: 'import', name: 'Import pack', description: 'Get the prompt for Claude, paste the JSON pack, manage your questions.', icon: '入', component: InterviewImport },
   ],
 };

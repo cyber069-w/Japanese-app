@@ -10,6 +10,7 @@ import { coverage, gaps, sessionIntervals } from '../core/focus';
 import { COURSES } from '../courses';
 import { useStored } from '../core/kv';
 import { applicationDates, type Application } from '../core/applications';
+import { warmupDone, type Attempt } from '../modules/interview/stats';
 import type { PlannedBlock } from '../core/targets';
 import { askTutor } from '../lib/tutor';
 import { notesRequest } from '../lib/notesPrompt';
@@ -46,6 +47,8 @@ export function useToday() {
   const [calendar, setCalendar] = useState<CalendarData | null | undefined>(undefined);
   const [planned] = useStored<PlannedBlock[]>('today:planned', []);
   const [apps] = useStored<Application[]>('applications', []);
+  const [attempts] = useStored<Attempt[]>('interview:attempts', []);
+  const hasInterview = (useApp((s) => s.content.interviewQs) ?? []).length > 0;
   const { map: dismissed, dismiss, restore } = useDismissed();
   const [now, setNow] = useState(Date.now());
   useEffect(initFocus, []);
@@ -67,7 +70,7 @@ export function useToday() {
       return { subject: COURSE_SUBJECT[c.id] ?? c.name, n: due.perCourse[c.id] ?? 0, href: `#/c/${c.id}`, examDays: exam ? daysUntil(exam, now) : undefined };
     });
     const built = buildItems({
-      now, accepted: view.accepted, suggestions: view.suggestions, announcements: view.unseenImportant, files: view.files, cards, lectures, gaps: open, applications: applicationDates(apps, now),
+      now, accepted: view.accepted, suggestions: view.suggestions, announcements: view.unseenImportant, files: view.files, cards, lectures, gaps: open, applications: applicationDates(apps, now), warmup: hasInterview && !warmupDone(attempts, now),
     });
     const ranked = [...new Set(built.filter((i) => i.subject !== '–').map((i) => i.subject))];
     const today = lectures.filter((l) => l.start < winEnd);
@@ -80,7 +83,7 @@ export function useToday() {
       { name: 'Cards', read: COURSES.length, act: cards.filter((c) => c.n > 0).length, state: 'ok' },
     ];
     return { items: built, day: buildDay(now, winEnd, today, intervals.filter(([a]) => a < winEnd), ranked, 45, planned), sources: src };
-  }, [view.accepted, view.suggestions, view.unseenImportant, view.files, view.announcements, view.badge, lectures, focus.sessions, calendar, due.perCourse, settings.examDates, settings.examDate, canvasState.inbox, planned, apps, now, winStart, winEnd]);
+  }, [view.accepted, view.suggestions, view.unseenImportant, view.files, view.announcements, view.badge, lectures, focus.sessions, calendar, due.perCourse, settings.examDates, settings.examDate, canvasState.inbox, planned, apps, attempts, hasInterview, now, winStart, winEnd]);
 
   const shown = visibleItems(items, dismissed, now);
   const hiddenItems = items.filter((i) => !shown.includes(i));

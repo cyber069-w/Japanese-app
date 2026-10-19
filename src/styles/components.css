@@ -1477,3 +1477,10 @@ button.subject-tile { font: inherit; cursor: pointer; }
 @media (max-width: 560px) { .app-grid { grid-template-columns: 1fr; } }
 .app-stage { width: auto; min-height: 34px; padding: 2px 8px; font-size: var(--text-sm); }
 .app-row { flex-wrap: wrap; }
+
+/* interview: teleprompter, recording */
+.teleprompter { position: relative; max-height: 220px; overflow: hidden; padding: 16px 18px; border-radius: 16px; background: color-mix(in srgb, var(--ink) 8%, transparent); }
+.tp-text { max-height: 188px; overflow-y: auto; scroll-behavior: smooth; font-size: 1.7rem; line-height: 1.5; font-weight: 600; }
+.tp-text .done { opacity: 0.35; } .tp-text .now { background: var(--accent-tint); border-radius: 6px; }
+.tp-pause { position: absolute; right: 10px; bottom: 10px; }
+.recording-dot { color: var(--bad); }

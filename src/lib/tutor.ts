@@ -40,3 +40,11 @@ export async function askTutor(r: TutorRequest): Promise<boolean> {
   window.open(getState().settings.tutorUrls?.[r.courseId] || 'https://claude.ai/new', '_blank', 'noopener');
   return copy;
 }
+
+/** Copies a ready-made prompt (any language) and opens Claude – the subject's Claude Project if set, else a new chat. */
+export async function openWithPrompt(courseId: string, text: string, label = 'Prompt'): Promise<boolean> {
+  logHistory('tutor', `${label} copied`);
+  const copy = navigator.clipboard?.writeText(text).then(() => true, () => false) ?? Promise.resolve(false);
+  window.open(getState().settings.tutorUrls?.[courseId] || 'https://claude.ai/new', '_blank', 'noopener');
+  return copy;
+}
