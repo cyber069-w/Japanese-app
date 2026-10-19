@@ -1,5 +1,6 @@
 /** Focus → Targets: hours per subject per week, this week's progress, and "block 1 h tomorrow" for what's behind. */
 import { useMemo, useState } from 'react';
+import { ectsHoursPerWeek } from '../core/rules';
 import { useFocus, minutesOf } from '../core/focusStore';
 import { useStored } from '../core/kv';
 import { blockTomorrow, hoursBySubject, suggestTargets, targetRows, weekStart, type PlannedBlock, type Targets } from '../core/targets';
@@ -11,6 +12,7 @@ export function FocusTargets() {
   const [targets, setTargets] = useStored<Targets>('focus:targets', {});
   const [planned, setPlanned] = useStored<PlannedBlock[]>('today:planned', []);
   const [edit, setEdit] = useState(false);
+  const [ects, setEcts] = useStored<Record<string, number>>('focus:ects', {});
   const now = Date.now();
   const done = useMemo(() => hoursBySubject(f.sessions, weekStart(now)), [f.sessions, now]);
   const suggested = useMemo(() => suggestTargets(f.sessions, now), [f.sessions, now]);
@@ -58,12 +60,16 @@ export function FocusTargets() {
           <div className="stack" style={{ '--gap': '8px' } as React.CSSProperties}>
             {subjects.map((s) => (
               <label key={s} className="row small" style={{ justifyContent: 'space-between' }}>
-                <span>{s} {suggested[s] !== undefined && <span className="faint tiny">(suggested {h1(suggested[s])})</span>}</span>
+                <span>{s} {suggested[s] !== undefined && <span className="faint tiny">(last 2 weeks: {h1(suggested[s])})</span>} {ects[s] ? <span className="faint tiny">(ECTS: {h1(ectsHoursPerWeek(ects[s]))})</span> : null}</span>
+                <span className="row" style={{ gap: 6 }}><input className="input" type="number" min={0} max={30} step={0.5} style={{ width: 70 }} value={ects[s] ?? ''} placeholder="ECTS" onChange={(e) => setEcts({ ...ects, [s]: Math.max(0, Number(e.target.value) || 0) })} aria-label={`ECTS credits for ${s}`} />
                 <input className="input" type="number" min={0} max={40} step={0.5} style={{ width: 90 }} value={targets[s] ?? ''} placeholder="–"
-                  onChange={(e) => setTargets({ ...targets, [s]: Math.max(0, Number(e.target.value) || 0) })} aria-label={`Weekly hours for ${s}`} />
+                  onChange={(e) => setTargets({ ...targets, [s]: Math.max(0, Number(e.target.value) || 0) })} aria-label={`Weekly hours for ${s}`} /></span>
               </label>
             ))}
-            {Object.keys(suggested).length > 0 && <button className="btn btn-sm" onClick={() => setTargets({ ...targets, ...suggested })}>Fill in suggestions</button>}
+            <div className="row">
+              {Object.keys(suggested).length > 0 && <button className="btn btn-sm" onClick={() => setTargets({ ...targets, ...suggested })}>Fill in last-2-weeks suggestions</button>}
+              {Object.keys(ects).length > 0 && <button className="btn btn-sm" onClick={() => setTargets({ ...targets, ...Object.fromEntries(Object.entries(ects).filter(([, v]) => v > 0).map(([k, v]) => [k, ectsHoursPerWeek(v)])) })}>Fill in ECTS suggestions</button>}
+            </div>
           </div>
         )}
       </div>

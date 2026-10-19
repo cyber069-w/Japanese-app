@@ -27,7 +27,7 @@ export function Today() {
           {important ? (
             <div className="today-row" style={{ borderTop: 0 }}>
               <div className="grow"><div className="today-title">{important.title.slice(0, 140)}</div><div className="today-meta">{[important.subject, ...important.why, important.due ? `due ${new Date(important.due).toLocaleString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}` : null].filter(Boolean).join(' · ')}</div></div>
-              <button className="btn btn-primary btn-sm" onClick={() => t.run(important.action)}>{important.action.label}</button>
+              <button className="btn btn-primary btn-sm" onClick={() => t.act(important)}>{important.action.label}</button>
             </div>
           ) : <EmptyState icon="check" title="No open deadline" hint="Accept Canvas deadlines or add application dates to see the next one here." />}
         </section>

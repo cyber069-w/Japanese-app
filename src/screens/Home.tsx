@@ -11,6 +11,7 @@ import { syncNow } from '../core/sync';
 import { usePullToRefresh } from '../lib/pullToRefresh';
 import { COURSES } from '../courses';
 import { Icon } from '../components/Icon';
+import { ExamRecordBanner } from '../components/home/ExamRecord';
 import { ShutdownBanner } from '../components/home/ShutdownBanner';
 import { EmptyState } from '../components/EmptyState';
 import { HeadIcon } from '../components/HeadIcon';
@@ -59,6 +60,7 @@ export function Home() {
       </div>
 
       <ShutdownBanner />
+      <ExamRecordBanner />
       {new Date().getDay() === 0 && (
         <div className="glass shutdown-banner"><Icon name="calendar" size={18} /><b className="grow">Sunday – plan next week</b><button className="btn btn-sm btn-primary" onClick={() => setSunday(true)}>Plan with Claude</button></div>
       )}
@@ -88,7 +90,7 @@ export function Home() {
                       <div className="today-title">{i.title.length > 120 ? `${i.title.slice(0, 117)}…` : i.title}</div>
                       <div className="today-meta">{[i.subject !== '–' ? i.subject : null, ...i.why].filter(Boolean).join(' · ')}</div>
                     </div>
-                    <button className="btn btn-sm today-action" onClick={() => t.run(i.action)}>{i.action.label}</button>
+                    <button className="btn btn-sm today-action" onClick={() => t.act(i)}>{i.action.label}</button>
                     <button className="btn btn-sm btn-ghost" aria-label="Dismiss" title="Dismiss for 7 days" onClick={() => t.dismiss(i.id)}><Icon name="x" size={15} /></button>
                   </li>
                 ))}

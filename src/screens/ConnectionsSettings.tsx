@@ -7,6 +7,9 @@ import { azureConn, canvasConn, syncConn, timetableConn, type Conn } from '../co
 import { loadAzure, saveAzure, type AzureSource } from '../core/azure';
 import { clearHistory, deleteEntry, filterHistory, HISTORY_KINDS, useHistory, type HistoryKind } from '../core/history';
 import { Icon } from '../components/Icon';
+import { useStored } from '../core/kv';
+import { ruleStats, type RuleLog } from '../core/rules';
+import type { ExamRecordData } from '../components/home/ExamRecord';
 import { updateSettings, useApp } from '../core/store';
 import { downloadIcs } from '../lib/ics';
 import { shutdownReminders } from '../lib/shutdownReminders';
@@ -60,6 +63,27 @@ export function ConnectionsSettings() {
   );
 }
 
+const KIND_LABEL: Record<string, string> = { deadline: 'Canvas deadlines (accepted)', suggestion: 'New Canvas deadlines', announcement: 'Announcements', cards: 'Due cards', file: 'New files', notes: 'New notes', lecture: 'Next lecture', gap: 'Focus gaps', application: 'Application dates', club: 'Club items', warmup: 'Daily warm-up' };
+
+/** How the "What to do next" rules perform: acted / dismissed / ignored per rule type. */
+function RuleStats() {
+  const [log] = useStored<RuleLog>('rules:log', {});
+  const [records] = useStored<Record<string, ExamRecordData>>('exams:records', {});
+  const stats = ruleStats(log);
+  return (
+    <div className="stack" style={{ '--gap': '8px' } as React.CSSProperties}>
+      <b className="small">Suggestion outcomes</b>
+      {stats.length === 0 ? <div className="muted small">Nothing measured yet – the list on Home logs what you do with each suggestion.</div> : (
+        <table className="small" style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <thead><tr className="faint"><th align="left">Rule</th><th align="right">Shown</th><th align="right">Done</th><th align="right">Dismissed</th><th align="right">Ignored</th><th align="right">Dismiss rate</th></tr></thead>
+          <tbody>{stats.map((s) => <tr key={s.kind}><td>{KIND_LABEL[s.kind] ?? s.kind}</td><td align="right">{s.total}</td><td align="right">{s.acted}</td><td align="right">{s.dismissed}</td><td align="right">{s.ignored}</td><td align="right">{s.dismissRate === null ? '–' : `${Math.round(s.dismissRate * 100)}%`}</td></tr>)}</tbody>
+        </table>
+      )}
+      {Object.keys(records).length > 0 && <div className="small">Exam record: {Object.entries(records).map(([c, r]) => `${c} ${r.grade}${r.prepStart ? ` (prep from ${r.prepStart})` : ''}`).join(' · ')}</div>}
+    </div>
+  );
+}
+
 export function HistorySettings() {
   const all = useHistory();
   const [kind, setKind] = useState<HistoryKind | 'all'>('all');
@@ -73,6 +97,7 @@ export function HistorySettings() {
         <span className="spacer" />
         {all.length > 0 && <button className="btn btn-sm btn-danger" onClick={() => confirm('Clear the whole history?') && clearHistory()}>Clear all</button>}
       </div>
+      <RuleStats />
       <div className="row">
         <input className="input" placeholder="Search" value={q} onChange={(e) => setQ(e.target.value)} aria-label="Search history" style={{ width: 'min(100%, 220px)' }} />
         <button className={`chip${kind === 'all' ? ' on' : ''}`} onClick={() => setKind('all')}>All</button>

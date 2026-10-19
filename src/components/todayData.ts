@@ -1,5 +1,6 @@
 /** Home → "Today": what to do now, from Canvas, timetable, Focus log and due cards (rules in core/today.ts). */
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { entryKey, markOutcome, registerShown, settleIgnored, trim, type RuleLog } from '../core/rules';
 import { useApp } from '../core/store';
 import { useDueCounts } from '../core/hooks';
 import { storage } from '../core/db';
@@ -51,7 +52,8 @@ export function useToday() {
   const [clubs] = useStored<Club[]>('clubs', []);
   const [attempts] = useStored<Attempt[]>('interview:attempts', []);
   const hasInterview = (useApp((s) => s.content.interviewQs) ?? []).length > 0;
-  const { map: dismissed, dismiss, restore } = useDismissed();
+  const { map: dismissed, dismiss: dismissRaw, restore } = useDismissed();
+  const [ruleLog, setRuleLog, ruleLoaded] = useStored<RuleLog>('rules:log', {});
   const [now, setNow] = useState(Date.now());
   useEffect(initFocus, []);
   useEffect(() => {
@@ -101,5 +103,19 @@ export function useToday() {
     } else void askTutor(notesRequest(a.subject, a.topic, !!a.notes));
   };
 
-  return { shown, hiddenItems, day, sources, lectures, calendar, covered, winStart, winEnd, now, run, dismiss, restore };
+  // measure the rules: every suggestion ends as acted, dismissed or ignored (Settings → History)
+  const logRef = useRef(ruleLog);
+  logRef.current = ruleLog;
+  const shownKey = shown.map((i) => i.id).join('|');
+  useEffect(() => {
+    if (!ruleLoaded) return;
+    const at = Date.now();
+    let next = registerShown(logRef.current, shown, at);
+    next = settleIgnored(next, shown.map((i) => entryKey(i.id, at)), at);
+    if (next !== logRef.current) setRuleLog(trim(next));
+  }, [shownKey, ruleLoaded]); // eslint-disable-line react-hooks/exhaustive-deps
+  const outcome = (id: string, o: 'acted' | 'dismissed') => { const n = markOutcome(logRef.current, id, o, Date.now()); if (n !== logRef.current) setRuleLog(n); };
+  const dismiss = (id: string) => { outcome(id, 'dismissed'); dismissRaw(id); };
+  const act = (i: { id: string; action: TodayAction }) => { outcome(i.id, 'acted'); run(i.action); };
+  return { shown, hiddenItems, act, day, sources, lectures, calendar, covered, winStart, winEnd, now, run, dismiss, restore };
 }

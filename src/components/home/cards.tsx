@@ -113,7 +113,7 @@ export function TodosCard({ t }: { t: Today }) {
           <li key={i.id} className="todo canvas">
             <span className="todo-dot" aria-hidden="true" />
             <span className="grow"><b>{i.title.length > 64 ? `${i.title.slice(0, 61)}…` : i.title}</b><small>{i.subject} · {i.kind === 'application' ? 'Application' : i.kind === 'club' ? 'Club' : 'Canvas'}{i.due ? ` · ${dayLabel(new Date(i.due).toISOString(), t.now)}` : ''}</small></span>
-            <button className="btn btn-sm btn-ghost" onClick={() => t.run(i.action)}>{i.action.type === 'link' ? 'Open' : 'Go'}</button>
+            <button className="btn btn-sm btn-ghost" onClick={() => t.act(i)}>{i.action.type === 'link' ? 'Open' : 'Go'}</button>
           </li>
         ))}
         {mine.map((x) => (
