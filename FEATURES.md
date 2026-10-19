@@ -14,8 +14,9 @@ It does three jobs:
 
 Hard principles: no backend, no accounts, no tracking; data stays on the device (IndexedDB) and syncs only through the
 user's own private GitHub repo, encrypted. Nothing writes outside the app (Canvas, OneDrive, mail, calendar) unless the
-user presses a button. Unknown = "–", nothing is made up. The app never calls an AI by itself (the "tutor" button copies a
-prompt and opens Claude) – the one exception is Azure Speech for pronunciation scores. UI in English, content German +
+user presses a button. Unknown = "–", nothing is made up. The app has **no AI connection of its own because the user has no API key right now** (not
+because AI is unwanted – AI decisions would be welcome). Today the "tutor" button copies a prompt and opens Claude; the
+only direct call is Azure Speech for pronunciation scores. A bring-your-own-key AI layer is a possible future step. UI in English, content German +
 romaji. Copyrighted material (textbook vocab, pictures) lives only in `private/` and an encrypted pack.
 
 Platforms: static PWA (offline, installable) – Mac browser, iPhone, iPad. A local Mac job (Python/Node) feeds it from
