@@ -7,6 +7,7 @@
  * One tab (Web Locks) runs a ticker that notices sleep, asks "still on it?" and reminds you
  * when no timer runs – only while the app is open somewhere (a web app can't wake itself).
  */
+import { logHistory } from './history';
 import { useSyncExternalStore } from 'react';
 import { storage } from './db';
 import {
@@ -188,23 +189,27 @@ export function answerPrompt(answer: 'count' | 'drop' | 'stop', now = Date.now()
 
 export function addManual(kind: FocusSession['kind'], subject: string, minutes: number, endMs: number) {
   const s = { ...manualSession(kind, subject, minutes, endMs), at: Date.now() };
+  logHistory('focus', `Time added: ${subject}, ${Math.round(minutes)} min`);
   void persist({ sessions: [...state.sessions, s], subjects: withSubject(state.subjects, subject) });
 }
 /** Adds a session or replaces the one with the same id. */
 export function saveSession(session: FocusSession) {
   const s = { ...session, at: Date.now() };
   const exists = state.sessions.some((x) => x.id === s.id);
+  logHistory('focus', `Entry ${exists ? 'edited' : 'added'}: ${s.subject}, ${Math.round(s.effectiveSec / 60)} min`);
   const sessions = exists ? state.sessions.map((x) => (x.id === s.id ? s : x)) : [...state.sessions, s];
   void persist({ sessions: sessions.sort((a, b) => a.start.localeCompare(b.start)), subjects: withSubject(state.subjects, s.subject), deleted: state.deleted.filter((id) => id !== s.id) });
 }
 /** Deletes a session and returns it, so it can be restored (undo). */
 export function deleteSession(id: string): FocusSession | undefined {
   const s = state.sessions.find((x) => x.id === id);
+  if (s) logHistory('focus', `Entry deleted: ${s.subject}, ${Math.round(s.effectiveSec / 60)} min`);
   void persist({ sessions: state.sessions.filter((x) => x.id !== id), deleted: [...state.deleted, id] });
   return s;
 }
 export function importSessions(json: string): number {
   const { merged, added } = mergeSessions(state.sessions, json);
+  logHistory('import', `Focus Log import: ${added} sessions`);
   const subjects = merged.reduce((l, s) => withSubject(l, s.subject), state.subjects);
   void persist({ sessions: merged, subjects });
   return added;

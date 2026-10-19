@@ -4,6 +4,7 @@
  * its link in Settings (Settings → Tutor), otherwise a new chat. You paste (⌘V) and send.
  */
 import { getState } from '../core/store';
+import { logHistory } from '../core/history';
 
 export interface TutorRequest {
   courseId: string;
@@ -34,6 +35,7 @@ export function tutorPrompt(r: TutorRequest, courseName: string): string {
 
 /** Copies the prompt and opens Claude in a new tab (both inside the click). Resolves to false if copying was blocked. */
 export async function askTutor(r: TutorRequest): Promise<boolean> {
+  logHistory('tutor', `Tutor prompt copied: ${r.courseName} – ${r.topic.slice(0, 80)}`);
   const copy = navigator.clipboard?.writeText(tutorPrompt(r, r.courseName)).then(() => true, () => false) ?? Promise.resolve(false);
   window.open(getState().settings.tutorUrls?.[r.courseId] || 'https://claude.ai/new', '_blank', 'noopener');
   return copy;

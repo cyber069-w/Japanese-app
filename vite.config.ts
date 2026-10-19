@@ -37,20 +37,28 @@ function privatePack(): Plugin {
  * Served by the local dev server only – it is personal and never part of a build.
  */
 function canvasInbox(): Plugin {
+  // the Canvas inbox + last run report, and the Azure Speech key – local files in private/, dev server only
+  const files: Record<string, string> = {
+    '/canvas-inbox.json': 'private/canvas-inbox.json',
+    '/canvas-report.json': 'private/canvas-report.json',
+    '/azure-speech.json': 'private/azure-speech.json',
+  };
   return {
     name: 'canvas-inbox',
     configureServer(server) {
-      server.middlewares.use('/canvas-inbox.json', (_req, res) => {
-        const file = join(server.config.root, 'private/canvas-inbox.json');
-        res.setHeader('Content-Type', 'application/json; charset=utf-8');
-        res.setHeader('Cache-Control', 'no-store');
-        if (!existsSync(file)) {
-          res.statusCode = 404;
-          res.end('{}');
-          return;
-        }
-        res.end(readFileSync(file, 'utf8'));
-      });
+      for (const [url, rel] of Object.entries(files)) {
+        server.middlewares.use(url, (_req, res) => {
+          const file = join(server.config.root, rel);
+          res.setHeader('Content-Type', 'application/json; charset=utf-8');
+          res.setHeader('Cache-Control', 'no-store');
+          if (!existsSync(file)) {
+            res.statusCode = 404;
+            res.end('{}');
+            return;
+          }
+          res.end(readFileSync(file, 'utf8'));
+        });
+      }
     },
   };
 }

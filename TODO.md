@@ -51,7 +51,7 @@ Status: [ ] open · [x] done · [~] solved differently / blocked (reason in the 
 - [x] Hiragana memory texts (based on the Tofugu pictures) moved into the encrypted course pack; katakana texts are my own and stay
 - [x] QA: 375 px (9 screens, no sideways scroll), ~700 px, 380 px widget, leather + night; production build precaches app, fonts and all 118 kana sounds. Service-worker registration not testable in the built-in browser – check once on the phone after deploying
 - [x] Canvas: `scripts/canvas/canvas_sync.py` (daily 7:00 via launchd) sorts lecture slides etc. into the OneDrive course folders by the rules in `private/canvas-config.json`, never overwrites, recognises existing files; the app's bell shows deadlines as suggestions, filtered announcements and new files (dev server only for now)
-- [ ] Canvas inbox on the phone: needs the inbox in the sync repo (the dev server serves it locally only)
+- [x] Canvas inbox on the phone: the Mac job encrypts the inbox into the sync repo (`scripts/canvas/push-inbox.mjs`, needs `private/sync-config.json` = { repo, token, password }); the app falls back to it when the dev server isn't there. Format round-trip is unit-tested, not run against GitHub here
 - [ ] Canvas rules review with the user: BWL has a “Handout Vorlesungsfolien” and a “Handout Post Vorlesungsfolien” per week (different files, feel like doubles) – decide which version to keep; check the other subjects the same way
 - [~] Inbox per course for OneNote PDFs / photos, Claude drafts lessons – needs the private repo `study-content`
 - [~] Vocab lessons 6+, user's own grammar rules, hiragana notes – user supplies the material
@@ -60,3 +60,7 @@ Status: [ ] open · [x] done · [~] solved differently / blocked (reason in the 
 
 ## Phase 1 – Today hub (HANDOVER-PHASES)
 - [x] Today on Home: ranked list by horizon, dismiss/restore (7 days), Your day timeline, source chips (`core/today.ts`, 13 tests). Day window = Focus day window (weekly plan not provided yet). Timetable chip shows red until an .ics is imported on this device
+
+## Phase 2 – Connections + history
+- [x] Settings → Connections (Canvas, Outlook timetable, Device sync, Azure Speech; Working / Stale / Not set up / Failed + fix) and Azure key entry (device only)
+- [x] Settings → History (newest 300; search, filter, delete one / clear all): Canvas accepted, tutor prompt copied, focus add/edit/delete, imports, read-aloud results

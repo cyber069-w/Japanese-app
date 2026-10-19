@@ -5,6 +5,8 @@
  */
 import { useSyncExternalStore } from 'react';
 import { storage } from './db';
+import { readSyncedFile, syncConfigured } from './sync';
+import { logHistory } from './history';
 
 export interface CanvasDeadline { id: string; course: string; subject: string; title: string; due: string | null; url?: string; kind: string }
 export interface CanvasAnnouncement { id: string; course: string; subject: string; title: string; posted: string; text: string; url?: string }
@@ -26,8 +28,10 @@ const STRONG = /prüfung|pruefung|klausur|abgabefrist|deadline|verschoben|versch
 const TITLE_ONLY = /abgabe|test|termin|änderung|aenderung|wichtig|achtung|\braum\b/i;
 export const isImportant = (a: CanvasAnnouncement) => STRONG.test(`${a.title} ${a.text}`) || TITLE_ONLY.test(a.title);
 
-interface State { inbox: CanvasInbox | null; prefs: CanvasPrefs; open: boolean }
-let state: State = { inbox: null, prefs: DEFAULT, open: false };
+/** Where the inbox came from: the dev server (this Mac), the sync repo (phone), or nowhere. */
+export type InboxSource = 'dev' | 'sync' | null;
+interface State { inbox: CanvasInbox | null; prefs: CanvasPrefs; open: boolean; source: InboxSource; error?: string }
+let state: State = { inbox: null, prefs: DEFAULT, open: false, source: null };
 const listeners = new Set<() => void>();
 const set = (p: Partial<State>) => {
   state = { ...state, ...p };
@@ -46,14 +50,26 @@ export const useCanvas = () =>
 export async function refreshCanvas() {
   const prefs = await storage.get<Partial<CanvasPrefs>>('canvas:prefs');
   let inbox: CanvasInbox | null = null;
+  let source: InboxSource = null;
+  let error: string | undefined;
   try {
     const res = await fetch('canvas-inbox.json', { cache: 'no-store' });
     if (res.ok) inbox = (await res.json()) as CanvasInbox;
-    if (!inbox?.at) inbox = null;
+    if (inbox?.at) source = 'dev';
+    else inbox = null;
   } catch {
     inbox = null;
   }
-  set({ inbox, prefs: { ...DEFAULT, ...prefs } });
+  if (!inbox && syncConfigured()) {
+    try {
+      inbox = await readSyncedFile<CanvasInbox>('canvas-inbox.enc');
+      if (inbox?.at) source = 'sync';
+      else inbox = null;
+    } catch (e) {
+      error = (e as Error).message;
+    }
+  }
+  set({ inbox, prefs: { ...DEFAULT, ...prefs }, source, error });
 }
 
 let started = false;
@@ -75,7 +91,10 @@ export const openInbox = (open = true) => set({ open });
 export const toggleMute = () => setPrefs({ muted: !state.prefs.muted });
 export const toggleSubject = (s: string) =>
   setPrefs({ mutedSubjects: state.prefs.mutedSubjects.includes(s) ? state.prefs.mutedSubjects.filter((x) => x !== s) : [...state.prefs.mutedSubjects, s] });
-export const accept = (id: string) => setPrefs({ accepted: [...new Set([...state.prefs.accepted, id])], ignored: state.prefs.ignored.filter((x) => x !== id) });
+export const accept = (id: string) => {
+  logHistory('canvas', `Canvas deadline accepted: ${state.inbox?.deadlines.find((d) => d.id === id)?.title.slice(0, 80) ?? id}`);
+  setPrefs({ accepted: [...new Set([...state.prefs.accepted, id])], ignored: state.prefs.ignored.filter((x) => x !== id) });
+};
 export const ignore = (id: string) => setPrefs({ ignored: [...new Set([...state.prefs.ignored, id])], accepted: state.prefs.accepted.filter((x) => x !== id) });
 export const markSeen = (ids: string[]) => {
   const fresh = ids.filter((id) => !state.prefs.seen.includes(id));

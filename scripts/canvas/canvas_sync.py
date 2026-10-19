@@ -25,6 +25,7 @@ import sys
 import time
 import unicodedata
 import urllib.error
+import subprocess
 import urllib.request
 from pathlib import Path
 
@@ -192,7 +193,18 @@ def collect_inbox(new_files):
     files = [{'id': f"f{i}-{f['file']}", 'subject': f['course'], 'file': f['file'], 'to': f['to'], 'at': stamp} for i, f in enumerate(new_files)] + old.get('files', [])
     inbox = {'at': stamp, 'deadlines': sorted(deadlines.values(), key=lambda d: d['due'] or ''), 'announcements': sorted(announcements, key=lambda a: a['posted'] or '', reverse=True), 'files': files[:60]}
     inbox_file.write_text(json.dumps(inbox, ensure_ascii=False, indent=1))
+    push_to_sync_repo()
     return inbox
+
+
+def push_to_sync_repo():
+    """Copies the inbox, encrypted, into the device-sync repo so the phone can read it (skips if not set up)."""
+    node = Path.home() / '.local/node/bin/node'
+    try:
+        r = subprocess.run([str(node) if node.exists() else 'node', str(ROOT / 'scripts/canvas/push-inbox.mjs')], capture_output=True, text=True, timeout=120)
+        print((r.stdout or r.stderr).strip())
+    except Exception as e:  # never let the phone copy break the daily job
+        print(f'Phone copy skipped: {e}')
 
 
 def main():

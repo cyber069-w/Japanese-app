@@ -5,6 +5,7 @@
 import { useMemo, useRef, useState } from 'react';
 import type { StudyContext } from '../../core/types';
 import { updateSettings } from '../../core/store';
+import { logHistory } from '../../core/history';
 import { Icon } from '../../components/Icon';
 import { Ruby } from '../../components/Ruby';
 import { slowRate, speak } from '../../lib/speech';
@@ -54,6 +55,7 @@ export function ReadAloud({ ctx }: { ctx: StudyContext }) {
       const heard = await l.result;
       const best = bestMatch(cur.s, heard.alternatives);
       setResult({ words: best.words, score: best.score, confidence: heard.confidence });
+      logHistory('speaking', `Read aloud: ${cur.romaji.slice(0, 60)} – ${Math.round(best.score * 100)}%`);
     } catch (e) {
       setError((e as Error).message);
     } finally {

@@ -8,6 +8,7 @@ import { COURSES } from '../courses';
 import { hasJapaneseVoice, onVoicesChanged, speak, speechSupported, voiceName } from '../lib/speech';
 import { Icon } from '../components/Icon';
 import { SyncSettings } from './SyncSettings';
+import { ConnectionsSettings, HistorySettings } from './ConnectionsSettings';
 
 function Row({ title, desc, children }: { title: string; desc?: ReactNode; children: ReactNode }) {
   return (
@@ -140,9 +141,11 @@ export function Settings() {
           </Row>
         </section>
 
+        <ConnectionsSettings />
         <CoursePack />
         <SyncSettings />
         <Backup />
+        <HistorySettings />
 
         <section className="card card-pad">
           <h2>Tutor</h2>

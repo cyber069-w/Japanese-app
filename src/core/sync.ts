@@ -133,6 +133,15 @@ let dirty = false;
 let timer: ReturnType<typeof setTimeout> | undefined;
 let started = false;
 
+/** Reads and decrypts another encrypted file from the sync repo (e.g. the Canvas inbox the Mac job wrote). Null if sync is off or the file is missing. */
+export async function readSyncedFile<T>(path: string): Promise<T | null> {
+  if (!config) return null;
+  const file = await createGitHub(config.token, config).getFile(path);
+  return file ? decryptJson<T>(file.bytes, config.key) : null;
+}
+
+export const syncConfigured = () => !!config;
+
 /** Sync now (or right after the sync that is already running). */
 export function syncNow(): Promise<void> {
   if (!config) return Promise.resolve();

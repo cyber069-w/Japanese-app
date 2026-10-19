@@ -2,6 +2,7 @@
  * Import word lists: CSV / TSV files, Quizlet exports (term ⇥ definition) or pasted text.
  * You check the column mapping and a preview, choose what happens with duplicates, and can undo the last change.
  */
+import { logHistory } from '../../core/history';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { MeaningLang, StudyContext, VocabEntry } from '../../core/types';
 import { setUserVocab, useApp } from '../../core/store';
@@ -83,6 +84,7 @@ export function VocabImport({ ctx }: { ctx: StudyContext }) {
         (result.errors.length ? `, ${result.errors.length} rows with errors not imported` : '') +
         '.',
     );
+    logHistory('import', `Vocab import into “${source}”: ${toImport.length} words`);
     setText('');
   };
   const doUndo = async () => {
