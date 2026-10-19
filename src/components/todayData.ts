@@ -4,7 +4,8 @@ import { entryKey, markOutcome, registerShown, settleIgnored, trim, type RuleLog
 import { useApp } from '../core/store';
 import { useDueCounts } from '../core/hooks';
 import { storage } from '../core/db';
-import { inboxView, useCanvas } from '../core/canvas';
+import { acceptExamDate } from '../core/examDates';
+import { accept as canvasAccept, ignore as canvasIgnore, inboxView, useCanvas } from '../core/canvas';
 import { loadCalendar, occurrences, type CalendarData } from '../core/calendar';
 import { dayWindow, initFocus, startTimer, useFocus } from '../core/focusStore';
 import { coverage, gaps, sessionIntervals } from '../core/focus';
@@ -74,7 +75,7 @@ export function useToday() {
       return { subject: COURSE_SUBJECT[c.id] ?? c.name, n: due.perCourse[c.id] ?? 0, href: `#/c/${c.id}`, examDays: exam ? daysUntil(exam, now) : undefined };
     });
     const built = buildItems({
-      now, accepted: view.accepted, suggestions: view.suggestions, announcements: view.unseenImportant, files: view.files, cards, lectures, gaps: open, applications: applicationDates(apps, now), clubs: clubDates(clubs), warmup: hasInterview && !warmupDone(attempts, now),
+      now, accepted: view.accepted, suggestions: view.suggestions, announcements: view.unseenImportant, files: view.files, cards, lectures, gaps: open, applications: applicationDates(apps, now), examProposals: view.examProposals, clubs: clubDates(clubs), warmup: hasInterview && !warmupDone(attempts, now),
     });
     const ranked = [...new Set(built.filter((i) => i.subject !== '–').map((i) => i.subject))];
     const today = lectures.filter((l) => l.start < winEnd);
@@ -87,7 +88,7 @@ export function useToday() {
       { name: 'Cards', read: COURSES.length, act: cards.filter((c) => c.n > 0).length, state: 'ok' },
     ];
     return { items: built, day: buildDay(now, winEnd, today, intervals.filter(([a]) => a < winEnd), ranked, 45, planned), sources: src };
-  }, [view.accepted, view.suggestions, view.unseenImportant, view.files, view.announcements, view.badge, lectures, focus.sessions, calendar, due.perCourse, settings.examDates, settings.examDate, canvasState.inbox, planned, apps, clubs, attempts, hasInterview, now, winStart, winEnd]);
+  }, [view.accepted, view.suggestions, view.unseenImportant, view.files, view.announcements, view.badge, view.examProposals, lectures, focus.sessions, calendar, due.perCourse, settings.examDates, settings.examDate, canvasState.inbox, planned, apps, clubs, attempts, hasInterview, now, winStart, winEnd]);
 
   const shown = visibleItems(items, dismissed, now);
   const hiddenItems = items.filter((i) => !shown.includes(i));
@@ -96,6 +97,7 @@ export function useToday() {
   const run = (a: TodayAction) => {
     if (a.type === 'study') navigate(a.href.replace(/^#/, ''));
     else if (a.type === 'link') window.open(a.url, '_blank', 'noopener');
+    else if (a.type === 'exam') { void acceptExamDate(a.proposal); canvasAccept(a.proposal.id); }
     else if (a.type === 'focus') navigate('/focus');
     else if (a.type === 'timer') {
       if (!focus.active) startTimer(a.subject);
@@ -115,7 +117,7 @@ export function useToday() {
     if (next !== logRef.current) setRuleLog(trim(next));
   }, [shownKey, ruleLoaded]); // eslint-disable-line react-hooks/exhaustive-deps
   const outcome = (id: string, o: 'acted' | 'dismissed') => { const n = markOutcome(logRef.current, id, o, Date.now()); if (n !== logRef.current) setRuleLog(n); };
-  const dismiss = (id: string) => { outcome(id, 'dismissed'); dismissRaw(id); };
+  const dismiss = (id: string) => { outcome(id, 'dismissed'); if (id.startsWith('exam:x-')) canvasIgnore(id.slice(5)); else dismissRaw(id); };
   const act = (i: { id: string; action: TodayAction }) => { outcome(i.id, 'acted'); run(i.action); };
   return { shown, hiddenItems, act, day, sources, lectures, calendar, covered, winStart, winEnd, now, run, dismiss, restore };
 }

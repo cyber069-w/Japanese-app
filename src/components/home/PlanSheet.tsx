@@ -22,6 +22,7 @@ export function PlanSheet({ t, onClose, report }: { t: Today; onClose: () => voi
   const [targets] = useStored<Targets>('focus:targets', {});
   const [todos] = useStored<Todo[]>('todos', []);
   const [planned, setPlanned] = useStored<PlannedBlock[]>('today:planned', []);
+  const [otherExams] = useStored<Record<string, string>>('exams:other', {});
   const [text, setText] = useState('');
   const [note, setNote] = useState('');
   const now = Date.now();
@@ -32,12 +33,12 @@ export function PlanSheet({ t, onClose, report }: { t: Today; onClose: () => voi
       now, dayStart: focus.prefs.dayStart, dayEnd: focus.prefs.dayEnd,
       lectures: t.lectures.filter((l) => !l.allDay && l.end > now && l.start < now + 8 * 86_400_000).map((l) => ({ title: l.title, start: l.start, end: l.end })),
       deadlines: t.shown.filter((i) => i.kind === 'deadline' || i.kind === 'suggestion').map((i) => ({ title: i.title, subject: i.subject, due: i.due })),
-      exams: COURSES.flatMap((c) => (settings.examDates?.[c.id] ? [{ subject: COURSE_SUBJECT[c.id] ?? c.name, date: settings.examDates[c.id] }] : [])),
+      exams: [...COURSES.flatMap((c) => (settings.examDates?.[c.id] ? [{ subject: COURSE_SUBJECT[c.id] ?? c.name, date: settings.examDates[c.id] }] : [])), ...Object.entries(otherExams).map(([subject, date]) => ({ subject, date }))],
       targets: Object.entries(targets).map(([subject, target]) => ({ subject, target, done: done[subject] ?? 0 })),
       dueCards: due.total, todos: todos.filter((x) => !x.done).map((x) => x.text + (x.due ? ` (bis ${x.due})` : '')),
     });
     return report ? `${base}\n\nBericht der letzten Woche (Stunden, Karten, Abgaben) – nutze ihn, um die nächste Woche neu zu gewichten:\n${report}` : base;
-  }, [report, t.lectures, t.shown, focus.sessions, focus.prefs, settings.examDates, targets, todos, due.total, now]);
+  }, [report, t.lectures, t.shown, focus.sessions, focus.prefs, settings.examDates, otherExams, targets, todos, due.total, now]);
   const parsed = useMemo(() => (text.trim() ? parsePlan(text, now, minutesOf(focus.prefs.dayStart), minutesOf(focus.prefs.dayEnd)) : null), [text, now, focus.prefs]);
 
   const copy = async () => {

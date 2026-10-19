@@ -97,3 +97,11 @@ describe('notes', () => {
     expect(n.action).toMatchObject({ type: 'tutor', notes: true });
   });
 });
+
+describe('exam date proposals', () => {
+  it('become a row with an accept action', () => {
+    const [x] = buildItems({ ...base, examProposals: [{ id: 'x-BWL-2026-12-15', subject: 'Betriebswirtschaftslehre', date: '2026-12-15', snippet: 'Prüfung am 15.12.' }] });
+    expect(x).toMatchObject({ kind: 'exam', subject: 'BWL' });
+    expect(x.action).toMatchObject({ type: 'exam', label: 'Accept date' });
+  });
+});

@@ -14,9 +14,10 @@ export interface CanvasFile { id: string; subject: string; file: string; to: str
 export interface CanvasExam { subject: string; file: string }
 /** A file the Mac job thinks is a reading (rules in canvas-config.json) – accept to add it to the reading list. */
 export interface CanvasReading { id: string; subject: string; title: string; where: string }
+export interface CanvasExamDate { id: string; subject: string; date: string; snippet: string; source?: string }
 export interface NewsItem { title: string; link: string; date: string }
 export interface NewsSource { source: string; items: NewsItem[]; error?: string }
-export interface CanvasInbox { at: string; deadlines: CanvasDeadline[]; announcements: CanvasAnnouncement[]; files: CanvasFile[]; /** file names in <subject>/Prüfungen */ exams?: CanvasExam[]; readings?: CanvasReading[]; news?: NewsSource[] }
+export interface CanvasInbox { at: string; deadlines: CanvasDeadline[]; announcements: CanvasAnnouncement[]; files: CanvasFile[]; /** file names in <subject>/Prüfungen */ exams?: CanvasExam[]; readings?: CanvasReading[]; news?: NewsSource[]; /** exam dates the Mac job found (accept / ignore) */ examDates?: CanvasExamDate[] }
 
 export interface CanvasPrefs {
   muted: boolean;
@@ -123,5 +124,6 @@ export function inboxView(s: State, now = Date.now()) {
   // the badge only nags about what matters soon; later deadlines wait in the list
   const nearSuggestions = suggestions.filter((d) => !d.due || Date.parse(d.due) - now < 14 * DAY);
   const badge = p.muted ? 0 : nearSuggestions.length + soon.length + unseenImportant.length;
-  return { suggestions, accepted, soon, announcements, important, unseenImportant, files, badge, available: !!inbox };
+  const examProposals = (inbox?.examDates ?? []).filter((x) => visible(x.subject) && !p.accepted.includes(x.id) && !p.ignored.includes(x.id) && Date.parse(x.date) > now - DAY);
+  return { examProposals, suggestions, accepted, soon, announcements, important, unseenImportant, files, badge, available: !!inbox };
 }

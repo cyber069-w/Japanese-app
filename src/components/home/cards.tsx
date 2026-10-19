@@ -162,7 +162,8 @@ export function WeekCard() {
   const done = useMemo(() => hoursBySubject(f.sessions, weekStart(now)), [f.sessions, now]);
   const rows = targetRows(targets, done).slice(0, 4);
   const total = Object.values(done).reduce((a, b) => a + b, 0);
-  const exams = COURSES.map((c) => ({ c, d: settings.examDates?.[c.id] ? daysUntil(settings.examDates[c.id], now) : null })).filter((x) => x.d !== null && x.d >= 0).sort((a, b) => a.d! - b.d!);
+  const [other] = useStored<Record<string, string>>('exams:other', {});
+  const exams = [...COURSES.map((c) => ({ c: { id: c.id, name: c.name }, d: settings.examDates?.[c.id] ? daysUntil(settings.examDates[c.id], now) : null })), ...Object.entries(other).map(([name, date]) => ({ c: { id: `o-${name}`, name }, d: daysUntil(date, now) }))].filter((x) => x.d !== null && x.d >= 0).sort((a, b) => a.d! - b.d!);
   return (
     <section className="glass b-week">
       <div className="glass-head"><h2><HeadIcon name="chart-line" color="#30b650" />This week</h2><span className="faint tiny">{(Math.round(total * 10) / 10).toFixed(1)} h focused</span></div>

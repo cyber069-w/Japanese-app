@@ -221,6 +221,76 @@ def collect_news():
     return out
 
 
+EXAM_WORDS = re.compile(r'prüfung|pruefung|klausur|exam|midterm|closed-book|abschlusstest|final test|schlusstest', re.I)
+MONTHS = {m: i + 1 for i, names in enumerate([
+    ('januar', 'january', 'jan'), ('februar', 'february', 'feb'), ('märz', 'maerz', 'march', 'mar'), ('april', 'apr'), ('mai', 'may'), ('juni', 'june', 'jun'),
+    ('juli', 'july', 'jul'), ('august', 'aug'), ('september', 'sep', 'sept'), ('oktober', 'october', 'oct', 'okt'), ('november', 'nov'), ('dezember', 'december', 'dec', 'dez')]) for m in names}
+_MON = '|'.join(sorted(MONTHS, key=len, reverse=True))
+DATE_RX = [
+    re.compile(r'(?P<d>\d{1,2})\.\s?(?P<m>\d{1,2})\.(?:\s?(?P<y>\d{4}|\d{2})(?!\d))?'),               # 09.10. / 09.10.2026
+    re.compile(r'(?P<d>\d{1,2})\.?\s+(?P<mn>' + _MON + r')\b\.?,?\s*(?P<y>\d{4})?', re.I),               # 9. Oktober 2026 / 9 Oct
+    re.compile(r'(?P<mn>' + _MON + r')\b\.?\s+(?P<d>\d{1,2})(?:st|nd|rd|th)?,?\s*(?P<y>\d{4})?', re.I),  # October 9, 2026
+    re.compile(r'(?P<y>\d{4})-(?P<m>\d{2})-(?P<d>\d{2})'),
+]
+
+
+def find_exam_dates(text, today=None):
+    """Dates (YYYY-MM-DD, today or later) that stand within ~100 characters of an exam word. Year missing → the next such date."""
+    import datetime
+    today = today or datetime.date.today()
+    found = {}
+    for rx in DATE_RX:
+        for mt in rx.finditer(text):
+            try:
+                g = mt.groupdict()
+                month = int(g['m']) if g.get('m') else MONTHS[g['mn'].lower()]
+                day = int(g['d'])
+                year = g.get('y')
+                if year:
+                    year = int(year) + (2000 if int(year) < 100 else 0)
+                    date = datetime.date(year, month, day)
+                else:
+                    date = datetime.date(today.year, month, day)
+                    if date < today:
+                        date = datetime.date(today.year + 1, month, day)
+            except (ValueError, KeyError):
+                continue
+            if date < today or date > today + datetime.timedelta(days=400):
+                continue
+            around = text[max(0, mt.start() - 100): mt.end() + 100]
+            if EXAM_WORDS.search(around):
+                found.setdefault(date.isoformat(), re.sub(r'\s+', ' ', around).strip())
+    return found
+
+
+def collect_exam_dates(announcements):
+    """Proposals for the inbox (accept / ignore in the app): exam dates found in syllabi, info pages, calendar events and announcements."""
+    out = {}
+
+    def add(folder, text, source):
+        for date, snippet in find_exam_dates(text).items():
+            out.setdefault(f"x-{folder}-{date}", {'id': f"x-{folder}-{date}", 'subject': folder, 'date': date, 'snippet': snippet[:200], 'source': source})
+    for c in CONFIG['courses']:
+        cid, folder = c['id'], c['folder']
+        r = get(f'courses/{cid}?include[]=syllabus_body')
+        if isinstance(r, dict) and r.get('syllabus_body'):
+            add(folder, plain(r['syllabus_body'], limit=100000), 'syllabus')
+        pages = get(f'courses/{cid}/pages?per_page=50')
+        for p in pages if isinstance(pages, list) else []:
+            if re.search(r'syllabus|kursinfo|leistung|prüfung|exam|termine|organis', p.get('title', ''), re.I):
+                pg = get(f"courses/{cid}/pages/{p['url']}")
+                if isinstance(pg, dict) and pg.get('body'):
+                    add(folder, plain(pg['body'], limit=100000), f"page: {p['title']}")
+        ev = get(f"calendar_events?type=event&context_codes[]=course_{cid}&start_date={time.strftime('%Y-%m-%d')}&end_date={time.strftime('%Y-%m-%d', time.gmtime(time.time() + 400 * 86400))}&per_page=50")
+        for e in ev if isinstance(ev, list) else []:
+            if EXAM_WORDS.search(e.get('title', '')) and e.get('start_at'):
+                d = e['start_at'][:10]
+                out.setdefault(f"x-{folder}-{d}", {'id': f"x-{folder}-{d}", 'subject': folder, 'date': d, 'snippet': e['title'], 'source': 'calendar'})
+    for a in announcements:
+        add(a['subject'], f"{a['title']} {a['text']}", 'announcement')
+    return sorted(out.values(), key=lambda x: x['date'])
+
+
 def collect_exams():
     """File names in <subject>/Prüfungen, for the exam area in the app (names only)."""
     out = []
@@ -265,7 +335,7 @@ def collect_inbox(new_files, readings=None):
              + [{'id': f"note-{f['to']}", 'subject': f['course'], 'file': f['file'], 'to': f['to'], 'at': stamp, 'kind': 'notes'} for f in notes]
              + old.get('files', []))
     inbox = {'at': stamp, 'deadlines': sorted(deadlines.values(), key=lambda d: d['due'] or ''), 'announcements': sorted(announcements, key=lambda a: a['posted'] or '', reverse=True), 'files': files[:60], 'exams': collect_exams(),
-             'readings': readings if readings is not None else old.get('readings', []), 'news': collect_news()}
+             'readings': readings if readings is not None else old.get('readings', []), 'news': collect_news(), 'examDates': collect_exam_dates(announcements)}
     inbox_file.write_text(json.dumps(inbox, ensure_ascii=False, indent=1))
     push_to_sync_repo()
     return inbox
