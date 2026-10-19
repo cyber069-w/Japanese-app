@@ -122,6 +122,11 @@ export function Home() {
           <span><b className="subject-name">Applications</b><span className="subject-note">Pipeline and watchlist</span></span>
           <span className="subject-meta"><span>{activeApps ? `${activeApps} active` : 'nothing active'}</span></span>
         </a>
+        <a className="subject-tile" href="#/finance" style={{ '--tile': 'var(--subject-cfa)' } as React.CSSProperties}>
+          <span className="subject-icon"><Icon name="lock" size={22} /></span>
+          <span><b className="subject-name">Finance</b><span className="subject-note">Study costs, password-protected</span></span>
+          <span className="subject-meta"><span>locked</span></span>
+        </a>
         <a className="subject-tile" href="#/clubs" style={{ '--tile': 'var(--subject-recht)' } as React.CSSProperties}>
           <span className="subject-icon"><Icon name="user" size={22} /></span>
           <span><b className="subject-name">Clubs</b><span className="subject-note">Notes and checklists</span></span>
