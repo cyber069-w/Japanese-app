@@ -50,3 +50,5 @@ Not possible in a web app: AirPods posture, eye/gesture tracking, Apple Watch ap
 - [x] A1 ics helper + Add to Calendar (format tested; not imported into Apple Calendar here)
 - [x] B1–B4 shutdown screen, iA Writer note (path honouring NOT tested on the Mac), per-weekday calendar reminders, Home nudges, streak on Stats
 - [x] Preparation meter removed from the UI (course bar pill + sheet, switcher, Home tiles, exam plan text); core/meter.ts stays because the exam plan still uses it to find weak sections
+- [x] C1–C3, C6 Applications (#/applications): pipeline by stage + watchlist, filters, history, paste-an-email rules (editable JSON in the screen, default `src/data/emailRules.json`), Add to Calendar, dates in To-dos / What to do next, Home tile. Seeds Nomura / FNF / PEVC Mentorship as *Researching* because their stages and dates are unknown
+- NOT synced between devices yet: to-dos, shutdown log, applications (device-local kv). Sync of these stores is a separate task

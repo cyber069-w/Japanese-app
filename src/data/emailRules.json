@@ -1,0 +1,11 @@
+{
+  "_help": "First matching rule wins (top to bottom). Keywords are matched case-insensitively anywhere in the pasted email. English and German.",
+  "rules": [
+    { "stage": "rejected", "keywords": ["unfortunately", "not to proceed", "regret to inform", "not be moving forward", "will not be progressing", "leider", "absage", "nicht weiter berücksichtigen", "nicht weiterverfolgen"] },
+    { "stage": "offer", "keywords": ["pleased to offer", "delighted to offer", "offer you a place", "offer of employment", "freuen uns, ihnen", "angebot unterbreiten", "zusage"] },
+    { "stage": "video-interview", "keywords": ["hirevue", "video interview", "recorded interview", "videointerview", "video-interview"] },
+    { "stage": "assessment", "keywords": ["assessment centre", "assessment center", "superday", "super day", "final round", "final-round"] },
+    { "stage": "online-test", "keywords": ["online assessment", "online test", "numerical reasoning", "verbal reasoning", "aptitude test", "assessment link", "onlinetest", "online-test", "eignungstest", "cognitive test"] },
+    { "stage": "interview", "keywords": ["invite you to interview", "invite you to an interview", "invitation to interview", "like to interview you", "schedule an interview", "interview invitation", "vorstellungsgespräch", "einladung zum gespräch", "interview"] }
+  ]
+}

@@ -1,5 +1,7 @@
 /** Home: a frosted-glass overview – lessons, to-dos, timer, reviews, week – then what to do next and the subjects. */
 import { useEffect, useState } from 'react';
+import { useStored } from '../core/kv';
+import { isActive, type Application } from '../core/applications';
 import { useDueCounts } from '../core/hooks';
 import { initFocus } from '../core/focusStore';
 import { refreshCanvas } from '../core/canvas';
@@ -25,13 +27,15 @@ function greeting(h: number) {
 export function Home() {
   const due = useDueCounts();
   const t = useToday();
+  const [apps] = useStored<Application[]>('applications', []);
+  const activeApps = apps.filter((a) => a.stage !== 'researching' && isActive(a)).length;
   const ptr = usePullToRefresh(() => Promise.all([refreshCanvas(), syncNow()]));
   const [all, setAll] = useState(false);
   const [showDismissed, setShowDismissed] = useState(false);
   useEffect(initFocus, []);
   const date = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
   // Deadlines are in the to-do card; the list below is everything else that needs you
-  const rest = t.shown.filter((i) => i.kind !== 'deadline' && i.kind !== 'suggestion');
+  const rest = t.shown.filter((i) => i.kind !== 'deadline' && i.kind !== 'suggestion' && i.kind !== 'application');
   const top = all ? rest : rest.slice(0, 6);
 
   return (
@@ -108,6 +112,11 @@ export function Home() {
             </a>
           );
         })}
+        <a className="subject-tile" href="#/applications" style={{ '--tile': 'var(--subject-focus)' } as React.CSSProperties}>
+          <span className="subject-icon"><Icon name="user" size={22} /></span>
+          <span><b className="subject-name">Applications</b><span className="subject-note">Pipeline and watchlist</span></span>
+          <span className="subject-meta"><span>{activeApps ? `${activeApps} active` : 'nothing active'}</span></span>
+        </a>
       </div>
     </div>
   );

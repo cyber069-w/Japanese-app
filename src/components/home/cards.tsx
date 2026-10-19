@@ -83,7 +83,7 @@ export function TodosCard({ t }: { t: Today }) {
   const [todos, setTodos] = useStored<Todo[]>('todos', []);
   const [text, setText] = useState('');
   const [due, setDue] = useState('');
-  const canvas = t.shown.filter((i) => i.kind === 'deadline' || i.kind === 'suggestion').slice(0, 3);
+  const canvas = t.shown.filter((i) => i.kind === 'deadline' || i.kind === 'suggestion' || i.kind === 'application').slice(0, 4);
   const mine = sortTodos(todos);
   const add = () => {
     if (!text.trim()) return;
@@ -104,7 +104,7 @@ export function TodosCard({ t }: { t: Today }) {
         {canvas.map((i) => (
           <li key={i.id} className="todo canvas">
             <span className="todo-dot" aria-hidden="true" />
-            <span className="grow"><b>{i.title.length > 64 ? `${i.title.slice(0, 61)}…` : i.title}</b><small>{i.subject} · Canvas{i.due ? ` · ${dayLabel(new Date(i.due).toISOString(), t.now)}` : ''}</small></span>
+            <span className="grow"><b>{i.title.length > 64 ? `${i.title.slice(0, 61)}…` : i.title}</b><small>{i.subject} · {i.kind === 'application' ? 'Application' : 'Canvas'}{i.due ? ` · ${dayLabel(new Date(i.due).toISOString(), t.now)}` : ''}</small></span>
             <button className="btn btn-sm btn-ghost" onClick={() => t.run(i.action)}>{i.action.type === 'link' ? 'Open' : 'Go'}</button>
           </li>
         ))}

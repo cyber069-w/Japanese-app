@@ -13,7 +13,7 @@ export const HORIZON_LABEL: Record<Horizon, string> = {
 };
 const BOOST: Record<Horizon, number> = { overdue: 40, soon: 35, today: 25, tomorrow: 12, week: 5, later: 0 };
 
-export type TodayKind = 'deadline' | 'suggestion' | 'announcement' | 'cards' | 'file' | 'lecture' | 'gap' | 'notes';
+export type TodayKind = 'application' | 'deadline' | 'suggestion' | 'announcement' | 'cards' | 'file' | 'lecture' | 'gap' | 'notes';
 
 export type TodayAction =
   | { type: 'study'; label: string; href: string }
@@ -74,6 +74,7 @@ export interface TodayInput {
   cards: Array<{ subject: string; n: number; href: string; examDays?: number }>;
   lectures: Occurrence[];
   gaps: Array<[number, number]>;
+  applications?: Array<{ id: string; title: string; company: string; due: number; kind: 'deadline' | 'next' }>;
 }
 
 const parseDue = (d: string | null) => (d ? Date.parse(d) : undefined);
@@ -102,6 +103,12 @@ export function buildItems(inp: TodayInput): TodayItem[] {
     add({
       id: `dl:${d.id}`, kind: 'suggestion', subject: focusSubject(d.subject), title: d.title, why: ['Canvas', 'new deadline'], due, base: 35,
       action: d.url ? { type: 'link', label: 'Open in Canvas', url: d.url } : { type: 'timer', label: 'Start timer', subject: focusSubject(d.subject) },
+    });
+  }
+  for (const a of inp.applications ?? []) {
+    add({
+      id: a.id, kind: 'application', subject: 'Applications', title: a.title, why: ['Applications', a.kind === 'deadline' ? 'deadline' : 'next step'], due: a.due, base: a.kind === 'deadline' ? 42 : 38,
+      action: { type: 'study', label: 'Open', href: '#/applications' },
     });
   }
   for (const a of inp.announcements) {
