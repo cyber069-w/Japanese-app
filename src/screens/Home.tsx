@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useStored } from '../core/kv';
 import { isActive, type Application } from '../core/applications';
+import type { Reading } from '../core/readings';
 import { useDueCounts } from '../core/hooks';
 import { initFocus } from '../core/focusStore';
 import { refreshCanvas } from '../core/canvas';
@@ -28,6 +29,8 @@ export function Home() {
   const due = useDueCounts();
   const t = useToday();
   const [apps] = useStored<Application[]>('applications', []);
+  const [readings] = useStored<Reading[]>('readings', []);
+  const openReadings = readings.filter((r) => r.status !== 'done').length;
   const activeApps = apps.filter((a) => a.stage !== 'researching' && isActive(a)).length;
   const ptr = usePullToRefresh(() => Promise.all([refreshCanvas(), syncNow()]));
   const [all, setAll] = useState(false);
@@ -116,6 +119,11 @@ export function Home() {
           <span className="subject-icon"><Icon name="user" size={22} /></span>
           <span><b className="subject-name">Applications</b><span className="subject-note">Pipeline and watchlist</span></span>
           <span className="subject-meta"><span>{activeApps ? `${activeApps} active` : 'nothing active'}</span></span>
+        </a>
+        <a className="subject-tile" href="#/readings" style={{ '--tile': 'var(--subject-bwl)' } as React.CSSProperties}>
+          <span className="subject-icon"><Icon name="book" size={22} /></span>
+          <span><b className="subject-name">Reading list</b><span className="subject-note">Readings and news</span></span>
+          <span className="subject-meta"><span>{openReadings ? `${openReadings} open` : 'nothing open'}</span></span>
         </a>
       </div>
     </div>

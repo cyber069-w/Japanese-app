@@ -7,6 +7,8 @@ import { hoursBySubject, weekStart, type Targets } from '../core/targets';
 import { newTodo, type Todo } from '../core/todos';
 import { shutdownDay, shutdownMarkdown, shutdownPath, shutdownStreak, iaWriterUrl, type ShutdownLog } from '../core/shutdown';
 import { useToday } from '../components/todayData';
+import { beforeTomorrow, type Reading } from '../core/readings';
+import { focusSubject } from '../core/today';
 import { downloadIcs } from '../lib/ics';
 import { shutdownReminders } from '../lib/shutdownReminders';
 import { navigate } from '../lib/router';
@@ -26,6 +28,7 @@ export function Shutdown({ quickStart }: { quickStart?: boolean }) {
   const [log, setLog] = useStored<ShutdownLog>('shutdown:log', {});
   const [todos, setTodos] = useStored<Todo[]>('todos', []);
   const [targets] = useStored<Targets>('focus:targets', {});
+  const [readings] = useStored<Reading[]>('readings', []);
   const [calAdded, setCalAdded] = useStored<boolean>('shutdown:calendarAdded', false);
   const [quick, setQuick] = useState(!!quickStart);
   const [top, setTop] = useState(['', '', '']);
@@ -46,6 +49,7 @@ export function Shutdown({ quickStart }: { quickStart?: boolean }) {
 
   const tomorrowStart = new Date(`${tomorrow}T00:00:00`).getTime();
   const lecturesTomorrow = t.lectures.filter((l) => !l.allDay && l.start >= tomorrowStart && l.start < tomorrowStart + 86_400_000);
+  const readsTomorrow = beforeTomorrow(readings, lecturesTomorrow.map((l) => focusSubject(l.title)), tomorrow);
   const dueTomorrow = t.shown.filter((i) => (i.kind === 'deadline' || i.kind === 'suggestion' || i.kind === 'application') && i.due !== undefined && i.due >= tomorrowStart && i.due < tomorrowStart + 86_400_000);
 
   const noteText = () => shutdownMarkdown({
@@ -98,9 +102,10 @@ export function Shutdown({ quickStart }: { quickStart?: boolean }) {
         {!quick && (
           <section className="glass b-lessons">
             <div className="glass-head"><h2>Tomorrow</h2></div>
-            {lecturesTomorrow.length === 0 && dueTomorrow.length === 0 && <p className="muted small">No lectures or deadlines known for tomorrow. {t.calendar === null ? 'Import your timetable in Focus to see lectures.' : ''}</p>}
+            {lecturesTomorrow.length === 0 && dueTomorrow.length === 0 && readsTomorrow.length === 0 && <p className="muted small">No lectures or deadlines known for tomorrow. {t.calendar === null ? 'Import your timetable in Focus to see lectures.' : ''}</p>}
             <ul className="slots">
               {lecturesTomorrow.map((l) => <li key={l.uid + l.start} className="slot lecture"><span className="slot-time">{hh(l.start)}<small>{hh(l.end)}</small></span><span className="slot-bar" /><span className="slot-main"><b>{l.title}</b><small>lecture{l.location ? ` · ${l.location}` : ''}</small></span></li>)}
+              {readsTomorrow.map((r) => <li key={r.id} className="slot"><span className="slot-time">read<small>before</small></span><span className="slot-bar" /><span className="slot-main"><b>{r.title}</b><small>{r.course} · {r.progress}% read</small></span></li>)}
               {dueTomorrow.map((i) => <li key={i.id} className="slot"><span className="slot-time">{i.due ? hh(i.due) : '–'}<small>due</small></span><span className="slot-bar" /><span className="slot-main"><b>{i.title.slice(0, 80)}</b><small>{i.subject}</small></span></li>)}
             </ul>
           </section>

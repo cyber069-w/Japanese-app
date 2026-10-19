@@ -12,7 +12,11 @@ export interface CanvasDeadline { id: string; course: string; subject: string; t
 export interface CanvasAnnouncement { id: string; course: string; subject: string; title: string; posted: string; text: string; url?: string }
 export interface CanvasFile { id: string; subject: string; file: string; to: string; at: string; /** OneNote PDF export found in a Notizen folder */ kind?: 'notes' }
 export interface CanvasExam { subject: string; file: string }
-export interface CanvasInbox { at: string; deadlines: CanvasDeadline[]; announcements: CanvasAnnouncement[]; files: CanvasFile[]; /** file names in <subject>/Prüfungen */ exams?: CanvasExam[] }
+/** A file the Mac job thinks is a reading (rules in canvas-config.json) – accept to add it to the reading list. */
+export interface CanvasReading { id: string; subject: string; title: string; where: string }
+export interface NewsItem { title: string; link: string; date: string }
+export interface NewsSource { source: string; items: NewsItem[]; error?: string }
+export interface CanvasInbox { at: string; deadlines: CanvasDeadline[]; announcements: CanvasAnnouncement[]; files: CanvasFile[]; /** file names in <subject>/Prüfungen */ exams?: CanvasExam[]; readings?: CanvasReading[]; news?: NewsSource[] }
 
 export interface CanvasPrefs {
   muted: boolean;

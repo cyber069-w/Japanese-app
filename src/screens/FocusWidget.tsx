@@ -39,9 +39,9 @@ export function useNow(running: boolean) {
 }
 
 /** Subjects open around the centre like petals; a dropdown is always there for keyboards and narrow windows. */
-export function FlowerPicker({ onPick, onClose, title = 'What are you working on?' }: { onPick: (subject: string, kind: 'study' | 'lecture') => void; onClose: () => void; title?: string }) {
+export function FlowerPicker({ onPick, onClose, title = 'What are you working on?' }: { onPick: (subject: string, kind: 'study' | 'lecture' | 'reading') => void; onClose: () => void; title?: string }) {
   const f = useFocus();
-  const [kind, setKind] = useState(f.kind);
+  const [kind, setKind] = useState<'study' | 'lecture' | 'reading'>(f.kind);
   const [choice, setChoice] = useState(f.selected || f.subjects[0] || '');
   const box = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(360);
@@ -87,6 +87,7 @@ export function FlowerPicker({ onPick, onClose, title = 'What are you working on
           <div className="flower-center">
             <button className={`chip${kind === 'study' ? ' on' : ''}`} onClick={() => setKind('study')}>Study</button>
             <button className={`chip${kind === 'lecture' ? ' on' : ''}`} onClick={() => setKind('lecture')}>Lecture</button>
+            <button className={`chip${kind === 'reading' ? ' on' : ''}`} onClick={() => setKind('reading')}>Reading</button>
           </div>
         </div>
       )}
@@ -95,8 +96,9 @@ export function FlowerPicker({ onPick, onClose, title = 'What are you working on
           {f.subjects.map((s) => <option key={s} value={s}>{s}</option>)}
         </select>
         {!ring && (
-          <select className="input" value={kind} onChange={(e) => setKind(e.target.value as 'study' | 'lecture')} aria-label="Kind">
+          <select className="input" value={kind} onChange={(e) => setKind(e.target.value as 'study' | 'lecture' | 'reading')} aria-label="Kind">
             <option value="study">Self-study</option>
+            <option value="reading">Reading</option>
             <option value="lecture">Lecture</option>
           </select>
         )}
@@ -149,7 +151,7 @@ export function FocusPanel({ compact, onSaved, onLogGap }: { compact?: boolean; 
         {a ? (
           <>
             <span className="dot" style={{ background: subjectColor(a.subject) }} />
-            {a.kind === 'lecture' ? 'Lecture · ' : ''}{a.subject}{running ? '' : ' · paused'}
+            {a.kind === 'lecture' ? 'Lecture · ' : a.tag === 'reading' ? 'Reading · ' : ''}{a.subject}{running ? '' : ' · paused'}
           </>
         ) : (
           'No timer running'
@@ -174,7 +176,7 @@ export function FocusPanel({ compact, onSaved, onLogGap }: { compact?: boolean; 
         <FlowerPicker
           title={a ? 'Switch to…' : 'What are you working on?'}
           onPick={(s, k) => {
-            startTimer(s, k);
+            startTimer(s, k === 'reading' ? 'study' : k, Date.now(), k === 'reading' ? 'reading' : undefined);
             setPicking(false);
           }}
           onClose={() => setPicking(false)}

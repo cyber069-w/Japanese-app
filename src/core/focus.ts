@@ -19,6 +19,8 @@ export interface FocusSession {
   segs?: Array<[number, number]>;
   /** Last change (ms) – the newer edit wins when devices sync. */
   at?: number;
+  /** Reading time (a study session tagged as reading). */
+  tag?: 'reading';
 }
 
 /** A question to you while the timer runs: computer was asleep, regular check-in, or no answer to a check-in. */
@@ -31,6 +33,7 @@ export interface ActiveFocus {
   /** Running or paused stretches; the last one has e = null while the clock runs. */
   segs: Array<{ s: number; e: number | null }>;
   pauses: number;
+  tag?: 'reading';
   /** When to ask “still working on it?” next. */
   checkAt?: number;
   prompt?: FocusPrompt | null;
@@ -49,8 +52,8 @@ export function effectiveMs(a: ActiveFocus, now: number): number {
   return a.segs.reduce((sum, g) => sum + ((g.e ?? now) - g.s), 0);
 }
 
-export function startFocus(kind: ActiveFocus['kind'], subject: string, now: number): ActiveFocus {
-  return { kind, subject, startedAt: now, segs: [{ s: now, e: null }], pauses: 0 };
+export function startFocus(kind: ActiveFocus['kind'], subject: string, now: number, tag?: 'reading'): ActiveFocus {
+  return { kind, subject, startedAt: now, segs: [{ s: now, e: null }], pauses: 0, ...(tag ? { tag } : {}) };
 }
 
 export function pauseFocus(a: ActiveFocus, now: number): ActiveFocus {
@@ -69,6 +72,7 @@ export function finishFocus(a: ActiveFocus, now: number): FocusSession {
     start: new Date(a.startedAt).toISOString(), end: new Date(Math.min(now, last)).toISOString(),
     effectiveSec: eff, elapsedSec: Math.max(eff, Math.round((Math.min(now, last) - a.startedAt) / 1000)), pauses: a.pauses, manual: false,
     segs: a.segs.map((g) => [g.s, g.e ?? now] as [number, number]).filter(([x, y]) => y > x),
+    ...(a.tag ? { tag: a.tag } : {}),
   };
 }
 

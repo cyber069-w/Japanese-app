@@ -59,11 +59,11 @@ export function WeeklyReport() {
         ) : (
           <div className="table-wrap">
             <table className="small" style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead><tr className="faint"><th align="left">Subject</th><th align="right">Focus</th><th align="right">Target</th><th align="right">Lectures</th><th align="right">Cards</th><th align="right">Accuracy</th></tr></thead>
+              <thead><tr className="faint"><th align="left">Subject</th><th align="right">Focus</th><th align="right">Reading</th><th align="right">Target</th><th align="right">Lectures</th><th align="right">Cards</th><th align="right">Accuracy</th></tr></thead>
               <tbody>
                 {report.rows.map((r) => (
                   <tr key={r.subject}>
-                    <td>{r.subject}</td><td align="right">{h1(r.hours)}</td><td align="right">{r.target ? h1(r.target) : '–'}</td>
+                    <td>{r.subject}</td><td align="right">{h1(r.hours)}</td><td align="right">{r.reading ? h1(r.reading) : '–'}</td><td align="right">{r.target ? h1(r.target) : '–'}</td>
                     <td align="right">{r.lectures}</td><td align="right">{r.answers}</td><td align="right">{r.answers ? `${Math.round((r.correct / r.answers) * 100)}%` : '–'}</td>
                   </tr>
                 ))}

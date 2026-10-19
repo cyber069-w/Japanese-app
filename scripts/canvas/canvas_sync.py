@@ -26,6 +26,7 @@ import time
 import unicodedata
 import urllib.error
 import subprocess
+import xml.etree.ElementTree as ET
 import urllib.request
 from pathlib import Path
 
@@ -186,6 +187,40 @@ def collect_notes():
     return out
 
 
+READING_RX = re.compile('|'.join(CONFIG.get('reading_patterns', ['reading', 'literatur', 'pflichtlekt', 'lektüre', 'lektuere'])), re.I)
+
+DEFAULT_NEWS = {'max': 5, 'sources': [
+    {'name': 'Financial Times', 'url': 'https://www.ft.com/rss/home'},
+    {'name': 'New York Times', 'url': 'https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml'},
+    {'name': 'NZZ', 'url': 'https://www.nzz.ch/recent.rss'},
+    {'name': 'Tagesschau Inland', 'url': 'https://www.tagesschau.de/inland/index~rss2.xml'},
+    {'name': 'Nikkei Asia', 'url': 'https://asia.nikkei.com/rss/feed/nar'}]}
+
+
+def collect_news():
+    """Headlines only (title, link, date) from the feeds in private/news-config.json, max 5 per source.
+    A feed that fails is listed as unavailable and never stops the job."""
+    cfg_file = PRIVATE / 'news-config.json'
+    if not cfg_file.exists():
+        cfg_file.write_text(json.dumps(DEFAULT_NEWS, ensure_ascii=False, indent=1))
+    cfg = json.loads(cfg_file.read_text())
+    out = []
+    for src in cfg.get('sources', []):
+        try:
+            req = urllib.request.Request(src['url'], headers={'User-Agent': 'Mozilla/5.0 StudyDesk'})
+            root = ET.fromstring(urllib.request.urlopen(req, timeout=20).read())
+            items = []
+            for it in (root.findall('.//{*}item') or root.findall('.//{*}entry'))[: cfg.get('max', 5)]:
+                link = it.findtext('{*}link') or (it.find('{*}link').get('href') if it.find('{*}link') is not None else '')
+                date = it.findtext('{*}pubDate') or it.findtext('{*}date') or it.findtext('{*}published') or it.findtext('{*}updated') or ''
+                items.append({'title': (it.findtext('{*}title') or '').strip(), 'link': (link or '').strip(), 'date': date.strip()})
+            items = [i for i in items if i['title'] and i['link']]
+            out.append({'source': src['name'], 'items': items} if items else {'source': src['name'], 'items': [], 'error': 'no headlines in the feed'})
+        except Exception as e:
+            out.append({'source': src['name'], 'items': [], 'error': type(e).__name__})
+    return out
+
+
 def collect_exams():
     """File names in <subject>/Prüfungen, for the exam area in the app (names only)."""
     out = []
@@ -196,7 +231,7 @@ def collect_exams():
     return out
 
 
-def collect_inbox(new_files):
+def collect_inbox(new_files, readings=None):
     """Upcoming deadlines (not yet submitted), announcements of the last 30 days and recently fetched files."""
     since = time.strftime('%Y-%m-%dT00:00:00Z', time.gmtime(time.time() - 30 * 86400))
     folder_of = {c['id']: c['folder'] for c in CONFIG['courses']}
@@ -229,7 +264,8 @@ def collect_inbox(new_files):
     files = ([{'id': f"f{i}-{f['file']}", 'subject': f['course'], 'file': f['file'], 'to': f['to'], 'at': stamp} for i, f in enumerate(new_files)]
              + [{'id': f"note-{f['to']}", 'subject': f['course'], 'file': f['file'], 'to': f['to'], 'at': stamp, 'kind': 'notes'} for f in notes]
              + old.get('files', []))
-    inbox = {'at': stamp, 'deadlines': sorted(deadlines.values(), key=lambda d: d['due'] or ''), 'announcements': sorted(announcements, key=lambda a: a['posted'] or '', reverse=True), 'files': files[:60], 'exams': collect_exams()}
+    inbox = {'at': stamp, 'deadlines': sorted(deadlines.values(), key=lambda d: d['due'] or ''), 'announcements': sorted(announcements, key=lambda a: a['posted'] or '', reverse=True), 'files': files[:60], 'exams': collect_exams(),
+             'readings': readings if readings is not None else old.get('readings', []), 'news': collect_news()}
     inbox_file.write_text(json.dumps(inbox, ensure_ascii=False, indent=1))
     push_to_sync_repo()
     return inbox
@@ -253,6 +289,7 @@ def main():
     download = '--download' in sys.argv
     state = json.loads(STATE_FILE.read_text()) if STATE_FILE.exists() else {}
     report = {'at': time.strftime('%Y-%m-%dT%H:%M:%S'), 'downloaded': [], 'versions': [], 'planned': [], 'existing': [], 'optional': [], 'problems': []}
+    readings = []
     for course in CONFIG['courses']:
         folder = BASE / course['folder']
         files, problem = course_files(course['id'])
@@ -263,6 +300,8 @@ def main():
             sid = str(f['id'])
             rule = next((r for r in course.get('rules', []) if matches(r, f)), None)
             entry = {'course': course['folder'], 'file': f['name'], 'module': f['module']}
+            if READING_RX.search(f"{f['module']} {f.get('page') or ''} {f['name']}"):
+                readings.append({'id': sid, 'subject': course['folder'], 'title': os.path.splitext(f['name'])[0], 'where': f['module']})
             known = state.get(sid)
             if known:
                 # already fetched: only a changed file counts (newer and different size)
@@ -297,7 +336,7 @@ def main():
     if download:
         STATE_FILE.write_text(json.dumps(state, ensure_ascii=False, indent=1))
     REPORT_FILE.write_text(json.dumps(report, ensure_ascii=False, indent=1))
-    inbox = collect_inbox(report['downloaded'] + report['versions'] if download else [])
+    inbox = collect_inbox(report['downloaded'] + report['versions'] if download else [], readings)
 
     def show(title, rows, with_to=True):
         print(f'\n{title}: {len(rows)}')

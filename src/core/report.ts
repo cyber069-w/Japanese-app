@@ -3,7 +3,7 @@ import type { FocusSession } from './focus';
 import type { DayLog } from './db';
 import { hoursBySubject, weekDays, type Targets } from './targets';
 
-export interface ReportRow { subject: string; hours: number; target?: number; lectures: number; answers: number; correct: number }
+export interface ReportRow { subject: string; hours: number; reading: number; target?: number; lectures: number; answers: number; correct: number }
 export interface Report {
   weekStart: string;
   weekEnd: string;
@@ -28,6 +28,8 @@ export interface ReportInput {
 export function buildReport(i: ReportInput): Report {
   const keys = weekDays(i.start);
   const hours = hoursBySubject(i.sessions, i.start);
+  const reading: Record<string, number> = {};
+  for (const s of i.sessions) if (s.tag === 'reading' && keys.includes(s.day)) reading[s.subject] = (reading[s.subject] ?? 0) + s.effectiveSec / 3600;
   const lectures: Record<string, number> = {};
   for (const s of i.sessions) if (s.kind === 'lecture' && keys.includes(s.day)) lectures[s.subject] = (lectures[s.subject] ?? 0) + 1;
   const answers: Record<string, { n: number; ok: number }> = {};
@@ -41,7 +43,7 @@ export function buildReport(i: ReportInput): Report {
     }
   const subjects = new Set([...Object.keys(hours), ...Object.keys(lectures), ...Object.keys(answers), ...Object.keys(i.targets)]);
   const rows = [...subjects]
-    .map((subject) => ({ subject, hours: hours[subject] ?? 0, target: i.targets[subject], lectures: lectures[subject] ?? 0, answers: answers[subject]?.n ?? 0, correct: answers[subject]?.ok ?? 0 }))
+    .map((subject) => ({ subject, hours: hours[subject] ?? 0, reading: reading[subject] ?? 0, target: i.targets[subject], lectures: lectures[subject] ?? 0, answers: answers[subject]?.n ?? 0, correct: answers[subject]?.ok ?? 0 }))
     .sort((a, b) => b.hours - a.hours || a.subject.localeCompare(b.subject));
   const from = new Date(i.start.getFullYear(), i.start.getMonth(), i.start.getDate()).getTime();
   const to = from + 7 * 86_400_000;
@@ -64,9 +66,9 @@ export function reportMarkdown(r: Report): string {
     '',
     `Focus total: ${h1(total)}`,
     '',
-    '| Subject | Focus | Target | Lectures | Cards answered | Accuracy |',
-    '|---|---|---|---|---|---|',
-    ...r.rows.map((x) => `| ${x.subject} | ${h1(x.hours)} | ${x.target ? h1(x.target) : '–'} | ${x.lectures} | ${x.answers} | ${acc(x)} |`),
+    '| Subject | Focus | Reading | Target | Lectures | Cards answered | Accuracy |',
+    '|---|---|---|---|---|---|---|',
+    ...r.rows.map((x) => `| ${x.subject} | ${h1(x.hours)} | ${x.reading ? h1(x.reading) : '–'} | ${x.target ? h1(x.target) : '–'} | ${x.lectures} | ${x.answers} | ${acc(x)} |`),
     '',
     `Canvas: ${r.deadlinesDue} deadline${r.deadlinesDue === 1 ? '' : 's'} due this week, ${r.deadlinesOpen} accepted and still open, ${r.newFiles} new file${r.newFiles === 1 ? '' : 's'}.`,
     '',

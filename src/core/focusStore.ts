@@ -145,10 +145,10 @@ export function removeSubject(name: string) {
 }
 
 /** Start a new timer (finishing a running one first, so switching subjects keeps both entries). */
-export function startTimer(subject: string, kind: 'study' | 'lecture' = state.kind, now = Date.now()) {
+export function startTimer(subject: string, kind: 'study' | 'lecture' = state.kind, now = Date.now(), tag?: 'reading') {
   const sessions = state.active ? saveIfLong(finishFocus(state.active, now)) : state.sessions;
   set({ selected: subject, kind, nudge: false });
-  void persist({ sessions, active: { ...startFocus(kind, subject, now), checkAt: nextCheck(now) }, subjects: withSubject(state.subjects, subject) });
+  void persist({ sessions, active: { ...startFocus(kind, subject, now, tag), checkAt: nextCheck(now) }, subjects: withSubject(state.subjects, subject) });
 }
 export const startLecture = (subject: string) => !state.active && startTimer(subject, 'lecture');
 

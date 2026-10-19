@@ -52,7 +52,7 @@ describe('report', () => {
     expect(r.rows.find((x) => x.subject === 'Japanisch')).toMatchObject({ answers: 10, correct: 8 });
     expect(r).toMatchObject({ deadlinesDue: 1, deadlinesOpen: 2, newFiles: 1 });
     const md = reportMarkdown(r);
-    expect(md).toContain('| Mikro | 2.5 h | 3.0 h | 1 | 0 | – |');
-    expect(md).toContain('| Japanisch | 0.0 h | – | 0 | 10 | 80% |');
+    expect(md).toContain('| Mikro | 2.5 h | – | 3.0 h | 1 | 0 | – |');
+    expect(md).toContain('| Japanisch | 0.0 h | – | – | 0 | 10 | 80% |');
   });
 });

@@ -7,13 +7,15 @@ import { useFocus } from '../../core/focusStore';
 import { hoursBySubject, targetRows, weekStart, type Targets } from '../../core/targets';
 import { newTodo, sortTodos, type Todo } from '../../core/todos';
 import { COURSES } from '../../courses';
-import { daysUntil } from '../../lib/date';
+import { dayKey, daysUntil } from '../../lib/date';
 import { navigate } from '../../lib/router';
 import { FocusPanel, hhmm, subjectColor } from '../../screens/FocusWidget';
 import { Icon } from '../Icon';
 import { HeadIcon } from '../HeadIcon';
 import { EmptyState } from '../EmptyState';
 import { PlanSheet } from './PlanSheet';
+import { beforeTomorrow, type Reading } from '../../core/readings';
+import { focusSubject } from '../../core/today';
 import type { PlannedBlock } from '../../core/targets';
 import type { useToday } from '../todayData';
 
@@ -26,6 +28,11 @@ const dayLabel = (iso: string, now: number) => {
 export function LessonsCard({ t }: { t: Today }) {
   const [planned, setPlanned] = useStored<PlannedBlock[]>('today:planned', []);
   const [planning, setPlanning] = useState(false);
+  const [readings] = useStored<Reading[]>('readings', []);
+  const tomorrowStart = new Date(new Date(t.now).setHours(24, 0, 0, 0)).getTime();
+  const tomorrowKey = dayKey(tomorrowStart + 3_600_000);
+  const tomorrowCourses = t.lectures.filter((l) => !l.allDay && l.start >= tomorrowStart && l.start < tomorrowStart + 86_400_000).map((l) => focusSubject(l.title));
+  const reads = beforeTomorrow(readings, tomorrowCourses, tomorrowKey);
   const next = t.day.filter((b) => b.end > t.now);
   const lessons = next.filter((b) => b.kind === 'lecture').length;
   const endOfToday = new Date(new Date(t.now).setHours(23, 59, 59, 999)).getTime();
@@ -59,6 +66,7 @@ export function LessonsCard({ t }: { t: Today }) {
           </li>
         ))}
       </ul>
+      {reads.length > 0 && <div className="later"><div className="eyebrow">Before tomorrow’s lectures</div><ul className="slots">{reads.slice(0, 3).map((r) => <li key={r.id} className="slot"><span className="slot-main"><b>{r.title}</b><small>{r.course}{r.pages ? ` · p. ${r.pages}` : ''} · {r.progress}% read</small></span><a className="btn btn-sm btn-ghost" href="#/readings">Open</a></li>)}</ul></div>}
       {later.length > 0 && (
         <div className="later">
           <div className="eyebrow">Planned later</div>
