@@ -116,3 +116,8 @@
 :root[data-surface='apple'] .module-card .meta { line-height: 1.4; }
 :root[data-surface='apple'] .area-title { margin: 8px 0 14px; }
 :root[data-surface='apple'] .section-head { margin-bottom: 16px; }
+
+/* the sidebar logo is the real app icon */
+:root[data-surface='apple'] .brand .seal { background: url(/icons/study-192.png) center / cover no-repeat; box-shadow: 0 4px 10px -3px rgba(0, 0, 0, 0.35); border-radius: 22%; width: 40px; height: 40px; }
+:root[data-surface='apple'] .brand .seal::after { display: none; }
+:root[data-surface='apple'] .brand .seal svg { display: none; }
