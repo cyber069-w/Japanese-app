@@ -29,7 +29,7 @@ Status: [ ] open · [x] done · [~] solved differently / blocked (reason in the 
 
 ## Phase 4 – Speaking (voice)
 - [x] Read aloud (Speaking → Read aloud): grammar sentence in romaji + German (kana via toggle), listen normal/slow, speak, words recognised shown green/red with % and recogniser confidence. Browser speech recognition (Chrome/Edge/Safari, not Firefox; audio goes to Google/Apple). Comparison unit-tested; microphone run not tested here
-- [ ] Real pronunciation analysis (pitch accent, mora length, sounds) – needs a phoneme model or an AI audio service; not possible with browser recognition alone
+- [~] Real pronunciation analysis: now via Azure Speech (Phase 6) – scores sounds per word; pitch accent only partly reflected
 
 ## Phase 5 – Focus
 - [x] Mini window / widget tab redesigned in the leather system (380 px tested)
@@ -78,3 +78,9 @@ Status: [ ] open · [x] done · [~] solved differently / blocked (reason in the 
 - [x] Course page → Exam Preparation: from 6 weeks before the exam date: weeks left, sections below 70 %, suggested weekly hours (rule of thumb, shown in the UI)
 - [x] Old exams: `"exams": true` per course in private/canvas-config.json makes the Mac job also fetch files it classifies as Prüfungen into <subject>/Prüfungen; the exam area lists the file names (needs a Canvas run – not run against Canvas here)
 - [x] Mock exam: mixed, timed (questions + minutes adjustable), no repeats after a mistake, weak topics + “Drill these”. Japanese = vocab + grammar + listening; other subjects = all their checked modules
+
+## Phase 6 – Pronunciation check with Azure Speech
+- [x] Read aloud: with a key (private/azure-speech.json via the dev server, or Settings → Connections, device only) the app records, converts to 16 kHz WAV and calls the REST short-audio endpoint (ja-JP, word granularity, reference = the sentence's written form). Shows overall / accuracy / fluency / completeness and per word romaji + score + error type, colour-coded; without a key the browser check stays as before. Attempts (best / last / count per sentence) are kept on the device and logged in History. REST instead of the SDK: no extra dependency
+- [x] Verified outside the browser: with region `germanywestcentral` the key is accepted and CORS allows the call from the app. Microphone → score not run end to end here
+- [ ] **Your `private/azure-speech.json` has region `wesgermanywestcentral` – that host doesn't exist (typo). Change it to `germanywestcentral`**
+- Limits: the recording goes to Microsoft (not stored by the app); pitch accent / mora length only partly scored; a clip is limited to 20 s here (Azure short-audio limit ~30 s); Japanese word segmentation is Azure's, so kanji words are shown as written when they can't be turned into romaji

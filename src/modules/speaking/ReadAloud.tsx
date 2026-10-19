@@ -2,9 +2,13 @@
  * Read aloud: pick a sentence, listen to it, say it – the app shows which words it recognised.
  * Sentences are the grammar examples (romaji + German, kana with the kana layer).
  */
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { StudyContext } from '../../core/types';
 import { updateSettings } from '../../core/store';
+import { loadAzure, type AzureConfig } from '../../core/azure';
+import { assess, recordClip, scoreTone, toWav, type Assessment } from '../../lib/azurePronunciation';
+import { toRomaji, hasKana } from '../../lib/romaji';
+import { addAttempt, loadAttempts, progress, type Attempt } from './attempts';
 import { logHistory } from '../../core/history';
 import { Icon } from '../../components/Icon';
 import { Ruby } from '../../components/Ruby';
@@ -32,6 +36,14 @@ export function ReadAloud({ ctx }: { ctx: StudyContext }) {
   const [result, setResult] = useState<Result | null>(null);
   const [error, setError] = useState('');
   const stopRef = useRef<() => void>(() => {});
+  const [azure, setAzure] = useState<AzureConfig | null>(null);
+  const [pa, setPa] = useState<Assessment | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [attempts, setAttempts] = useState<Attempt[]>([]);
+  useEffect(() => {
+    void loadAzure().then((a) => setAzure(a.config));
+    void loadAttempts().then(setAttempts);
+  }, []);
   const kana = ctx.settings.kanaLayer;
 
   const list = useMemo(() => SENTENCES.filter((x) => lesson === 'all' || x.lesson === lesson), [lesson]);
@@ -40,10 +52,36 @@ export function ReadAloud({ ctx }: { ctx: StudyContext }) {
     stopRef.current();
     setIndex((i) => (i + d + list.length) % list.length);
     setResult(null);
+    setPa(null);
     setError('');
   };
 
+  const sentenceId = `${cur.lesson}:${cur.romaji}`;
+  const listenAzure = async () => {
+    if (listening) return stopRef.current();
+    setError('');
+    setPa(null);
+    try {
+      const clip = await recordClip();
+      stopRef.current = clip.stop;
+      setListening(true);
+      const blob = await clip.done;
+      setListening(false);
+      setBusy(true);
+      const a = await assess(azure!, await toWav(blob), cur.s.text);
+      setPa(a);
+      setAttempts(await addAttempt({ sentence: sentenceId, at: Date.now(), accuracy: a.accuracy, fluency: a.fluency, completeness: a.completeness, overall: a.overall }));
+      logHistory('speaking', `Pronunciation check: ${cur.romaji.slice(0, 50)} – ${Math.round(a.overall)}/100`);
+    } catch (e) {
+      setError((e as Error).name === 'NotAllowedError' ? 'The microphone is blocked – allow it in the browser’s address bar.' : (e as Error).message);
+    } finally {
+      setListening(false);
+      setBusy(false);
+    }
+  };
+
   const listen = async () => {
+    if (azure) return listenAzure();
     if (listening) return stopRef.current();
     setError('');
     setResult(null);
@@ -64,7 +102,7 @@ export function ReadAloud({ ctx }: { ctx: StudyContext }) {
     }
   };
 
-  if (!recognitionSupported())
+  if (!azure && !recognitionSupported())
     return (
       <div className="empty">
         Speech recognition isn’t available in this browser. Open the app in Chrome, Edge or Safari to read sentences aloud.
@@ -94,12 +132,32 @@ export function ReadAloud({ ctx }: { ctx: StudyContext }) {
         <div className="row">
           <button className="btn" onClick={() => speak(cur.s.spoken, ctx.settings.voiceRate)}><Icon name="speaker" size={16} /> Listen</button>
           <button className="btn" onClick={() => speak(cur.s.spoken, slowRate(ctx.settings.voiceRate))}><Icon name="clock" size={15} /> Slow</button>
-          <button className={`btn btn-primary${listening ? ' recording' : ''}`} onClick={listen}>
-            <Icon name={listening ? 'stop' : 'mic'} size={16} /> {listening ? 'Stop' : result ? 'Try again' : 'Speak'}
+          <button className={`btn btn-primary${listening ? ' recording' : ''}`} onClick={listen} disabled={busy}>
+            <Icon name={listening ? 'stop' : 'mic'} size={16} /> {listening ? 'Stop' : busy ? 'Checking…' : result || pa ? 'Try again' : 'Speak'}
           </button>
         </div>
         {listening && <div className="faint small" aria-live="polite">Listening… {interim && '(hearing you)'}</div>}
         {error && <div className="notice warn small">{error}</div>}
+        {pa && (
+          <div className="stack" style={{ '--gap': '10px' } as React.CSSProperties} aria-live="polite">
+            <div className="row">
+              {([['Overall', pa.overall], ['Accuracy', pa.accuracy], ['Fluency', pa.fluency], ['Completeness', pa.completeness]] as const).map(([k, n]) => (
+                <span key={k} className={`tag tag-${scoreTone(n)}`}>{k} {Math.round(n)}</span>
+              ))}
+            </div>
+            <div className="read-target">
+              {pa.words.map((w, i) => (
+                <span key={i} className={`tag tag-${w.error === 'None' ? scoreTone(w.accuracy) : 'bad'}`} style={{ marginRight: 6 }} title={w.error}>
+                  {hasKana(w.word) ? toRomaji(w.word) : w.word} {Math.round(w.accuracy)}{w.error !== 'None' && w.error !== 'Mispronunciation' ? ` · ${w.error.toLowerCase()}` : w.error === 'Mispronunciation' ? ' · mispronounced' : ''}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+        {azure && (() => {
+          const p = progress(attempts, sentenceId);
+          return p ? <div className="faint small">This sentence: best {Math.round(p.best)} · last {Math.round(p.last)} · {p.n} attempt{p.n === 1 ? '' : 's'}</div> : null;
+        })()}
         {result && (
           <div className="stack" style={{ '--gap': '6px' } as React.CSSProperties} aria-live="polite">
             <div><b>{Math.round(result.score * 100)}%</b> <span className="muted small">of the words recognised{result.confidence > 0 ? ` · clarity ${Math.round(result.confidence * 100)}%` : ''}</span></div>
@@ -116,9 +174,15 @@ export function ReadAloud({ ctx }: { ctx: StudyContext }) {
         <button className="btn" onClick={() => go(-1)}><Icon name="left" size={16} /> Previous</button>
         <button className="btn" onClick={() => go(1)}>Next <Icon name="right" size={16} /></button>
       </div>
+      {azure ? (
+        <p className="faint tiny">
+          Scored by Azure Speech pronunciation assessment (0–100). Your recording is sent to Microsoft. Pitch accent is only partly reflected in the scores; a green score is not a guarantee of natural intonation. Remove the key in Settings → Connections to use the browser check instead.
+        </p>
+      ) : (
       <p className="faint tiny">
-        Uses your browser’s speech recognition (Chrome sends the audio to Google, Safari to Apple). It checks which words were understood – a sign of clear pronunciation, not a full pronunciation analysis.
+        Uses your browser’s speech recognition (Chrome sends the audio to Google, Safari to Apple). It checks which words were understood – a sign of clear pronunciation, not a full pronunciation analysis. Add an Azure Speech key (Settings → Connections) for scores per word.
       </p>
+      )}
     </div>
   );
 }
