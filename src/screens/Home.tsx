@@ -7,6 +7,7 @@ import { COURSES } from '../courses';
 import { dayKey, formatDuration } from '../lib/date';
 import { Icon } from '../components/Icon';
 import { CourseGlyph } from '../components/GlyphIcon';
+import { TodayHub } from '../components/TodayHub';
 
 function greeting(h: number) {
   if (h < 5) return 'Still up? Keep it short tonight.';
@@ -39,6 +40,9 @@ export function Home() {
         </div>
       </div>
 
+      <TodayHub />
+
+      <div className="section-head" style={{ marginTop: 36 }}><h2>Subjects</h2></div>
       <div className="subject-grid">
         {COURSES.map((c) => {
           const n = due.perCourse[c.id] ?? 0;

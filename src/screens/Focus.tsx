@@ -69,7 +69,7 @@ export function Focus() {
       <div className="page-head">
         <div className="grow">
           <h1>Focus</h1>
-          <div className="muted" style={{ marginTop: 4 }}>Log every lecture and study hour. Today: {formatDuration(todayTotal * 1000)}.</div>
+          <div className="muted" style={{ marginTop: 4 }}>Log every lecture and study hour. Today: {formatDuration(todayTotal * 1000)}. <a href="#/">What to do next →</a></div>
         </div>
         <div className="row">
           <button className="btn" onClick={() => void openFocusPip()} title={pipSupported() ? 'Small always-on-top window' : 'Small separate window'}>

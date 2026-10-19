@@ -57,3 +57,6 @@ Status: [ ] open · [x] done · [~] solved differently / blocked (reason in the 
 - [~] Vocab lessons 6+, user's own grammar rules, hiragana notes – user supplies the material
 - [~] BWL and Recht content – needs the user's lecture material
 - [~] Automatic refresh of the Outlook timetable – Outlook blocks browser fetches; needs a scheduled job (with Canvas)
+
+## Phase 1 – Today hub (HANDOVER-PHASES)
+- [x] Today on Home: ranked list by horizon, dismiss/restore (7 days), Your day timeline, source chips (`core/today.ts`, 13 tests). Day window = Focus day window (weekly plan not provided yet). Timetable chip shows red until an .ics is imported on this device

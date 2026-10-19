@@ -1303,3 +1303,11 @@ a.subject-tile:focus-visible { outline-color: var(--tile); }
 .inbox-ann.unseen summary b::before { content: '● '; color: var(--bad); }
 .inbox-ann p { margin: 6px 0; }
 button.subject-tile { font: inherit; cursor: pointer; }
+
+/* Today hub */
+.today-list { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.today-row { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-top: 1px solid var(--line); }
+.today-row:first-child { border-top: 0; }
+.today-title { font-weight: 600; overflow-wrap: anywhere; }
+.today-time { flex: 0 0 auto; font-variant-numeric: tabular-nums; color: var(--ink-3); min-width: 96px; }
+@media (max-width: 560px) { .today-row { flex-wrap: wrap; } .today-time { min-width: 0; } }
