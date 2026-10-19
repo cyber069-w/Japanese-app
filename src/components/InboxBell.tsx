@@ -5,6 +5,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Icon } from './Icon';
 import { Sheet } from './Sheet';
+import { askTutor } from '../lib/tutor';
+import { notesRequest } from '../lib/notesPrompt';
+import { focusSubject } from '../core/today';
 import {
   accept, ignore, inboxView, initCanvas, isImportant, markSeen, openInbox, toggleMute, toggleSubject, useCanvas, type CanvasAnnouncement, type CanvasDeadline,
 } from '../core/canvas';
@@ -104,7 +107,13 @@ function InboxSheet() {
             <div className="eyebrow">New files in your folders</div>
             {v.files.slice(0, 12).map((f) => (
               <div key={f.id} className="small">
-                <b>{f.file}</b> <span className="faint tiny">→ {f.to.split('/').slice(0, -1).join(' / ')}</span>
+                <b>{f.kind === 'notes' ? `New notes: ${f.file}` : f.file}</b> <span className="faint tiny">→ {f.to.split('/').slice(0, -1).join(' / ')}</span>
+                {f.kind === 'notes' && (
+                  <span className="row" style={{ gap: 6, marginTop: 4 }}>
+                    <button className="btn btn-sm" onClick={() => void askTutor(notesRequest(focusSubject(f.subject), f.file.replace(/\.pdf$/i, ''), true))}>Make flashcards with the tutor</button>
+                    <button className="btn btn-sm btn-ghost" onClick={() => markSeen([f.id])}>Done</button>
+                  </span>
+                )}
               </div>
             ))}
             {v.files.length > 12 && <div className="faint tiny">… and {v.files.length - 12} more</div>}

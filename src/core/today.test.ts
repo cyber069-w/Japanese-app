@@ -88,3 +88,12 @@ describe('sources', () => {
     expect(canvasStatus(undefined, 0, 0, now).state).toBe('failed');
   });
 });
+
+describe('notes', () => {
+  it('OneNote exports become "New notes" rows with the tutor action', () => {
+    const [n] = buildItems({ ...base, files: [{ id: 'note-x', subject: 'Mikro', file: 'Woche 3.pdf', to: 'Mikro/Notizen/Woche 3.pdf', at: '', kind: 'notes' }] });
+    expect(n.kind).toBe('notes');
+    expect(n.title).toBe('New notes: Woche 3');
+    expect(n.action).toMatchObject({ type: 'tutor', notes: true });
+  });
+});

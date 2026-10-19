@@ -10,7 +10,7 @@ import { logHistory } from './history';
 
 export interface CanvasDeadline { id: string; course: string; subject: string; title: string; due: string | null; url?: string; kind: string }
 export interface CanvasAnnouncement { id: string; course: string; subject: string; title: string; posted: string; text: string; url?: string }
-export interface CanvasFile { id: string; subject: string; file: string; to: string; at: string }
+export interface CanvasFile { id: string; subject: string; file: string; to: string; at: string; /** OneNote PDF export found in a Notizen folder */ kind?: 'notes' }
 export interface CanvasInbox { at: string; deadlines: CanvasDeadline[]; announcements: CanvasAnnouncement[]; files: CanvasFile[] }
 
 export interface CanvasPrefs {
@@ -112,7 +112,7 @@ export function inboxView(s: State, now = Date.now()) {
   const accepted = deadlines.filter((d) => p.accepted.includes(d.id));
   const announcements = (inbox?.announcements ?? []).filter((a) => visible(a.subject));
   const important = announcements.filter(isImportant);
-  const files = (inbox?.files ?? []).filter((f) => visible(f.subject));
+  const files = (inbox?.files ?? []).filter((f) => visible(f.subject) && !(f.kind === 'notes' && p.seen.includes(f.id)));
   const soon = accepted.filter((d) => d.due && Date.parse(d.due) - now < 2 * DAY);
   const unseenImportant = important.filter((a) => !p.seen.includes(a.id));
   // the badge only nags about what matters soon; later deadlines wait in the list

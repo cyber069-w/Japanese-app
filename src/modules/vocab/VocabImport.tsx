@@ -2,6 +2,8 @@
  * Import word lists: CSV / TSV files, Quizlet exports (term ⇥ definition) or pasted text.
  * You check the column mapping and a preview, choose what happens with duplicates, and can undo the last change.
  */
+import { askTutor } from '../../lib/tutor';
+import { VOCAB_CSV_TASK } from '../../lib/notesPrompt';
 import { logHistory } from '../../core/history';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { MeaningLang, StudyContext, VocabEntry } from '../../core/types';
@@ -128,6 +130,18 @@ export function VocabImport({ ctx }: { ctx: StudyContext }) {
           <button className="btn btn-sm" onClick={doUndo}><Icon name="undo" size={15} /> Undo</button>
         </div>
       )}
+
+      <details className="card card-pad">
+        <summary><b>Lessons 6 and later from the textbook PDFs</b> <span className="faint small">– step by step with the tutor</span></summary>
+        <ol className="small stack" style={{ '--gap': '6px', paddingLeft: 20, marginTop: 10 } as React.CSSProperties}>
+          <li>Find the lesson PDF in your OneDrive folder (Japanisch → Zusatzmaterial / Vorlesungen). Keep it there – the textbook stays on your Mac and is never put into this app’s repository.</li>
+          <li>Click “Copy tutor prompt” below. Claude opens in a new tab; paste the prompt with ⌘V.</li>
+          <li>Attach the lesson PDF to that message and send it. Claude answers with lines like <code>taberu;essen</code> (romaji ⇥ German, in the order of the PDF).</li>
+          <li>Copy the answer, come back here and choose “Paste from clipboard” in step 1. Name the list after the lesson (e.g. <code>lektion-6</code>), check the preview and import. Undo is at the top.</li>
+          <li>Quizlet text works the same way: a term ⇥ definition export can be pasted as it is.</li>
+        </ol>
+        <button className="btn btn-sm" onClick={() => void askTutor({ courseId: 'japanese', courseName: 'Japanisch', topic: 'Vokabeln einer Lektion', context: 'Ich hänge die Lektion als PDF an.', task: VOCAB_CSV_TASK })}><Icon name="sparkle" size={15} /> Copy tutor prompt</button>
+      </details>
 
       <section className="card card-pad stack" style={{ '--gap': '12px' } as React.CSSProperties}>
         <h2>1 · Add your list</h2>

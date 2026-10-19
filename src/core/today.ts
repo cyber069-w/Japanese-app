@@ -20,7 +20,7 @@ export type TodayAction =
   | { type: 'timer'; label: string; subject: string }
   | { type: 'link'; label: string; url: string }
   | { type: 'focus'; label: string }
-  | { type: 'tutor'; label: string; subject: string; topic: string };
+  | { type: 'tutor'; label: string; subject: string; topic: string; notes?: boolean };
 
 export interface TodayItem {
   id: string;
@@ -118,11 +118,11 @@ export function buildItems(inp: TodayInput): TodayItem[] {
   }
   for (const f of inp.files) {
     const name = f.file.replace(/\.[a-z0-9]+$/i, '');
-    const isNotes = /notiz|one ?note/i.test(f.to);
+    const isNotes = f.kind === 'notes';
     add({
       id: `file:${f.id}`, kind: isNotes ? 'notes' : 'file', subject: focusSubject(f.subject), title: isNotes ? `New notes: ${name}` : `${name} nacharbeiten`,
       why: ['Canvas', isNotes ? 'notes' : 'new file'], horizon: 'later', base: 28,
-      action: { type: 'tutor', label: 'Ask tutor for flashcards', subject: focusSubject(f.subject), topic: name },
+      action: { type: 'tutor', label: isNotes ? 'Make flashcards with the tutor' : 'Ask tutor for flashcards', subject: focusSubject(f.subject), topic: name, notes: isNotes },
     });
   }
   for (const l of inp.lectures) {

@@ -64,3 +64,8 @@ Status: [ ] open · [x] done · [~] solved differently / blocked (reason in the 
 ## Phase 2 – Connections + history
 - [x] Settings → Connections (Canvas, Outlook timetable, Device sync, Azure Speech; Working / Stale / Not set up / Failed + fix) and Azure key entry (device only)
 - [x] Settings → History (newest 300; search, filter, delete one / clear all): Canvas accepted, tutor prompt copied, focus add/edit/delete, imports, read-aloud results
+
+## Phase 3 – OneNote via PDF export
+- [x] Mac job lists new PDFs in `Notizen` / `One Note …` folders (pattern `notes_folders` in private/canvas-config.json, last 30 days, each once) → inbox files with kind "notes"; tested on a temp folder, not on the real OneDrive
+- [x] Today + bell: “New notes” rows with “Make flashcards with the tutor” (Japanese → CSV romaji;German, CFA → JSON pack, others → German summary + Q/A) and Done
+- [x] Vocab import: step-by-step for textbook lessons 6+ via the tutor (nothing copied into the repo)

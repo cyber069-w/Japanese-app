@@ -161,6 +161,31 @@ def plain(html, limit=400):
     return text[:limit] + ('…' if len(text) > limit else '')
 
 
+def collect_notes():
+    """OneNote exports: PDFs (modified in the last 30 days) in folders named like config 'notes_folders' (default: Notizen / One Note …).
+    Each is listed once; the app shows them as 'New notes'."""
+    pattern = re.compile(CONFIG.get('notes_folders', r'^(notizen|one ?note.*)$'), re.I)
+    state = json.loads(STATE_FILE.read_text()) if STATE_FILE.exists() else {}
+    seen = set(state.get('notes_seen', []))
+    out = []
+    for course_dir in sorted({c['folder'] for c in CONFIG['courses']}):
+        root = BASE / course_dir
+        if not root.is_dir():
+            continue
+        for sub in root.rglob('*'):
+            if not (sub.is_dir() and pattern.match(unicodedata.normalize('NFC', sub.name))):
+                continue
+            for pdf in sub.glob('*.pdf'):
+                tag = f'{pdf.relative_to(BASE)}|{pdf.stat().st_size}'
+                if tag in seen or pdf.stat().st_mtime < time.time() - 30 * 86400:
+                    continue
+                seen.add(tag)
+                out.append({'course': course_dir, 'file': pdf.name, 'to': str(pdf.relative_to(BASE))})
+    state['notes_seen'] = sorted(seen)
+    STATE_FILE.write_text(json.dumps(state, ensure_ascii=False, indent=1))
+    return out
+
+
 def collect_inbox(new_files):
     """Upcoming deadlines (not yet submitted), announcements of the last 30 days and recently fetched files."""
     since = time.strftime('%Y-%m-%dT00:00:00Z', time.gmtime(time.time() - 30 * 86400))
@@ -190,7 +215,10 @@ def collect_inbox(new_files):
     inbox_file = PRIVATE / 'canvas-inbox.json'
     old = json.loads(inbox_file.read_text()) if inbox_file.exists() else {}
     stamp = time.strftime('%Y-%m-%dT%H:%M:%S')
-    files = [{'id': f"f{i}-{f['file']}", 'subject': f['course'], 'file': f['file'], 'to': f['to'], 'at': stamp} for i, f in enumerate(new_files)] + old.get('files', [])
+    notes = collect_notes()
+    files = ([{'id': f"f{i}-{f['file']}", 'subject': f['course'], 'file': f['file'], 'to': f['to'], 'at': stamp} for i, f in enumerate(new_files)]
+             + [{'id': f"note-{f['to']}", 'subject': f['course'], 'file': f['file'], 'to': f['to'], 'at': stamp, 'kind': 'notes'} for f in notes]
+             + old.get('files', []))
     inbox = {'at': stamp, 'deadlines': sorted(deadlines.values(), key=lambda d: d['due'] or ''), 'announcements': sorted(announcements, key=lambda a: a['posted'] or '', reverse=True), 'files': files[:60]}
     inbox_file.write_text(json.dumps(inbox, ensure_ascii=False, indent=1))
     push_to_sync_repo()

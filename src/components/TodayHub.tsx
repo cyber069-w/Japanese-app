@@ -3,12 +3,13 @@ import { useEffect, useMemo, useState } from 'react';
 import { useApp } from '../core/store';
 import { useDueCounts } from '../core/hooks';
 import { storage } from '../core/db';
-import { inboxView, useCanvas } from '../core/canvas';
+import { inboxView, markSeen, useCanvas } from '../core/canvas';
 import { loadCalendar, occurrences, type CalendarData } from '../core/calendar';
 import { dayWindow, initFocus, startTimer, useFocus } from '../core/focusStore';
 import { coverage, gaps, sessionIntervals } from '../core/focus';
 import { COURSES } from '../courses';
 import { askTutor } from '../lib/tutor';
+import { notesRequest } from '../lib/notesPrompt';
 import { daysUntil } from '../lib/date';
 import { navigate } from '../lib/router';
 import { Icon } from './Icon';
@@ -93,12 +94,7 @@ export function TodayHub() {
     else if (a.type === 'timer') {
       if (!focus.active) startTimer(a.subject);
       navigate('/focus');
-    } else
-      void askTutor({
-        courseId: 'general', courseName: a.subject, topic: `Neue Folien: ${a.topic}`,
-        context: `Ich hänge die Datei „${a.topic}“ an (PDF).`,
-        task: 'Lies das PDF und mach daraus Lernkarten (Frage ⇥ Antwort, Quizlet-Format, auf Deutsch) und eine Zusammenfassung in 10 Stichpunkten.',
-      });
+    } else void askTutor(notesRequest(a.subject, a.topic, !!a.notes));
   };
 
   const row = (i: TodayItem) => (
@@ -112,7 +108,7 @@ export function TodayHub() {
         </div>
       </div>
       <button className="btn btn-sm btn-primary" onClick={() => run(i.action)}>{i.action.label}</button>
-      <button className="btn btn-sm btn-ghost" aria-label="Dismiss" title="Dismiss for 7 days" onClick={() => dismiss(i.id)}><Icon name="x" size={15} /></button>
+      <button className="btn btn-sm btn-ghost" aria-label={i.kind === 'notes' ? 'Done' : 'Dismiss'} title={i.kind === 'notes' ? 'Done – remove' : 'Dismiss for 7 days'} onClick={() => (i.kind === 'notes' ? (markSeen([i.id.replace(/^file:/, '')]), dismiss(i.id)) : dismiss(i.id))}>{i.kind === 'notes' ? 'Done' : <Icon name="x" size={15} />}</button>
     </li>
   );
 
