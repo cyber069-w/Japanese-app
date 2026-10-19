@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useApp } from '../core/store';
 import { useDueCounts } from '../core/hooks';
 import { storage } from '../core/db';
-import { inboxView, markSeen, useCanvas } from '../core/canvas';
+import { inboxView, useCanvas } from '../core/canvas';
 import { loadCalendar, occurrences, type CalendarData } from '../core/calendar';
 import { dayWindow, initFocus, startTimer, useFocus } from '../core/focusStore';
 import { coverage, gaps, sessionIntervals } from '../core/focus';
@@ -14,13 +14,11 @@ import { askTutor } from '../lib/tutor';
 import { notesRequest } from '../lib/notesPrompt';
 import { daysUntil } from '../lib/date';
 import { navigate } from '../lib/router';
-import { Icon } from './Icon';
 import {
-  buildDay, buildItems, COURSE_SUBJECT, canvasStatus, groupByHorizon, HORIZON_LABEL, pruneDismissed, visibleItems,
-  type SourceStatus, type TodayAction, type TodayItem,
+  buildDay, buildItems, COURSE_SUBJECT, canvasStatus, pruneDismissed, visibleItems,
+  type SourceStatus, type TodayAction,
 } from '../core/today';
 
-const hhmm = (t: number) => new Date(t).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
 const DISMISS_KEY = 'today:dismissed';
 
 function useDismissed() {
@@ -39,14 +37,12 @@ function useDismissed() {
   };
 }
 
-export function TodayHub() {
+export function useToday() {
   const settings = useApp((s) => s.settings);
   const due = useDueCounts();
   const focus = useFocus();
   const canvasState = useCanvas();
   const [calendar, setCalendar] = useState<CalendarData | null | undefined>(undefined);
-  const [all, setAll] = useState(false);
-  const [showDismissed, setShowDismissed] = useState(false);
   const [planned] = useStored<PlannedBlock[]>('today:planned', []);
   const { map: dismissed, dismiss, restore } = useDismissed();
   const [now, setNow] = useState(Date.now());
@@ -86,7 +82,6 @@ export function TodayHub() {
 
   const shown = visibleItems(items, dismissed, now);
   const hiddenItems = items.filter((i) => !shown.includes(i));
-  const top = all ? shown : shown.slice(0, 12);
   const covered = Math.round(coverage(focus.sessions.flatMap(sessionIntervals), winStart, Math.min(now, winEnd)) * 100);
 
   const run = (a: TodayAction) => {
@@ -99,76 +94,5 @@ export function TodayHub() {
     } else void askTutor(notesRequest(a.subject, a.topic, !!a.notes));
   };
 
-  const row = (i: TodayItem) => (
-    <li key={i.id} className="today-row">
-      <div className="grow">
-        <div className="today-title">{i.title.length > 140 ? `${i.title.slice(0, 137)}…` : i.title}</div>
-        <div className="today-meta">
-          {[i.subject !== '–' ? i.subject : null, ...i.why, i.due !== undefined ? `due ${new Date(i.due).toLocaleString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}` : null].filter(Boolean).join(' · ')}
-        </div>
-      </div>
-      <button className="btn btn-sm today-action" onClick={() => run(i.action)}>{i.action.label}</button>
-      <button className="btn btn-sm btn-ghost" aria-label={i.kind === 'notes' ? 'Done' : 'Dismiss'} title={i.kind === 'notes' ? 'Done – remove' : 'Dismiss for 7 days'} onClick={() => (i.kind === 'notes' ? (markSeen([i.id.replace(/^file:/, '')]), dismiss(i.id)) : dismiss(i.id))}>{i.kind === 'notes' ? 'Done' : <Icon name="x" size={15} />}</button>
-    </li>
-  );
-
-  return (
-    <section className="section" aria-label="Today">
-      <div className="section-head"><h2>What to do</h2><span className="faint tiny">{shown.length} open · fixed rules, no AI</span></div>
-
-      <div className="today-sources">
-        {sources.map((s) => (
-          <span key={s.name} title={`${s.read} read`} className={s.state === 'ok' ? '' : 'bad'}>
-            <i aria-hidden="true" /> {s.name} · {s.act} to act on
-          </span>
-        ))}
-      </div>
-      {sources.filter((s) => s.note).map((s) => <div key={s.name} className="faint tiny" style={{ marginBottom: 6 }}>{s.name}: {s.note}</div>)}
-
-      {shown.length === 0 ? (
-        <div className="card card-pad muted">Nothing needs you right now.</div>
-      ) : (
-        groupByHorizon(top).map((g) => (
-          <div key={g.horizon} className="card card-pad" style={{ marginBottom: 12 }}>
-            <div className="eyebrow">{HORIZON_LABEL[g.horizon]}</div>
-            <ul className="today-list">{g.items.map(row)}</ul>
-          </div>
-        ))
-      )}
-      {shown.length > 12 && <button className="btn btn-sm" onClick={() => setAll(!all)}>{all ? 'Show top 12' : `Show all (${shown.length})`}</button>}
-      {hiddenItems.length > 0 && (
-        <div style={{ marginTop: 10 }}>
-          <button className="btn btn-sm btn-ghost" onClick={() => setShowDismissed(!showDismissed)}>Dismissed ({hiddenItems.length})</button>
-          {showDismissed && (
-            <ul className="today-list">
-              {hiddenItems.map((i) => (
-                <li key={i.id} className="today-row">
-                  <div className="grow muted">{i.title.slice(0, 100)}</div>
-                  <button className="btn btn-sm" onClick={() => restore(i.id)}>Restore</button>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-      )}
-
-      <div className="section-head" style={{ marginTop: 28 }}>
-        <h2>Your day</h2>
-        <span className="faint tiny">{hhmm(winStart)}–{hhmm(winEnd)} · {covered}% logged so far · <a href="#/focus">Focus</a></span>
-      </div>
-      {day.length === 0 ? (
-        <div className="card card-pad muted">No free block of 45 min or more left in your day window.</div>
-      ) : (
-        <ul className="today-list card card-pad">
-          {day.map((b) => (
-            <li key={`${b.kind}${b.start}`} className="today-row">
-              <span className="today-time">{hhmm(b.start)}–{hhmm(b.end)}</span>
-              <div className="grow">{b.kind === 'lecture' ? <b>{b.title}</b> : b.title}<span className="tag" style={{ marginLeft: 8 }}>{b.kind === 'lecture' ? 'lecture' : b.planned ? 'planned' : 'suggested'}</span></div>
-              {b.kind === 'study' && b.subject && <button className="btn btn-sm" onClick={() => run({ type: 'timer', label: '', subject: b.subject! })}>Start timer</button>}
-            </li>
-          ))}
-        </ul>
-      )}
-    </section>
-  );
+  return { shown, hiddenItems, day, sources, lectures, calendar, covered, winStart, winEnd, now, run, dismiss, restore };
 }

@@ -2,6 +2,7 @@
  * Focus: log every lecture and study hour. Timer with a radial subject picker, today's timeline with
  * gaps you can fill in one tap, add / edit dialogs, reminders and the lecture timetable.
  */
+import { DayClock } from '../components/DayClock';
 import { FocusTargets } from '../components/FocusTargets';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Icon } from '../components/Icon';
@@ -92,19 +93,7 @@ export function Focus() {
           <span className={cover >= 0.8 ? 'cover-good' : 'faint'}><b>{Math.round(cover * 100)}%</b> of {f.prefs.dayStart}–{timeOf(until)} logged</span>
         </div>
         <div className="card card-pad stack" style={{ '--gap': '12px' } as React.CSSProperties}>
-          <div className="timeline" role="img" aria-label={`Timeline ${f.prefs.dayStart} to ${f.prefs.dayEnd}`}>
-            {mergeForDisplay(todays, f.active, now).map((b, i) => (
-              <span key={i} className="tl-block" style={{ left: pct(b.s, from, to), width: pct(b.e, from, to, b.s), background: subjectColor(b.subject) }} title={`${b.subject} ${hhmm(b.s)}–${hhmm(b.e)}`} />
-            ))}
-            {holes.map(([a, b]) => (
-              <button key={a} className="tl-gap" style={{ left: pct(a, from, to), width: pct(b, from, to, a) }} onClick={() => addNew(a, b)} title={`Gap ${hhmm(a)}–${hhmm(b)} – tap to fill`} aria-label={`Fill gap ${hhmm(a)} to ${hhmm(b)}`} />
-            ))}
-            {now < to && now > from && <span className="tl-now" style={{ left: pct(now, from, to) }} />}
-          </div>
-          <div className="row faint tiny" style={{ justifyContent: 'space-between' }}>
-            <span>{f.prefs.dayStart}</span>
-            <span>{f.prefs.dayEnd}</span>
-          </div>
+          <DayClock from={from} to={to} now={now} blocks={mergeForDisplay(todays, f.active, now)} gaps={holes} covered={cover} onPick={(a, b) => addNew(a, b)} />
           {holes.length > 0 ? (
             <div className="stack" style={{ '--gap': '6px' } as React.CSSProperties}>
               {holes.map(([a, b]) => (
@@ -215,9 +204,6 @@ export function Focus() {
     </div>
   );
 }
-
-const pct = (t: number, from: number, to: number, start?: number) =>
-  start === undefined ? `${((Math.max(from, Math.min(t, to)) - from) / (to - from)) * 100}%` : `${((Math.min(t, to) - Math.max(start, from)) / (to - from)) * 100}%`;
 
 function mergeForDisplay(sessions: FocusSession[], active: ReturnType<typeof useFocus>['active'], now: number) {
   const out = sessions.flatMap((s) => sessionIntervals(s).map(([a, b]) => ({ s: a, e: b, subject: s.subject })));

@@ -1,0 +1,142 @@
+/** Home cards: lessons today, to-dos, focus timer, due cards, week. Frosted-glass bento (styles: .glass / .bento). */
+import { useMemo, useState } from 'react';
+import { useApp } from '../../core/store';
+import { useDueCounts } from '../../core/hooks';
+import { useStored } from '../../core/kv';
+import { useFocus } from '../../core/focusStore';
+import { hoursBySubject, targetRows, weekStart, type Targets } from '../../core/targets';
+import { newTodo, sortTodos, type Todo } from '../../core/todos';
+import { COURSES } from '../../courses';
+import { daysUntil } from '../../lib/date';
+import { navigate } from '../../lib/router';
+import { FocusPanel, hhmm, subjectColor } from '../../screens/FocusWidget';
+import { Icon } from '../Icon';
+import type { useToday } from '../todayData';
+
+type Today = ReturnType<typeof useToday>;
+const dayLabel = (iso: string, now: number) => {
+  const d = daysUntil(iso.slice(0, 10), now);
+  return d < 0 ? 'overdue' : d === 0 ? 'today' : d === 1 ? 'tomorrow' : new Date(iso).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+};
+
+export function LessonsCard({ t }: { t: Today }) {
+  const next = t.day.filter((b) => b.end > t.now);
+  const lessons = next.filter((b) => b.kind === 'lecture').length;
+  return (
+    <section className="glass b-lessons">
+      <div className="glass-head"><h2>Your lessons</h2><span className="faint tiny">{lessons ? `${lessons} left today` : 'today'}</span></div>
+      {t.calendar === null && <p className="muted small">No timetable yet – import your Outlook calendar in <a href="#/focus">Focus → Lectures</a>.</p>}
+      {t.calendar && next.length === 0 && <p className="muted small">Nothing left in your day window. Enjoy the evening.</p>}
+      <ul className="slots">
+        {next.slice(0, 6).map((b) => (
+          <li key={`${b.kind}${b.start}`} className={`slot ${b.kind}${b.start <= t.now ? ' now' : ''}`}>
+            <span className="slot-time">{hhmm(b.start)}<small>{hhmm(b.end)}</small></span>
+            <span className="slot-bar" style={{ background: b.subject ? subjectColor(b.subject) : undefined }} />
+            <span className="slot-main">
+              <b>{b.kind === 'lecture' ? b.title : `Study ${b.subject}`}</b>
+              <small>{b.start <= t.now ? 'now' : b.kind === 'lecture' ? 'lecture' : b.planned ? 'planned' : 'suggested'}</small>
+            </span>
+            {b.kind === 'study' && b.subject && <button className="btn btn-sm" onClick={() => t.run({ type: 'timer', label: '', subject: b.subject! })}>Start</button>}
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+export function TodosCard({ t }: { t: Today }) {
+  const [todos, setTodos] = useStored<Todo[]>('todos', []);
+  const [text, setText] = useState('');
+  const [due, setDue] = useState('');
+  const canvas = t.shown.filter((i) => i.kind === 'deadline' || i.kind === 'suggestion').slice(0, 3);
+  const mine = sortTodos(todos);
+  const add = () => {
+    if (!text.trim()) return;
+    setTodos([...todos, newTodo(text, due)]);
+    setText('');
+    setDue('');
+  };
+  const open = mine.filter((x) => !x.done).length;
+  return (
+    <section className="glass b-todos">
+      <div className="glass-head"><h2>To-dos</h2><span className="faint tiny">{open + canvas.length} open</span></div>
+      <form className="todo-add" onSubmit={(e) => { e.preventDefault(); add(); }}>
+        <input className="input" placeholder="Add a to-do…" value={text} onChange={(e) => setText(e.target.value)} aria-label="New to-do" />
+        <button className="btn btn-primary" type="submit" disabled={!text.trim()} aria-label="Add to-do"><span aria-hidden="true" style={{ fontSize: "1.3rem", lineHeight: 1 }}>+</span></button>
+        {text.trim() && <label className="todo-when faint small">Due <input className="input" type="date" value={due} onChange={(e) => setDue(e.target.value)} aria-label="Due date (optional)" /></label>}
+      </form>
+      <ul className="todo-list">
+        {canvas.map((i) => (
+          <li key={i.id} className="todo canvas">
+            <span className="todo-dot" aria-hidden="true" />
+            <span className="grow"><b>{i.title.length > 64 ? `${i.title.slice(0, 61)}…` : i.title}</b><small>{i.subject} · Canvas{i.due ? ` · ${dayLabel(new Date(i.due).toISOString(), t.now)}` : ''}</small></span>
+            <button className="btn btn-sm btn-ghost" onClick={() => t.run(i.action)}>{i.action.type === 'link' ? 'Open' : 'Go'}</button>
+          </li>
+        ))}
+        {mine.map((x) => (
+          <li key={x.id} className={`todo${x.done ? ' done' : ''}`}>
+            <button className="todo-check" aria-label={x.done ? 'Mark open' : 'Mark done'} aria-pressed={x.done} onClick={() => setTodos(todos.map((y) => (y.id === x.id ? { ...y, done: !y.done } : y)))}>
+              {x.done && <Icon name="check" size={14} />}
+            </button>
+            <span className="grow"><b>{x.text}</b>{x.due && <small>{dayLabel(x.due, t.now)}</small>}</span>
+            <button className="btn btn-sm btn-ghost" aria-label="Delete to-do" onClick={() => setTodos(todos.filter((y) => y.id !== x.id))}><Icon name="x" size={14} /></button>
+          </li>
+        ))}
+      </ul>
+      {!canvas.length && !mine.length && <p className="muted small">Nothing here yet – add your first to-do above.</p>}
+      {mine.some((x) => x.done) && <button className="btn btn-sm btn-ghost" onClick={() => setTodos(todos.filter((y) => !y.done))}>Clear done</button>}
+    </section>
+  );
+}
+
+export function FocusCard() {
+  return (
+    <section className="glass b-focus">
+      <div className="glass-head"><h2>Focus</h2><a className="tiny" href="#/focus">Log →</a></div>
+      <FocusPanel compact />
+    </section>
+  );
+}
+
+export function CardsCard() {
+  const due = useDueCounts();
+  const top = COURSES.map((c) => ({ c, n: due.perCourse[c.id] ?? 0 })).sort((a, b) => b.n - a.n)[0];
+  return (
+    <section className="glass b-cards">
+      <div className="glass-head"><h2>Review</h2></div>
+      <div className="big-number">{due.total}</div>
+      <div className="muted small">card{due.total === 1 ? '' : 's'} due today{due.total > 0 && top?.n ? ` · most in ${top.c.name}` : ''}</div>
+      <button className="btn btn-primary" disabled={!due.total} onClick={() => navigate('/review')}><Icon name="review" size={17} /> Review now</button>
+    </section>
+  );
+}
+
+export function WeekCard() {
+  const f = useFocus();
+  const settings = useApp((s) => s.settings);
+  const [targets] = useStored<Targets>('focus:targets', {});
+  const now = Date.now();
+  const done = useMemo(() => hoursBySubject(f.sessions, weekStart(now)), [f.sessions, now]);
+  const rows = targetRows(targets, done).slice(0, 4);
+  const total = Object.values(done).reduce((a, b) => a + b, 0);
+  const exams = COURSES.map((c) => ({ c, d: settings.examDates?.[c.id] ? daysUntil(settings.examDates[c.id], now) : null })).filter((x) => x.d !== null && x.d >= 0).sort((a, b) => a.d! - b.d!);
+  return (
+    <section className="glass b-week">
+      <div className="glass-head"><h2>This week</h2><span className="faint tiny">{(Math.round(total * 10) / 10).toFixed(1)} h focused</span></div>
+      {rows.length ? (
+        <ul className="week-bars">
+          {rows.map((r) => (
+            <li key={r.subject}>
+              <span>{r.subject}</span>
+              <span className="week-track"><i style={{ width: `${Math.min(100, (r.done / r.target) * 100)}%` }} /></span>
+              <small>{(Math.round(r.done * 10) / 10).toFixed(1)}/{r.target} h</small>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="muted small">Set weekly hour targets in <a href="#/focus">Focus → Targets</a> to see your progress here.</p>
+      )}
+      {exams.length > 0 && <div className="exam-chips">{exams.slice(0, 3).map(({ c, d }) => <span key={c.id}><b>{d}</b> days to {c.name}</span>)}</div>}
+    </section>
+  );
+}

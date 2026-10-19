@@ -84,3 +84,10 @@ Status: [ ] open · [x] done · [~] solved differently / blocked (reason in the 
 - [x] Verified outside the browser: with region `germanywestcentral` the key is accepted and CORS allows the call from the app. Microphone → score not run end to end here
 - [ ] **Your `private/azure-speech.json` has region `wesgermanywestcentral` – that host doesn't exist (typo). Change it to `germanywestcentral`**
 - Limits: the recording goes to Microsoft (not stored by the app); pitch accent / mora length only partly scored; a clip is limited to 20 s here (Azure short-audio limit ~30 s); Japanese word segmentation is Azure's, so kanji words are shown as written when they can't be turned into romaji
+
+## Home redesign (19 Oct)
+- [x] Home = frosted-glass bento: Your lessons (timetable + suggested study blocks), To-dos (own to-dos with optional date + Canvas deadlines), Focus timer, Review, This week (targets + exam countdown), What to do next, Subjects. Canvas tile removed (the bell covers it)
+- [x] Focus → Today is now a clock: drag on the ring to pick a time range → “Log this time”; dashed gaps are tappable
+- [ ] **Future: design / tone option “Full liquid glass”** (Settings → Display): lighter, more neutral Apple-style surfaces instead of leather, glass on every screen – the current Home glass uses `.glass` / `.glass-tiles` in components.css and can be switched by tokens
+- [ ] Reference screenshot for the Home layout never arrived – compare once it does
+- [ ] Files / OneNote integration on Home: only the “What to do next” rows (new files, new notes) exist; decide if a dedicated card is wanted
