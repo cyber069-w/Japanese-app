@@ -10,6 +10,7 @@
  *   resets      when each module was last reset
  */
 import type { InterviewQuestion } from '../modules/interview/questions';
+import { applyKv, initKvSync, kvSnapshot, localWrite, registerKvHooks } from './kvSync';
 import { applyFocusSync, focusReady, getFocus, initFocus, onFocusChange } from './focusStore';
 import type { CfaLesson } from '../modules/cfa/lessons';
 import { useSyncExternalStore } from 'react';
@@ -160,6 +161,13 @@ export async function initStore() {
   kanjiList = storedKanji ?? [];
   cfaLessons = storedCfa ?? [];
   interviewQs = storedInterview ?? [];
+  await initKvSync();
+  registerKvHooks(changed, (key, value) => {
+    if (key === 'interviewQs') {
+      interviewQs = (value as InterviewQuestion[]) ?? [];
+      setState({ content: composeContent() });
+    }
+  });
   profile = storedProfile ?? null;
   ownDays = Object.fromEntries(dayList.map((d) => [d.date, d]));
   remoteDays = storedRemote ?? {};
@@ -244,11 +252,11 @@ export async function setCfaLessons(list: CfaLesson[]) {
   changed();
 }
 
-/** Interview decks – device-only for now (not part of the sync file). */
+/** Interview decks (synced item by item, see kvSync.ts). */
 export async function setInterviewQuestions(list: InterviewQuestion[]) {
   interviewQs = list;
-  await storage.set('interviewQs', list);
   setState({ content: composeContent() });
+  await localWrite('interviewQs', list);
 }
 
 export async function setKanjiList(list: string[]) {
@@ -332,6 +340,7 @@ export function exportSyncData(deviceId: string): SyncData {
     kanjiList,
     profile,
     cfaLessons,
+    kv: kvSnapshot(),
     focus: { sessions: getFocus().sessions, deleted: getFocus().deleted, subjects: getFocus().subjects },
     stamps: { ...stamps, focusSubjects: getFocus().subjectsAt },
     resets,
@@ -384,6 +393,7 @@ export async function applySyncData(merged: SyncData, deviceId: string, deviceNa
     await storage.set('cfaLessons', cfaLessons);
   }
   if (final.focus) await applyFocusSync(final.focus, final.stamps.focusSubjects);
+  if (final.kv) await applyKv(final.kv);
   stamps = final.stamps;
   resets = final.resets;
   await storage.set('stamps', stamps);

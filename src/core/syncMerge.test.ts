@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { CardState } from './srs';
 import type { DayLog } from './db';
 import { combineDays, mergeSync, NO_STAMPS, sameContent, stableStringify, type SyncData } from './syncMerge';
+import { writeColl } from './kvSync';
 import { decryptJson, deriveKey, encryptJson, fromBase64, randomSalt, saltOf, toBase64, WrongPasswordError } from '../lib/crypto';
 
 const card = (id: string, last: number, seen = 1): CardState => ({
@@ -116,5 +117,16 @@ describe('mergeSync – focus log and CFA lessons', () => {
     expect(m.focus!.sessions).toHaveLength(1);
     expect(m.cfaLessons).toEqual([]);
     expect(m.stamps.cfaLessons).toBe(0);
+  });
+});
+
+describe('kv stores in the sync file', () => {
+  const base = (kv?: SyncData['kv']): SyncData => ({ ...data({}), kv });
+  it('merges to-dos from two devices and keeps older sync files working', () => {
+    const phone = base({ todos: writeColl('todos', undefined, [{ id: 'a', text: 'phone' }], 100) });
+    const mac = base({ todos: writeColl('todos', undefined, [{ id: 'b', text: 'mac' }], 200) });
+    const merged = mergeSync(mac, phone, 'mac', 'Mac', 300);
+    expect(Object.keys(merged.kv!.todos.items).sort()).toEqual(['a', 'b']);
+    expect(mergeSync(mac, base(undefined), 'mac', 'Mac', 300).kv!.todos.items.b).toBeTruthy();
   });
 });

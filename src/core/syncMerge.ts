@@ -15,6 +15,7 @@ import type { CfaLesson } from '../modules/cfa/lessons';
 import type { CardState } from './srs';
 import type { DayLog } from './db';
 import type { Profile, Settings, VocabEntry } from './types';
+import { mergeKv, type KvData } from './kvSync';
 
 /** Settings that stay on each device (voices and screens differ). */
 export const DEVICE_SETTINGS = ['theme', 'surface', 'voiceRate', 'sound', 'course'] as const;
@@ -41,6 +42,8 @@ export interface SyncData {
   /** Added later – missing in data from older versions. */
   cfaLessons?: CfaLesson[];
   focus?: FocusSync;
+  /** To-dos, readings, applications, interview questions and attempts, shutdown log – merged item by item (core/kvSync.ts). */
+  kv?: KvData;
   stamps: Stamps;
   /** Module id → time of its last reset; older progress of that module is dropped. */
   resets: Record<string, number>;
@@ -109,6 +112,7 @@ export function mergeSync(local: SyncData, remote: SyncData | null, deviceId: st
       deleted,
       subjects: pick('focusSubjects') === 'local' || !r.focus ? lf.subjects : rf.subjects,
     },
+    kv: mergeKv(local.kv, r.kv, now),
     stamps: {
       settings: Math.max(ls.settings, rs.settings),
       userVocab: Math.max(ls.userVocab, rs.userVocab),
@@ -141,18 +145,8 @@ export function combineDays(perDevice: Record<string, DayLog[]>): Record<string,
   return out;
 }
 
-/** JSON with sorted keys, so equal data always gives the same string. */
-export function stableStringify(v: unknown): string {
-  if (Array.isArray(v)) return `[${v.map(stableStringify).join(',')}]`;
-  if (v && typeof v === 'object') {
-    return `{${Object.keys(v as object)
-      .filter((k) => (v as Record<string, unknown>)[k] !== undefined)
-      .sort()
-      .map((k) => `${JSON.stringify(k)}:${stableStringify((v as Record<string, unknown>)[k])}`)
-      .join(',')}}`;
-  }
-  return JSON.stringify(v ?? null);
-}
+export { stableStringify } from '../lib/stable';
+import { stableStringify } from '../lib/stable';
 
 /** Same content, ignoring when each device last synced. */
 export function sameContent(a: SyncData, b: SyncData): boolean {

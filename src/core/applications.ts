@@ -88,11 +88,12 @@ export function suggestFromEmail(text: string, rules: EmailRule[] = DEFAULT_RULE
 
 /** Seed from the user's current applications. Stage and dates are unknown → Researching, details left empty ("–"). */
 export function seedApplications(now = Date.now()): Application[] {
-  const mk = (company: string, role: string, type: AppType, notes = ''): Application => ({ ...blankApplication(now + Math.floor(Math.random() * 1e6)), company, role, type, notes: `${notes}${notes ? ' · ' : ''}Stage and dates not entered yet.`.trim() });
+  // fixed ids: seeding on a second device must not create duplicates after sync
+  const mk = (id: string, company: string, role: string, type: AppType, notes = ''): Application => ({ ...blankApplication(now), id, company, role, type, notes: `${notes}${notes ? ' · ' : ''}Stage and dates not entered yet.`.trim() });
   return [
-    mk('Nomura', 'Spring Insight', 'insight'),
-    mk('FNF', 'Scholarship', 'scholarship'),
-    mk('PEVC Mentorship', 'Mentorship programme', 'mentorship', 'EQT, Permira, Cinven'),
+    mk('seed-nomura', 'Nomura', 'Spring Insight', 'insight'),
+    mk('seed-fnf', 'FNF', 'Scholarship', 'scholarship'),
+    mk('seed-pevc', 'PEVC Mentorship', 'Mentorship programme', 'mentorship', 'EQT, Permira, Cinven'),
   ];
 }
 
