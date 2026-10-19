@@ -2,6 +2,7 @@
  * Focus: log every lecture and study hour. Timer with a radial subject picker, today's timeline with
  * gaps you can fill in one tap, add / edit dialogs, reminders and the lecture timetable.
  */
+import { FocusTargets } from '../components/FocusTargets';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Icon } from '../components/Icon';
 import { Sheet } from '../components/Sheet';
@@ -122,6 +123,8 @@ export function Focus() {
           </div>
         </div>
       </div>
+
+      <FocusTargets />
 
       <Lectures busy={!!f.active} onStart={startLecture} />
 

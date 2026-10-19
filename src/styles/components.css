@@ -1311,3 +1311,10 @@ button.subject-tile { font: inherit; cursor: pointer; }
 .today-title { font-weight: 600; overflow-wrap: anywhere; }
 .today-time { flex: 0 0 auto; font-variant-numeric: tabular-nums; color: var(--ink-3); min-width: 96px; }
 @media (max-width: 560px) { .today-row { flex-wrap: wrap; } .today-time { min-width: 0; } }
+
+/* Focus targets, weekly report */
+.target-bar { position: relative; height: 10px; border-radius: 6px; background: var(--track); }
+.target-done { position: absolute; inset: 0 auto 0 0; border-radius: 6px; background: var(--accent); }
+.target-mark { position: absolute; top: -3px; bottom: -3px; width: 2px; background: var(--ink); opacity: 0.8; }
+.report td, .report th { padding: 4px 6px; }
+@media print { body.print-report .page > *:not(.report) { display: none !important; } }

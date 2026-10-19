@@ -8,17 +8,18 @@ import { loadCalendar, occurrences, type CalendarData } from '../core/calendar';
 import { dayWindow, initFocus, startTimer, useFocus } from '../core/focusStore';
 import { coverage, gaps, sessionIntervals } from '../core/focus';
 import { COURSES } from '../courses';
+import { useStored } from '../core/kv';
+import type { PlannedBlock } from '../core/targets';
 import { askTutor } from '../lib/tutor';
 import { notesRequest } from '../lib/notesPrompt';
 import { daysUntil } from '../lib/date';
 import { navigate } from '../lib/router';
 import { Icon } from './Icon';
 import {
-  buildDay, buildItems, canvasStatus, groupByHorizon, HORIZON_LABEL, pruneDismissed, visibleItems,
+  buildDay, buildItems, COURSE_SUBJECT, canvasStatus, groupByHorizon, HORIZON_LABEL, pruneDismissed, visibleItems,
   type SourceStatus, type TodayAction, type TodayItem,
 } from '../core/today';
 
-const COURSE_SUBJECT: Record<string, string> = { japanese: 'Japanisch', cfa: 'CFA', bwl: 'BWL', recht: 'Privatrecht' };
 const hhmm = (t: number) => new Date(t).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
 const DISMISS_KEY = 'today:dismissed';
 
@@ -46,6 +47,7 @@ export function TodayHub() {
   const [calendar, setCalendar] = useState<CalendarData | null | undefined>(undefined);
   const [all, setAll] = useState(false);
   const [showDismissed, setShowDismissed] = useState(false);
+  const [planned] = useStored<PlannedBlock[]>('today:planned', []);
   const { map: dismissed, dismiss, restore } = useDismissed();
   const [now, setNow] = useState(Date.now());
   useEffect(initFocus, []);
@@ -79,8 +81,8 @@ export function TodayHub() {
       { name: 'Focus', read: focus.sessions.length, act: open.length, state: 'ok' },
       { name: 'Cards', read: COURSES.length, act: cards.filter((c) => c.n > 0).length, state: 'ok' },
     ];
-    return { items: built, day: buildDay(now, winEnd, today, intervals.filter(([a]) => a < winEnd), ranked), sources: src };
-  }, [view.accepted, view.suggestions, view.unseenImportant, view.files, view.announcements, view.badge, lectures, focus.sessions, calendar, due.perCourse, settings.examDates, settings.examDate, canvasState.inbox, now, winStart, winEnd]);
+    return { items: built, day: buildDay(now, winEnd, today, intervals.filter(([a]) => a < winEnd), ranked, 45, planned), sources: src };
+  }, [view.accepted, view.suggestions, view.unseenImportant, view.files, view.announcements, view.badge, lectures, focus.sessions, calendar, due.perCourse, settings.examDates, settings.examDate, canvasState.inbox, planned, now, winStart, winEnd]);
 
   const shown = visibleItems(items, dismissed, now);
   const hiddenItems = items.filter((i) => !shown.includes(i));
@@ -163,7 +165,7 @@ export function TodayHub() {
           {day.map((b) => (
             <li key={`${b.kind}${b.start}`} className="today-row">
               <span className="today-time">{hhmm(b.start)}–{hhmm(b.end)}</span>
-              <div className="grow">{b.kind === 'lecture' ? <b>{b.title}</b> : b.title}<span className="tag" style={{ marginLeft: 8 }}>{b.kind === 'lecture' ? 'lecture' : 'suggested'}</span></div>
+              <div className="grow">{b.kind === 'lecture' ? <b>{b.title}</b> : b.title}<span className="tag" style={{ marginLeft: 8 }}>{b.kind === 'lecture' ? 'lecture' : b.planned ? 'planned' : 'suggested'}</span></div>
               {b.kind === 'study' && b.subject && <button className="btn btn-sm" onClick={() => run({ type: 'timer', label: '', subject: b.subject! })}>Start timer</button>}
             </li>
           ))}

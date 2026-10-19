@@ -1,3 +1,4 @@
+import { WeeklyReport } from '../components/WeeklyReport';
 import { useEffect, useMemo } from 'react';
 import { ModuleGlyph } from '../components/GlyphIcon';
 import { useApp } from '../core/store';
@@ -224,6 +225,7 @@ function LessonProgress({ mods }: { mods: StudyModule[] }) {
           </div>
         ))}
       </div>
+      <WeeklyReport />
     </div>
   );
 }

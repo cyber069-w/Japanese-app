@@ -52,6 +52,9 @@ export function focusSubject(name: string, known: string[] = FOCUS_SUBJECTS): st
   return hit && known.includes(hit[1]) ? hit[1] : name;
 }
 
+/** Course id → Focus subject name (other courses keep their own name). */
+export const COURSE_SUBJECT: Record<string, string> = { japanese: 'Japanisch', cfa: 'CFA', bwl: 'BWL', recht: 'Privatrecht' };
+
 export function horizonOf(due: number | undefined, now: number): Horizon {
   if (due === undefined) return 'later';
   if (due < now) return 'overdue';
@@ -169,16 +172,18 @@ export const visibleItems = (items: TodayItem[], dismissed: Record<string, numbe
 export const pruneDismissed = (dismissed: Record<string, number>, now: number) =>
   Object.fromEntries(Object.entries(dismissed).filter(([, t]) => t > now - DISMISS_MS));
 
-export interface DayBlock { kind: 'lecture' | 'study'; start: number; end: number; title: string; subject?: string }
+export interface DayBlock { kind: 'lecture' | 'study'; start: number; end: number; title: string; subject?: string; planned?: boolean }
 
 /**
  * Timeline from now to the end of the day window: lectures, then up to 90 min study blocks in free gaps of ≥ 45 min.
  * Block subjects walk down the ranked subjects so one subject doesn't take the whole evening.
  */
-export function buildDay(now: number, windowEnd: number, lectures: Occurrence[], logged: Array<[number, number]>, ranked: string[], minGapMin = 45): DayBlock[] {
+export function buildDay(now: number, windowEnd: number, lectures: Occurrence[], logged: Array<[number, number]>, ranked: string[], minGapMin = 45, planned: Array<{ subject: string; start: number; end: number }> = []): DayBlock[] {
+  const mine = planned.filter((p) => p.end > now && p.start < windowEnd);
   const busy: Array<[number, number]> = [
     ...lectures.filter((l) => !l.allDay).map((l) => [l.start, l.end] as [number, number]),
     ...logged,
+    ...mine.map((p) => [p.start, p.end] as [number, number]),
   ];
   const start = Math.ceil(now / (5 * MIN)) * 5 * MIN;
   const free: Array<[number, number]> = [];
@@ -192,6 +197,7 @@ export function buildDay(now: number, windowEnd: number, lectures: Occurrence[],
   const blocks: DayBlock[] = lectures
     .filter((l) => !l.allDay && l.end > now && l.start < windowEnd)
     .map((l) => ({ kind: 'lecture' as const, start: l.start, end: l.end, title: l.title, subject: focusSubject(l.title) }));
+  blocks.push(...mine.map((p) => ({ kind: 'study' as const, start: p.start, end: p.end, title: `Study ${p.subject}`, subject: p.subject, planned: true })));
   let i = 0;
   for (const [a, b] of free) {
     if (b - a < minGapMin * MIN || !ranked.length) continue;

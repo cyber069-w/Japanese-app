@@ -69,3 +69,7 @@ Status: [ ] open · [x] done · [~] solved differently / blocked (reason in the 
 - [x] Mac job lists new PDFs in `Notizen` / `One Note …` folders (pattern `notes_folders` in private/canvas-config.json, last 30 days, each once) → inbox files with kind "notes"; tested on a temp folder, not on the real OneDrive
 - [x] Today + bell: “New notes” rows with “Make flashcards with the tutor” (Japanese → CSV romaji;German, CFA → JSON pack, others → German summary + Q/A) and Done
 - [x] Vocab import: step-by-step for textbook lessons 6+ via the tutor (nothing copied into the repo)
+
+## Phase 4 – Time targets + weekly report
+- [x] Focus → Targets: hours per subject per week, suggestion from the last 2 weeks (0.5 h steps), done-vs-target bars, “Block 1 h for X tomorrow” → planned block in Today's “Your day”
+- [x] Stats → Weekly report (this / last week): focus, target, lectures, cards + accuracy, Canvas deadlines due / still open, new files; PDF (print), Markdown download, copy for the planning chat. “Finished deadlines” is not tracked by Canvas data – shown as due / still open instead
