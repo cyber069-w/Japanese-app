@@ -130,20 +130,28 @@ function Sections({ sections }: { sections: CourseSection[] }) {
   );
 }
 
+const TOPIC_ICONS: Record<string, string> = {
+  quant: 'math', economics: 'gauge', corporate: 'bank', fsa: 'table', equities: 'chart-line',
+  'fixed-income': 'numbers', derivatives: 'shapes', alternatives: 'grid', portfolio: 'target', ethics: 'scale',
+};
+
 function TopicGrid({ course }: { course: CourseConfig }) {
+  const maxWeight = Math.max(...course.topics!.map((t) => t.weight[1]));
   return (
-    <div className="grid module-grid" style={{ '--min': '220px' } as React.CSSProperties}>
-      {course.topics!.map((t) => (
-        <a key={t.id} className="card card-link module-card" href={`#/c/${course.id}/t/${t.id}`}>
-          <div className="row" style={{ alignItems: 'flex-start' }}>
-            <div className="module-glyph">{t.name[0]}</div>
+    <div className="grid module-grid topic-grid" style={{ '--min': '240px' } as React.CSSProperties}>
+      {course.topics!.map((t, i) => (
+        <a key={t.id} className="card card-link module-card topic-card" href={`#/c/${course.id}/t/${t.id}`}>
+          <div className="row" style={{ alignItems: 'center' }}>
+            <div className="module-glyph">{TOPIC_ICONS[t.id] ? <Icon name={TOPIC_ICONS[t.id]} size={26} /> : t.name[0]}</div>
             <span className="spacer" />
-            <span className="tag">{t.weight[0]}–{t.weight[1]}%</span>
+            <span className="topic-no">Topic {i + 1}</span>
           </div>
           <h3>{t.name}</h3>
-          <div className="meta">
-            <span>{t.modules} learning modules · no content yet</span>
+          <div className="topic-weight" title={`Exam weight ${t.weight[0]}–${t.weight[1]} %`}>
+            <span className="topic-weight-bar"><i style={{ width: `${(t.weight[1] / maxWeight) * 100}%` }} /></span>
+            <b>{t.weight[0]}–{t.weight[1]}%</b>
           </div>
+          <div className="meta"><span>{t.modules} learning modules · not started</span></div>
         </a>
       ))}
     </div>

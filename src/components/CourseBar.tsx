@@ -14,7 +14,7 @@ const pct = (v: number) => `${Math.round(v * 100)}%`;
 
 export function CourseSeal({ course, small }: { course: CourseConfig; small?: boolean }) {
   return (
-    <span className={`seal${small ? ' seal-sm' : ''}`} aria-hidden="true">
+    <span className={`seal${small ? ' seal-sm' : ''}`} aria-hidden="true" style={{ '--tile': `var(--subject-${course.id}, var(--accent))` } as React.CSSProperties}>
       <CourseGlyph course={course} />
     </span>
   );
