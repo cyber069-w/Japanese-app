@@ -33,3 +33,13 @@ describe('prompts', () => {
     expect(sparPrompt(q, 'text')).toMatch(/5 rounds/);
   });
 });
+
+import { questionFromMarket } from './questions';
+describe('market log → card', () => {
+  it('makes a technical card with a stable id', () => {
+    const q = questionFromMarket({ id: 'm1', date: '2026-10-19', text: 'Fed holds rates', tag: 'market' });
+    expect(q).toMatchObject({ id: 'technical-market-m1', deck: 'technical', topic: 'Markets and current deals' });
+    expect(q.question).toContain('Fed holds rates');
+    expect(questionFromMarket({ id: 'd', date: 'x', text: 'A buys B', tag: 'deal' }).question).toMatch(/deal/);
+  });
+});

@@ -1,34 +1,18 @@
 /** Stats → Weekly report: per subject focus, lectures, cards and Canvas numbers; PDF via print, Markdown download. */
-import { useMemo, useState } from 'react';
-import { useApp } from '../core/store';
-import { useFocus } from '../core/focusStore';
-import { inboxView, useCanvas } from '../core/canvas';
-import { courseOfModule } from '../courses';
-import { COURSE_SUBJECT } from '../core/today';
-import { useStored } from '../core/kv';
-import { weekStart, type Targets } from '../core/targets';
-import { buildReport, reportMarkdown } from '../core/report';
+import { useState } from 'react';
+import { useWeeklyReport } from './useReport';
+import { useToday } from './todayData';
+import { PlanSheet } from './home/PlanSheet';
 import { Icon } from './Icon';
 
 const h1 = (h: number) => `${(Math.round(h * 10) / 10).toFixed(1)} h`;
 
 export function WeeklyReport() {
-  const days = useApp((s) => s.days);
-  const focus = useFocus();
-  const canvas = inboxView(useCanvas());
-  const [targets] = useStored<Targets>('focus:targets', {});
   const [offset, setOffset] = useState(0);
   const [msg, setMsg] = useState('');
-  const now = Date.now();
-  const report = useMemo(
-    () => buildReport({
-      start: weekStart(now, offset), now, sessions: focus.sessions, days, targets,
-      subjectOfModule: (m) => { const c = courseOfModule(m); return COURSE_SUBJECT[c.id] ?? c.name; },
-      deadlines: canvas.accepted, files: canvas.files,
-    }),
-    [offset, focus.sessions, days, targets, canvas.accepted, canvas.files, now],
-  );
-  const md = reportMarkdown(report);
+  const { report, md } = useWeeklyReport(offset);
+  const t = useToday();
+  const [planning, setPlanning] = useState(false);
   const download = () => {
     const a = document.createElement('a');
     a.href = URL.createObjectURL(new Blob([md], { type: 'text/markdown' }));
@@ -79,9 +63,11 @@ export function WeeklyReport() {
           <button className="btn btn-sm" onClick={print}><Icon name="download" size={15} /> PDF (print)</button>
           <button className="btn btn-sm" onClick={download}><Icon name="download" size={15} /> Markdown</button>
           <button className="btn btn-sm" onClick={() => void copy()}><Icon name="copy" size={15} /> Copy for planning chat</button>
+          <button className="btn btn-sm btn-primary" onClick={() => setPlanning(true)}><Icon name="sparkle" size={15} /> Plan next week with Claude</button>
           {msg && <span className="faint tiny" role="status">{msg}</span>}
         </div>
       </div>
+      {planning && <PlanSheet t={t} report={md} onClose={() => setPlanning(false)} />}
     </div>
   );
 }

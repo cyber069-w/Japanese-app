@@ -15,6 +15,8 @@ import { ShutdownBanner } from '../components/home/ShutdownBanner';
 import { EmptyState } from '../components/EmptyState';
 import { HeadIcon } from '../components/HeadIcon';
 import { CourseGlyph } from '../components/GlyphIcon';
+import { useWeeklyReport } from '../components/useReport';
+import { PlanSheet } from '../components/home/PlanSheet';
 import { useToday } from '../components/todayData';
 import { CardsCard, FocusCard, LessonsCard, TodosCard, WeekCard } from '../components/home/cards';
 import { HORIZON_LABEL, groupByHorizon } from '../core/today';
@@ -29,6 +31,8 @@ function greeting(h: number) {
 export function Home() {
   const due = useDueCounts();
   const t = useToday();
+  const weekly = useWeeklyReport(0);
+  const [sunday, setSunday] = useState(false);
   const [apps] = useStored<Application[]>('applications', []);
   const [readings] = useStored<Reading[]>('readings', []);
   const [clubs] = useStored<Club[]>('clubs', []);
@@ -55,6 +59,10 @@ export function Home() {
       </div>
 
       <ShutdownBanner />
+      {new Date().getDay() === 0 && (
+        <div className="glass shutdown-banner"><Icon name="calendar" size={18} /><b className="grow">Sunday – plan next week</b><button className="btn btn-sm btn-primary" onClick={() => setSunday(true)}>Plan with Claude</button></div>
+      )}
+      {sunday && <PlanSheet t={t} report={weekly.md} onClose={() => setSunday(false)} />}
 
       <div className="bento">
         <LessonsCard t={t} />
@@ -132,6 +140,10 @@ export function Home() {
           <span className="subject-icon"><Icon name="keyboard" size={22} /></span>
           <span><b className="subject-name">Monkeytype</b><span className="subject-note">Typing practice ↗</span></span>
           <span className="subject-meta"><span>opens monkeytype.com</span></span>
+        </a>
+        <a className="subject-tile" href="#/market" style={{ '--tile': 'var(--subject-interview)' } as React.CSSProperties}>
+          <span className="subject-icon"><Icon name="chart-line" size={22} /></span>
+          <span><b className="subject-name">Market log</b><span className="subject-note">One line a day → interview cards</span></span>
         </a>
         <a className="subject-tile" href="#/clubs" style={{ '--tile': 'var(--subject-recht)' } as React.CSSProperties}>
           <span className="subject-icon"><Icon name="user" size={22} /></span>

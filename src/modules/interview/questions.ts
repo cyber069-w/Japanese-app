@@ -98,3 +98,12 @@ export function sparPrompt(q: Pick<InterviewQuestion, 'question'>, transcript: s
     '', `Opening question: ${q.question}`, '', 'My first answer (transcript):', transcript || '(no transcript)', '', 'Start with your reaction and the first follow-up question.',
   ].join('\n');
 }
+
+/** One line from the market and deal log → a technical card (deck "Markets and current deals"). */
+export function questionFromMarket(item: { id: string; date: string; text: string; tag: 'market' | 'deal' | 'asia' }): InterviewQuestion {
+  const ask = item.tag === 'deal' ? `Walk me through this deal and why the buyer or investor might have done it: ${item.text}` : item.tag === 'asia' ? `What is happening in Asian markets – ${item.text} – and what does it mean for investors?` : `What is going on in the markets: ${item.text}? Why does it matter?`;
+  return {
+    id: `technical-market-${item.id}`, question: ask, deck: 'technical', topic: 'Markets and current deals', difficulty: 2,
+    model_answer_points: [`The facts (${item.date}): ${item.text}`, 'Who is affected and how (sectors, valuations, rates)', 'Your view: what could happen next and what you would watch'],
+  };
+}

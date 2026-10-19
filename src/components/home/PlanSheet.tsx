@@ -15,7 +15,7 @@ import { Sheet } from '../Sheet';
 import { Icon } from '../Icon';
 import type { useToday } from '../todayData';
 
-export function PlanSheet({ t, onClose }: { t: Today; onClose: () => void }) {
+export function PlanSheet({ t, onClose, report }: { t: Today; onClose: () => void; report?: string }) {
   const settings = useApp((s) => s.settings);
   const due = useDueCounts();
   const focus = useFocus();
@@ -28,7 +28,7 @@ export function PlanSheet({ t, onClose }: { t: Today; onClose: () => void }) {
   const [ws, we] = dayWindow(now);
   const prompt = useMemo(() => {
     const done = hoursBySubject(focus.sessions, weekStart(now));
-    return planPrompt({
+    const base = planPrompt({
       now, dayStart: focus.prefs.dayStart, dayEnd: focus.prefs.dayEnd,
       lectures: t.lectures.filter((l) => !l.allDay && l.end > now && l.start < now + 8 * 86_400_000).map((l) => ({ title: l.title, start: l.start, end: l.end })),
       deadlines: t.shown.filter((i) => i.kind === 'deadline' || i.kind === 'suggestion').map((i) => ({ title: i.title, subject: i.subject, due: i.due })),
@@ -36,7 +36,8 @@ export function PlanSheet({ t, onClose }: { t: Today; onClose: () => void }) {
       targets: Object.entries(targets).map(([subject, target]) => ({ subject, target, done: done[subject] ?? 0 })),
       dueCards: due.total, todos: todos.filter((x) => !x.done).map((x) => x.text + (x.due ? ` (bis ${x.due})` : '')),
     });
-  }, [t.lectures, t.shown, focus.sessions, focus.prefs, settings.examDates, targets, todos, due.total, now]);
+    return report ? `${base}\n\nBericht der letzten Woche (Stunden, Karten, Abgaben) – nutze ihn, um die nächste Woche neu zu gewichten:\n${report}` : base;
+  }, [report, t.lectures, t.shown, focus.sessions, focus.prefs, settings.examDates, targets, todos, due.total, now]);
   const parsed = useMemo(() => (text.trim() ? parsePlan(text, now, minutesOf(focus.prefs.dayStart), minutesOf(focus.prefs.dayEnd)) : null), [text, now, focus.prefs]);
 
   const copy = async () => {
@@ -53,7 +54,7 @@ export function PlanSheet({ t, onClose }: { t: Today; onClose: () => void }) {
   void ws; void we;
 
   return (
-    <Sheet title="Plan my week" onClose={onClose}>
+    <Sheet title={report ? "Plan next week" : "Plan my week"} onClose={onClose}>
       <div className="stack" style={{ '--gap': '14px' } as React.CSSProperties}>
         <p className="muted small" style={{ margin: 0 }}>No AI inside the app: you ask Claude yourself. Step 1 copies a prompt with your lectures, deadlines, exams, targets and to-dos. Step 2 takes Claude’s answer back.</p>
         <div className="row"><button className="btn btn-primary" onClick={() => void copy()}><Icon name="sparkle" size={16} /> 1 · Copy prompt and open Claude</button></div>
