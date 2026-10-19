@@ -5,7 +5,7 @@ import { hhmm, subjectColor } from '../screens/FocusWidget';
 
 export interface Block { s: number; e: number; subject: string }
 interface Props {
-  from: number; to: number; now: number; blocks: Block[]; gaps: Array<[number, number]>; covered: number;
+  from: number; to: number; now: number; blocks: Block[]; planned?: Block[]; gaps: Array<[number, number]>; covered: number;
   onPick: (start: number, end: number) => void;
 }
 
@@ -19,7 +19,7 @@ const arc = (a: number, b: number, from: number, to: number) => {
   return { strokeDasharray: `${len} ${C - len}`, strokeDashoffset: -off };
 };
 
-export function DayClock({ from, to, now, blocks, gaps, covered, onPick }: Props) {
+export function DayClock({ from, to, now, blocks, planned = [], gaps, covered, onPick }: Props) {
   const svg = useRef<SVGSVGElement>(null);
   const [sel, setSel] = useState<[number, number] | null>(null);
   const anchor = useRef<number | null>(null);
@@ -58,6 +58,7 @@ export function DayClock({ from, to, now, blocks, gaps, covered, onPick }: Props
           ))}
           {gaps.map(([a, b]) => <circle key={a} cx="120" cy="120" r={R} className="clock-gap" strokeWidth={W - 6} {...arc(a, b, from, to)} onClick={(e) => { e.stopPropagation(); if (moved.current) return; setSel(null); onPick(a, b); }} />)}
           {blocks.map((b, i) => <circle key={i} cx="120" cy="120" r={R} stroke={subjectColor(b.subject)} strokeWidth={W} {...arc(b.s, b.e, from, to)}><title>{`${b.subject} ${hhmm(b.s)}–${hhmm(b.e)}`}</title></circle>)}
+          {planned.map((b, i) => <circle key={`p${i}`} cx="120" cy="120" r={R + W / 2 + 10} className="clock-plan" strokeWidth="5" {...arc(b.s, b.e, from, to)}><title>{`Planned: ${b.subject} ${hhmm(b.s)}–${hhmm(b.e)}`}</title></circle>)}
           {sel && <circle cx="120" cy="120" r={R} className="clock-sel" strokeWidth={W + 6} {...arc(sel[0], sel[1], from, to)} />}
         </g>
         {now > from && now < to && <line x1="120" y1="36" x2="120" y2="9" className="clock-hand" transform={`rotate(${nowAngle} 120 120)`} />}

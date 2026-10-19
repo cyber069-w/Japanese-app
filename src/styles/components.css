@@ -1467,3 +1467,4 @@ button.subject-tile { font: inherit; cursor: pointer; }
 .topic-weight-bar i { display: block; height: 100%; border-radius: 4px; background: var(--accent); }
 .topic-card h3 { min-height: 2.6em; }
 .topic-weight b { min-width: 4.6em; text-align: right; }
+.clock-plan { stroke: var(--accent); opacity: 0.85; stroke-linecap: round; }

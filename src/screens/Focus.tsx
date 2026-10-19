@@ -2,6 +2,8 @@
  * Focus: log every lecture and study hour. Timer with a radial subject picker, today's timeline with
  * gaps you can fill in one tap, add / edit dialogs, reminders and the lecture timetable.
  */
+import { useStored } from '../core/kv';
+import type { PlannedBlock } from '../core/targets';
 import { DayClock } from '../components/DayClock';
 import { FocusTargets } from '../components/FocusTargets';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -25,6 +27,7 @@ export function Focus() {
   const f = useFocus();
   useEffect(initFocus, []);
   const [msg, setMsg] = useState('');
+  const [planned] = useStored<PlannedBlock[]>('today:planned', []);
   const [draft, setDraft] = useState<Draft | null>(null);
   const [undo, setUndo] = useState<FocusSession | null>(null);
   const undoTimer = useRef<number>(0);
@@ -93,7 +96,7 @@ export function Focus() {
           <span className={cover >= 0.8 ? 'cover-good' : 'faint'}><b>{Math.round(cover * 100)}%</b> of {f.prefs.dayStart}–{timeOf(until)} logged</span>
         </div>
         <div className="card card-pad stack" style={{ '--gap': '12px' } as React.CSSProperties}>
-          <DayClock from={from} to={to} now={now} blocks={mergeForDisplay(todays, f.active, now)} gaps={holes} covered={cover} onPick={(a, b) => addNew(a, b)} />
+          <DayClock planned={(planned ?? []).filter((p) => p.end > from && p.start < to).map((p) => ({ s: p.start, e: p.end, subject: p.subject }))} from={from} to={to} now={now} blocks={mergeForDisplay(todays, f.active, now)} gaps={holes} covered={cover} onPick={(a, b) => addNew(a, b)} />
           {holes.length > 0 ? (
             <div className="stack" style={{ '--gap': '6px' } as React.CSSProperties}>
               {holes.map(([a, b]) => (
