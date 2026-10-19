@@ -11,7 +11,7 @@ export interface Assessment { accuracy: number; fluency: number; completeness: n
 
 export const assessmentHeader = (referenceText: string) =>
   btoa(String.fromCharCode(...new TextEncoder().encode(JSON.stringify({
-    ReferenceText: referenceText, GradingSystem: 'HundredMark', Granularity: 'Word', Dimension: 'Comprehensive', EnableMiscue: 'True',
+    ReferenceText: referenceText, GradingSystem: 'HundredMark', Granularity: 'Word', Dimension: 'Comprehensive', EnableMiscue: 'False',
   }))));
 
 interface RawScores { AccuracyScore?: number; FluencyScore?: number; CompletenessScore?: number; PronScore?: number; ErrorType?: string }

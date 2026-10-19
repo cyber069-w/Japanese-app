@@ -68,7 +68,7 @@ export function ReadAloud({ ctx }: { ctx: StudyContext }) {
       const blob = await clip.done;
       setListening(false);
       setBusy(true);
-      const a = await assess(azure!, await toWav(blob), cur.s.text);
+      const a = await assess(azure!, await toWav(blob), cur.s.spoken.replace(/\s+/g, ''));
       setPa(a);
       setAttempts(await addAttempt({ sentence: sentenceId, at: Date.now(), accuracy: a.accuracy, fluency: a.fluency, completeness: a.completeness, overall: a.overall }));
       logHistory('speaking', `Pronunciation check: ${cur.romaji.slice(0, 50)} – ${Math.round(a.overall)}/100`);
@@ -139,19 +139,21 @@ export function ReadAloud({ ctx }: { ctx: StudyContext }) {
         {listening && <div className="faint small" aria-live="polite">Listening… {interim && '(hearing you)'}</div>}
         {error && <div className="notice warn small">{error}</div>}
         {pa && (
-          <div className="stack" style={{ '--gap': '10px' } as React.CSSProperties} aria-live="polite">
-            <div className="row">
+          <div className="stack" style={{ '--gap': '12px' } as React.CSSProperties} aria-live="polite">
+            <div className="score-tiles">
               {([['Overall', pa.overall], ['Accuracy', pa.accuracy], ['Fluency', pa.fluency], ['Completeness', pa.completeness]] as const).map(([k, n]) => (
-                <span key={k} className={`tag tag-${scoreTone(n)}`}>{k} {Math.round(n)}</span>
+                <div key={k} className={`score-tile ${scoreTone(n)}`}><b>{Math.round(n)}</b><span>{k}</span></div>
               ))}
             </div>
-            <div className="read-target">
+            <div className="word-chips">
               {pa.words.map((w, i) => (
-                <span key={i} className={`tag tag-${w.error === 'None' ? scoreTone(w.accuracy) : 'bad'}`} style={{ marginRight: 6 }} title={w.error}>
-                  {hasKana(w.word) ? toRomaji(w.word) : w.word} {Math.round(w.accuracy)}{w.error !== 'None' && w.error !== 'Mispronunciation' ? ` · ${w.error.toLowerCase()}` : w.error === 'Mispronunciation' ? ' · mispronounced' : ''}
+                <span key={i} className={`word-chip ${w.error === 'None' || w.error === 'Mispronunciation' ? scoreTone(w.accuracy) : 'bad'}`} title={w.error === 'None' ? undefined : w.error}>
+                  <b>{hasKana(w.word) ? toRomaji(w.word) : w.word}</b>
+                  <span>{Math.round(w.accuracy)}</span>
                 </span>
               ))}
             </div>
+            <div className="faint tiny">Green 80+ · amber 60–79 · red below 60. Work on the red and amber words: listen, then say just that word.</div>
           </div>
         )}
         {azure && (() => {

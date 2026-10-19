@@ -1318,3 +1318,26 @@ button.subject-tile { font: inherit; cursor: pointer; }
 .target-mark { position: absolute; top: -3px; bottom: -3px; width: 2px; background: var(--ink); opacity: 0.8; }
 .report td, .report th { padding: 4px 6px; }
 @media print { body.print-report .page > *:not(.report) { display: none !important; } }
+
+/* Pronunciation result */
+.score-tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.score-tile { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 12px 6px; border-radius: 12px; background: var(--surface-2); border: 1px solid var(--line); }
+.score-tile b { font-size: 1.5rem; line-height: 1.1; }
+.score-tile span { font-size: var(--text-xs); color: var(--ink-3); }
+.score-tile.good b, .word-chip.good b { color: var(--good); }
+.score-tile.warn b, .word-chip.warn b { color: var(--warn); }
+.score-tile.bad b, .word-chip.bad b { color: var(--bad); }
+.word-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.word-chip { display: inline-flex; flex-direction: column; align-items: center; min-width: 54px; padding: 8px 12px; border-radius: 12px; background: var(--surface-2); border: 1px solid var(--line); }
+.word-chip b { font-size: 1.05rem; }
+.word-chip span { font-size: var(--text-xs); color: var(--ink-3); }
+.word-chip.good { background: var(--good-tint); }
+.word-chip.warn { background: var(--warn-tint); }
+.word-chip.bad { background: var(--bad-tint); }
+@media (max-width: 420px) { .score-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.today-meta { margin-top: 4px; font-size: var(--text-sm); color: var(--ink-3); overflow-wrap: anywhere; }
+.today-action { flex: 0 0 auto; }
+.today-sources { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-bottom: 14px; font-size: var(--text-sm); color: var(--ink-2); }
+.today-sources span { display: inline-flex; align-items: center; gap: 6px; }
+.today-sources i { width: 8px; height: 8px; border-radius: 50%; background: var(--good); }
+.today-sources .bad i { background: var(--bad); }

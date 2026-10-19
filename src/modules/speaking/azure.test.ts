@@ -15,7 +15,7 @@ describe('azure pronunciation', () => {
   });
   it('header carries the reference text', () => {
     const j = JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(assessmentHeader('ねこがいます')), (c) => c.charCodeAt(0))));
-    expect(j).toMatchObject({ ReferenceText: 'ねこがいます', Granularity: 'Word', EnableMiscue: 'True' });
+    expect(j).toMatchObject({ ReferenceText: 'ねこがいます', Granularity: 'Word', EnableMiscue: 'False' });
   });
   it('colours and errors', () => {
     expect([scoreTone(85), scoreTone(65), scoreTone(10)]).toEqual(['good', 'warn', 'bad']);

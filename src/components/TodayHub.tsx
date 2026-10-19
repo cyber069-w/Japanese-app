@@ -103,29 +103,27 @@ export function TodayHub() {
     <li key={i.id} className="today-row">
       <div className="grow">
         <div className="today-title">{i.title.length > 140 ? `${i.title.slice(0, 137)}…` : i.title}</div>
-        <div className="row" style={{ gap: 6, marginTop: 4 }}>
-          {i.subject !== '–' && <span className="tag">{i.subject}</span>}
-          {i.why.map((w) => <span key={w} className="tag tag-accent">{w}</span>)}
-          {i.due !== undefined && <span className="faint tiny">due {new Date(i.due).toLocaleString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</span>}
+        <div className="today-meta">
+          {[i.subject !== '–' ? i.subject : null, ...i.why, i.due !== undefined ? `due ${new Date(i.due).toLocaleString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}` : null].filter(Boolean).join(' · ')}
         </div>
       </div>
-      <button className="btn btn-sm btn-primary" onClick={() => run(i.action)}>{i.action.label}</button>
+      <button className="btn btn-sm today-action" onClick={() => run(i.action)}>{i.action.label}</button>
       <button className="btn btn-sm btn-ghost" aria-label={i.kind === 'notes' ? 'Done' : 'Dismiss'} title={i.kind === 'notes' ? 'Done – remove' : 'Dismiss for 7 days'} onClick={() => (i.kind === 'notes' ? (markSeen([i.id.replace(/^file:/, '')]), dismiss(i.id)) : dismiss(i.id))}>{i.kind === 'notes' ? 'Done' : <Icon name="x" size={15} />}</button>
     </li>
   );
 
   return (
     <section className="section" aria-label="Today">
-      <div className="section-head"><h2>Today</h2><span className="faint tiny">{shown.length} open · rules, no AI</span></div>
+      <div className="section-head"><h2>What to do</h2><span className="faint tiny">{shown.length} open · fixed rules, no AI</span></div>
 
-      <div className="row" style={{ gap: 8, marginBottom: 14 }}>
+      <div className="today-sources">
         {sources.map((s) => (
-          <span key={s.name} className={`tag ${s.state === 'ok' ? '' : 'tag-bad'}`} title={s.note}>
-            {s.name}: {s.read} read · {s.act} to act on
+          <span key={s.name} title={`${s.read} read`} className={s.state === 'ok' ? '' : 'bad'}>
+            <i aria-hidden="true" /> {s.name} · {s.act} to act on
           </span>
         ))}
       </div>
-      {sources.filter((s) => s.note).map((s) => <div key={s.name} className="muted tiny" style={{ marginBottom: 6 }}>{s.name}: {s.note}</div>)}
+      {sources.filter((s) => s.note).map((s) => <div key={s.name} className="faint tiny" style={{ marginBottom: 6 }}>{s.name}: {s.note}</div>)}
 
       {shown.length === 0 ? (
         <div className="card card-pad muted">Nothing needs you right now.</div>
