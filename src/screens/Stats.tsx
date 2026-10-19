@@ -1,3 +1,5 @@
+import { useStored } from '../core/kv';
+import { shutdownStreak, type ShutdownLog } from '../core/shutdown';
 import { WeeklyReport } from '../components/WeeklyReport';
 import { useEffect, useMemo } from 'react';
 import { ModuleGlyph } from '../components/GlyphIcon';
@@ -19,6 +21,7 @@ export function Stats() {
   const settings = useApp((s) => s.settings);
   const cards = useApp((s) => s.cards);
   const due = useDueCounts();
+  const [shutdownLog] = useStored<ShutdownLog>('shutdown:log', {});
   const t = totals(days);
   const learned = useMemo(() => Object.values(cards).filter((c) => c.step === -1).length, [cards]);
   const activity = lastDays(days, 30);
@@ -48,6 +51,7 @@ export function Stats() {
     [String(days[dayKey()]?.reviews ?? 0), 'answers today', 'zap'],
     [String(streak(days)), 'day streak', 'flame', 'flame'],
     [String(bestStreak(days)), 'best streak', 'sparkle'],
+    [String(shutdownStreak(shutdownLog, Date.now())), 'shutdown streak', 'clock'],
     [String(due.total), 'due today', 'review'],
     [t.reviews ? `${Math.round(t.accuracy * 100)}%` : '–', 'accuracy', 'target'],
     [String(t.reviews), 'answers', 'check'],

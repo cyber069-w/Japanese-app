@@ -7,6 +7,9 @@ import { azureConn, canvasConn, syncConn, timetableConn, type Conn } from '../co
 import { loadAzure, saveAzure, type AzureSource } from '../core/azure';
 import { clearHistory, deleteEntry, filterHistory, HISTORY_KINDS, useHistory, type HistoryKind } from '../core/history';
 import { Icon } from '../components/Icon';
+import { updateSettings, useApp } from '../core/store';
+import { downloadIcs } from '../lib/ics';
+import { shutdownReminders } from '../lib/shutdownReminders';
 
 const TAG: Record<Conn['state'], [string, string]> = { working: ['Working', 'tag-good'], stale: ['Stale', 'tag-warn'], off: ['Not set up', ''], failed: ['Failed', 'tag-bad'] };
 
@@ -90,6 +93,40 @@ export function HistorySettings() {
           ))}
         </ul>
       )}
+    </section>
+  );
+}
+
+const DAYS: Array<[string, string]> = [['1', 'Mon'], ['2', 'Tue'], ['3', 'Wed'], ['4', 'Thu'], ['5', 'Fri'], ['6', 'Sat'], ['0', 'Sun']];
+
+/** Settings → Evening shutdown: time per weekday, iA Writer folder, calendar reminders. */
+export function ShutdownSettings() {
+  const s = useApp((st) => st.settings);
+  return (
+    <section className="card card-pad stack" style={{ '--gap': '12px' } as React.CSSProperties} id="shutdown-settings">
+      <h2>Evening shutdown</h2>
+      <p className="muted small" style={{ margin: 0 }}>The reminder time per weekday. On a later night just snooze the alert in Calendar.</p>
+      <div className="row">
+        {DAYS.map(([k, label]) => (
+          <label key={k} className="stack tiny" style={{ '--gap': '4px' } as React.CSSProperties}>
+            <span className="faint">{label}</span>
+            <input className="input" type="time" value={s.shutdownTimes[k] ?? '22:30'} style={{ width: 112 }}
+              onChange={(e) => updateSettings({ shutdownTimes: { ...s.shutdownTimes, [k]: e.target.value || '22:30' } })} aria-label={`Shutdown time ${label}`} />
+          </label>
+        ))}
+      </div>
+      <div className="row">
+        <button className="btn" onClick={() => downloadIcs(shutdownReminders(s.shutdownTimes, Date.now(), `${location.origin}${location.pathname}#/shutdown`), 'shutdown-reminders.ics')}>Add shutdown reminders to Calendar</button>
+        <span className="faint tiny">Repeating events, 15 min, alert at start; the link opens the shutdown screen. Importing again replaces them.</span>
+      </div>
+      <div className="setting">
+        <div className="setting-text"><b>iA Writer folder</b><span>Notes are created at /folder/YYYY-MM-DD.md.</span></div>
+        <input className="input" style={{ width: 'min(100%, 200px)' }} value={s.iaFolder} onChange={(e) => updateSettings({ iaFolder: e.target.value })} aria-label="iA Writer folder" />
+      </div>
+      <div className="setting">
+        <div className="setting-text"><b>One note per day</b><span>Off: one running note called Shutdown.md.</span></div>
+        <label className="switch"><input type="checkbox" checked={s.iaOnePerDay} onChange={(e) => updateSettings({ iaOnePerDay: e.target.checked })} aria-label="One note per day" /><span /></label>
+      </div>
     </section>
   );
 }

@@ -118,6 +118,11 @@ export interface Settings {
   /** Exam date per subject id, YYYY-MM-DD. */
   examDates: Record<string, string>;
   autoAdvance: boolean;
+  /** Evening shutdown: time per weekday ("0" = Sunday … "6" = Saturday), HH:MM. */
+  shutdownTimes: Record<string, string>;
+  /** iA Writer folder for shutdown notes, and one note per day (else one running note). */
+  iaFolder: string;
+  iaOnePerDay: boolean;
   /** Selected filter groups per module (persisted so your row choice is remembered). */
   selections: Record<string, string[]>;
   /** The course shown on this device (not synced). */

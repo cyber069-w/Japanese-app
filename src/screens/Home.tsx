@@ -7,6 +7,7 @@ import { syncNow } from '../core/sync';
 import { usePullToRefresh } from '../lib/pullToRefresh';
 import { COURSES } from '../courses';
 import { Icon } from '../components/Icon';
+import { ShutdownBanner } from '../components/home/ShutdownBanner';
 import { EmptyState } from '../components/EmptyState';
 import { HeadIcon } from '../components/HeadIcon';
 import { CourseGlyph } from '../components/GlyphIcon';
@@ -43,6 +44,8 @@ export function Home() {
           <h1 style={{ marginTop: 6 }}>{greeting(new Date().getHours())}</h1>
         </div>
       </div>
+
+      <ShutdownBanner />
 
       <div className="bento">
         <LessonsCard t={t} />

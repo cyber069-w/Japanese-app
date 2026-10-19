@@ -110,7 +110,7 @@ export function TodosCard({ t }: { t: Today }) {
         ))}
         {mine.map((x) => (
           <li key={x.id} className={`todo${x.done ? ' done' : ''}`}>
-            <button className="todo-check" aria-label={x.done ? 'Mark open' : 'Mark done'} aria-pressed={x.done} onClick={() => setTodos(todos.map((y) => (y.id === x.id ? { ...y, done: !y.done } : y)))}>
+            <button className="todo-check" aria-label={x.done ? 'Mark open' : 'Mark done'} aria-pressed={x.done} onClick={() => setTodos(todos.map((y) => (y.id === x.id ? { ...y, done: !y.done, doneAt: y.done ? undefined : Date.now() } : y)))}>
               {x.done && <Icon name="check" size={14} />}
             </button>
             <span className="grow"><b>{x.text}</b>{x.due && <small>{dayLabel(x.due, t.now)}</small>}</span>

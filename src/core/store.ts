@@ -57,6 +57,9 @@ export const DEFAULT_SETTINGS: Settings = {
   examDate: '',
   examDates: {},
   autoAdvance: true,
+  shutdownTimes: { '0': '22:30', '1': '22:30', '2': '22:30', '3': '22:30', '4': '22:30', '5': '22:30', '6': '22:30' },
+  iaFolder: 'Shutdown',
+  iaOnePerDay: true,
   selections: {},
   course: 'japanese', // unknown ids fall back to the first course
 };

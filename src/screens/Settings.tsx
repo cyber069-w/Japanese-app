@@ -8,7 +8,7 @@ import { COURSES } from '../courses';
 import { hasJapaneseVoice, onVoicesChanged, speak, speechSupported, voiceName } from '../lib/speech';
 import { Icon } from '../components/Icon';
 import { SyncSettings } from './SyncSettings';
-import { ConnectionsSettings, HistorySettings } from './ConnectionsSettings';
+import { ConnectionsSettings, HistorySettings, ShutdownSettings } from './ConnectionsSettings';
 
 function Row({ title, desc, children }: { title: string; desc?: ReactNode; children: ReactNode }) {
   return (
@@ -156,6 +156,7 @@ export function Settings() {
         </section>
 
         <ConnectionsSettings />
+        <ShutdownSettings />
         <CoursePack />
         <SyncSettings />
         <Backup />

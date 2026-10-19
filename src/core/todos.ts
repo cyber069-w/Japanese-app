@@ -1,5 +1,5 @@
 /** Your own to-dos (device storage). Canvas deadlines show next to them on Home but stay Canvas items. */
-export interface Todo { id: string; text: string; done: boolean; /** YYYY-MM-DD */ due?: string; created: number }
+export interface Todo { id: string; text: string; done: boolean; doneAt?: number; /** YYYY-MM-DD */ due?: string; created: number }
 
 export const newTodo = (text: string, due?: string, now = Date.now()): Todo => ({ id: `t${now}${Math.random().toString(36).slice(2, 5)}`, text: text.trim(), done: false, due: due || undefined, created: now });
 
