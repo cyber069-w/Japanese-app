@@ -127,11 +127,11 @@ export function Settings() {
 
         <section className="card card-pad">
           <h2>Display</h2>
-          <Row title="Theme" desc="Leather: the warm mid-tone look. Night: deep brown for the evening.">
-            <Seg value={s.theme} options={[['system', 'System'], ['light', 'Leather'], ['dark', 'Night']]} onChange={(v) => set({ theme: v })} />
+          <Row title="Surfaces" desc="Glass: frosted panels over a soft warm backdrop. Flat: solid leather panels. Apple: neutral grouped panels, system font and blue accent.">
+            <Seg value={s.surface ?? 'glass'} options={[['glass', 'Glass'], ['flat', 'Flat'], ['apple', 'Apple']]} onChange={(v) => set({ surface: v })} />
           </Row>
-          <Row title="Surfaces" desc="Glass: frosted panels over a soft warm backdrop. Flat: solid leather panels.">
-            <Seg value={s.surface ?? 'glass'} options={[['glass', 'Glass'], ['flat', 'Flat']]} onChange={(v) => set({ surface: v })} />
+          <Row title="Theme" desc={s.surface === 'apple' ? 'Light or graphite; System follows your device.' : 'Leather: the warm mid-tone look. Night: deep brown for the evening.'}>
+            <Seg value={s.theme} options={[['system', 'System'], ['light', s.surface === 'apple' ? 'Light' : 'Leather'], ['dark', s.surface === 'apple' ? 'Dark' : 'Night']]} onChange={(v) => set({ theme: v })} />
           </Row>
           <Row title="Meaning language" desc="Language for word meanings and translations.">
             <Seg value={s.meaningLang} options={[['de', 'Deutsch'], ['en', 'English']]} onChange={(v) => set({ meaningLang: v })} />

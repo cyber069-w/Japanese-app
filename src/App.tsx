@@ -37,6 +37,7 @@ function useThemeAndFurigana(path: string) {
   const theme = useApp((s) => s.settings.theme);
   const furigana = useApp((s) => s.settings.furigana);
   const surface = useApp((s) => s.settings.surface);
+  const apple = surface === 'apple';
   const courseId = useCourse().id;
   const accent = accentFor(path, courseId);
   useEffect(() => {
@@ -46,8 +47,8 @@ function useThemeAndFurigana(path: string) {
     if (theme === 'system') delete root.dataset.theme;
     else root.dataset.theme = theme;
     const dark = theme === 'dark' || (theme === 'system' && matchMedia('(prefers-color-scheme: dark)').matches);
-    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', dark ? '#2a1a12' : '#a86948');
-  }, [theme, accent]);
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', apple ? (dark ? '#2b2b2e' : '#f2f2f7') : dark ? '#2a1a12' : '#a86948');
+  }, [theme, accent, apple]);
   useEffect(() => {
     document.documentElement.dataset.surface = surface ?? 'glass';
   }, [surface]);

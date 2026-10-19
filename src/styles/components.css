@@ -1099,7 +1099,7 @@ input[type='range'] { accent-color: var(--accent); }
 .area-group .section-head h3 { font-size: 1rem; }
 
 @media (max-width: 520px) {
-  .course-bar { gap: 8px; margin-bottom: 18px; }
+  .course-bar { gap: 8px; margin-bottom: 18px; padding-right: 54px; }
   .course-switch { flex: 1 1 auto; }
   .meter-pill { padding-right: 10px; }
   .course-option { grid-template-columns: auto 1fr; }
@@ -1437,3 +1437,7 @@ button.subject-tile { font: inherit; cursor: pointer; }
 .clock-center b { font-size: 1.5rem; font-variant-numeric: tabular-nums; }
 .clock-center span, .clock-center small { color: var(--ink-3); font-size: var(--text-xs); }
 .clock-center .btn { pointer-events: auto; }
+
+/* head icons (card titles) */
+.head-icon { display: inline-grid; place-items: center; width: 26px; height: 26px; margin-right: 9px; vertical-align: -6px; border-radius: 8px; color: var(--tile); background: color-mix(in oklab, var(--tile) 16%, transparent); }
+.glass-head h2 { display: flex; align-items: center; }

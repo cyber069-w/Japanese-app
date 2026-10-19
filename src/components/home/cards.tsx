@@ -11,6 +11,7 @@ import { daysUntil } from '../../lib/date';
 import { navigate } from '../../lib/router';
 import { FocusPanel, hhmm, subjectColor } from '../../screens/FocusWidget';
 import { Icon } from '../Icon';
+import { HeadIcon } from '../HeadIcon';
 import type { useToday } from '../todayData';
 
 type Today = ReturnType<typeof useToday>;
@@ -24,7 +25,7 @@ export function LessonsCard({ t }: { t: Today }) {
   const lessons = next.filter((b) => b.kind === 'lecture').length;
   return (
     <section className="glass b-lessons">
-      <div className="glass-head"><h2>Your lessons</h2><span className="faint tiny">{lessons ? `${lessons} left today` : 'today'}</span></div>
+      <div className="glass-head"><h2><HeadIcon name="calendar" color="#ff9f0a" />Your lessons</h2><span className="faint tiny">{lessons ? `${lessons} left today` : 'today'}</span></div>
       {t.calendar === null && <p className="muted small">No timetable yet – import your Outlook calendar in <a href="#/focus">Focus → Lectures</a>.</p>}
       {t.calendar && next.length === 0 && <p className="muted small">Nothing left in your day window. Enjoy the evening.</p>}
       <ul className="slots">
@@ -59,7 +60,7 @@ export function TodosCard({ t }: { t: Today }) {
   const open = mine.filter((x) => !x.done).length;
   return (
     <section className="glass b-todos">
-      <div className="glass-head"><h2>To-dos</h2><span className="faint tiny">{open + canvas.length} open</span></div>
+      <div className="glass-head"><h2><HeadIcon name="list" color="#0a84ff" />To-dos</h2><span className="faint tiny">{open + canvas.length} open</span></div>
       <form className="todo-add" onSubmit={(e) => { e.preventDefault(); add(); }}>
         <input className="input" placeholder="Add a to-do…" value={text} onChange={(e) => setText(e.target.value)} aria-label="New to-do" />
         <button className="btn btn-primary" type="submit" disabled={!text.trim()} aria-label="Add to-do"><span aria-hidden="true" style={{ fontSize: "1.3rem", lineHeight: 1 }}>+</span></button>
@@ -92,7 +93,7 @@ export function TodosCard({ t }: { t: Today }) {
 export function FocusCard() {
   return (
     <section className="glass b-focus">
-      <div className="glass-head"><h2>Focus</h2><a className="tiny" href="#/focus">Log →</a></div>
+      <div className="glass-head"><h2><HeadIcon name="clock" color="#5e5ce6" />Focus</h2><a className="tiny" href="#/focus">Log →</a></div>
       <FocusPanel compact />
     </section>
   );
@@ -103,7 +104,7 @@ export function CardsCard() {
   const top = COURSES.map((c) => ({ c, n: due.perCourse[c.id] ?? 0 })).sort((a, b) => b.n - a.n)[0];
   return (
     <section className="glass b-cards">
-      <div className="glass-head"><h2>Review</h2></div>
+      <div className="glass-head"><h2><HeadIcon name="review" color="#af52de" />Review</h2></div>
       <div className="big-number">{due.total}</div>
       <div className="muted small">card{due.total === 1 ? '' : 's'} due today{due.total > 0 && top?.n ? ` · most in ${top.c.name}` : ''}</div>
       <button className="btn btn-primary" disabled={!due.total} onClick={() => navigate('/review')}><Icon name="review" size={17} /> Review now</button>
@@ -122,7 +123,7 @@ export function WeekCard() {
   const exams = COURSES.map((c) => ({ c, d: settings.examDates?.[c.id] ? daysUntil(settings.examDates[c.id], now) : null })).filter((x) => x.d !== null && x.d >= 0).sort((a, b) => a.d! - b.d!);
   return (
     <section className="glass b-week">
-      <div className="glass-head"><h2>This week</h2><span className="faint tiny">{(Math.round(total * 10) / 10).toFixed(1)} h focused</span></div>
+      <div className="glass-head"><h2><HeadIcon name="chart-line" color="#30b650" />This week</h2><span className="faint tiny">{(Math.round(total * 10) / 10).toFixed(1)} h focused</span></div>
       {rows.length ? (
         <ul className="week-bars">
           {rows.map((r) => (

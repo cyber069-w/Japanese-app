@@ -7,6 +7,7 @@ import '@fontsource-variable/noto-serif-jp';
 import './styles/tokens.css';
 import './styles/base.css';
 import './styles/components.css';
+import './styles/apple.css';
 import { initStore } from './core/store';
 import { startSync } from './core/sync';
 import { App } from './App';

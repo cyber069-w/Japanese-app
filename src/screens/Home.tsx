@@ -4,6 +4,7 @@ import { useCourseMeters, useDueCounts } from '../core/hooks';
 import { initFocus } from '../core/focusStore';
 import { COURSES } from '../courses';
 import { Icon } from '../components/Icon';
+import { HeadIcon } from '../components/HeadIcon';
 import { CourseGlyph } from '../components/GlyphIcon';
 import { useToday } from '../components/todayData';
 import { CardsCard, FocusCard, LessonsCard, TodosCard, WeekCard } from '../components/home/cards';
@@ -47,7 +48,7 @@ export function Home() {
 
       {rest.length > 0 && (
         <section className="glass home-list">
-          <div className="glass-head"><h2>What to do next</h2><span className="faint tiny">{rest.length} open · fixed rules, no AI</span></div>
+          <div className="glass-head"><h2><HeadIcon name="sparkle" color="#ff453a" />What to do next</h2><span className="faint tiny">{rest.length} open · fixed rules, no AI</span></div>
           {groupByHorizon(top).map((g) => (
             <div key={g.horizon}>
               <div className="eyebrow" style={{ margin: '10px 0 2px' }}>{HORIZON_LABEL[g.horizon]}</div>

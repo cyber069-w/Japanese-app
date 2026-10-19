@@ -98,8 +98,8 @@ export interface BaseItem {
 
 export interface Settings {
   theme: 'system' | 'light' | 'dark';
-  /** Panels: frosted glass over a soft backdrop, or flat leather. */
-  surface: 'glass' | 'flat';
+  /** Look: frosted glass over leather, flat leather, or the Apple look. */
+  surface: 'glass' | 'flat' | 'apple';
   leniency: Leniency;
   /** Play pronunciation (after answering, and on demand). */
   sound: boolean;

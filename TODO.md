@@ -89,6 +89,7 @@ Status: [ ] open · [x] done · [~] solved differently / blocked (reason in the 
 - [x] Home = frosted-glass bento: Your lessons (timetable + suggested study blocks), To-dos (own to-dos with optional date + Canvas deadlines), Focus timer, Review, This week (targets + exam countdown), What to do next, Subjects. Canvas tile removed (the bell covers it)
 - [x] Focus → Today is now a clock: drag on the ring to pick a time range → “Log this time”; dashed gaps are tappable
 - [x] Glass on every screen + Settings → Display → Surfaces (Glass / Flat, device-only, default Glass); backdrop gradient softened
-- [ ] **Future: tone option “Full liquid glass”**: lighter, neutral Apple-style tones instead of leather (the surface switch `data-surface` exists; this would add a colour tone next to it)
+- [x] Apple look (Settings → Display → Surfaces → Apple): neutral grouped panels, SF system font, system blue, graphite dark (follows system / Light / Dark), coloured app-icon tiles for subjects, modules and Home cards (`styles/apple.css`). Checked at 375 / 768 / 1024 / 1280 px in all three surfaces: no sideways overflow. Not checked on a real iPad/iPhone/Mac (Safari) – only the built-in browser
+- [ ] Decide how the looks appear in Settings (one “Look” picker vs Theme + Surfaces) once the Apple look has been tried
 - [ ] Reference screenshot for the Home layout never arrived – compare once it does
 - [ ] Files / OneNote integration on Home: only the “What to do next” rows (new files, new notes) exist; decide if a dedicated card is wanted
