@@ -1455,3 +1455,6 @@ button.subject-tile { font: inherit; cursor: pointer; }
   .todo-check { width: 26px; height: 26px; flex-basis: 26px; }
 }
 .ptr { position: fixed; top: 0; left: 50%; transform: translate(-50%, -60px); z-index: 50; padding: 8px 16px; border-radius: 999px; background: var(--surface); color: var(--ink-2); box-shadow: var(--shadow-lg); font-size: var(--text-sm); transition: transform 0.2s var(--ease); pointer-events: none; }
+.later { margin-top: 14px; }
+.later .eyebrow { margin-bottom: 6px; }
+.glass-head .btn-sm { margin-left: auto; }

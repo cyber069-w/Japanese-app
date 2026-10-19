@@ -2,7 +2,7 @@
 import type { FocusSession } from './focus';
 
 export type Targets = Record<string, number>;
-export interface PlannedBlock { id: string; subject: string; start: number; end: number }
+export interface PlannedBlock { id: string; subject: string; start: number; end: number; note?: string }
 
 const DAY = 86_400_000;
 const dayStr = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;

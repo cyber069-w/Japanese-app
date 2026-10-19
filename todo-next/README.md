@@ -15,8 +15,8 @@ testing I can't do, or the answer depends on a decision only the user can make.
 ## Queue (in order)
 
 1. Merge `nihongo-update` → `main`, deploy to GitHub Pages, test offline + install on the phone/iPad.
-2. Paste-back planning (no API key): app builds a prompt from deadlines, hours, exams; user pastes Claude's answer back → planned blocks.
-3. Study blocks you can accept in "Your lessons" → day clock.
+2. ~~Paste-back planning~~ done: Home → Your lessons → “Plan my week” (prompt → paste JSON → review → add; replaces the earlier pasted plan, keeps manual blocks).
+3. ~~Accept study blocks~~ done (Accept on suggested blocks; “Planned later” list). Open: show planned blocks on the Focus day clock.
 4. Weekly-plan day window for "Your day" (waiting for the user's plan format).
 5. Outlook calendar sync (waiting for the Outlook key).
 6. Canvas rules review (BWL handouts) – needs the user.

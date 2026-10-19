@@ -13,6 +13,8 @@ import { FocusPanel, hhmm, subjectColor } from '../../screens/FocusWidget';
 import { Icon } from '../Icon';
 import { HeadIcon } from '../HeadIcon';
 import { EmptyState } from '../EmptyState';
+import { PlanSheet } from './PlanSheet';
+import type { PlannedBlock } from '../../core/targets';
 import type { useToday } from '../todayData';
 
 type Today = ReturnType<typeof useToday>;
@@ -22,11 +24,21 @@ const dayLabel = (iso: string, now: number) => {
 };
 
 export function LessonsCard({ t }: { t: Today }) {
+  const [planned, setPlanned] = useStored<PlannedBlock[]>('today:planned', []);
+  const [planning, setPlanning] = useState(false);
   const next = t.day.filter((b) => b.end > t.now);
   const lessons = next.filter((b) => b.kind === 'lecture').length;
+  const endOfToday = new Date(new Date(t.now).setHours(23, 59, 59, 999)).getTime();
+  const later = planned.filter((p) => p.start > endOfToday).sort((a, b) => a.start - b.start);
+  const accept = (b: { subject?: string; start: number; end: number }) =>
+    setPlanned([...planned.filter((p) => p.end > t.now), { id: `plan-${b.subject}-${b.start}`, subject: b.subject!, start: b.start, end: b.end }]);
   return (
     <section className="glass b-lessons">
-      <div className="glass-head"><h2><HeadIcon name="calendar" color="#ff9f0a" />Your lessons</h2><span className="faint tiny">{lessons ? `${lessons} left today` : 'today'}</span></div>
+      <div className="glass-head">
+        <h2><HeadIcon name="calendar" color="#ff9f0a" />Your lessons</h2>
+        <span className="faint tiny">{lessons ? `${lessons} left today` : 'today'}</span>
+        <button className="btn btn-sm" onClick={() => setPlanning(true)}><Icon name="sparkle" size={14} /> Plan my week</button>
+      </div>
       {t.calendar === null && <EmptyState icon="calendar" title="No timetable yet" hint="Import your Outlook calendar (.ics) to see your lectures here." action={{ label: 'Import timetable', href: '#/focus' }} />}
       {t.calendar && next.length === 0 && <EmptyState icon="check" title="Nothing left today" hint="No lecture or free block of 45 min or more remains in your day window." />}
       <ul className="slots">
@@ -38,10 +50,31 @@ export function LessonsCard({ t }: { t: Today }) {
               <b>{b.kind === 'lecture' ? b.title : `Study ${b.subject}`}</b>
               <small>{b.start <= t.now ? 'now' : b.kind === 'lecture' ? 'lecture' : b.planned ? 'planned' : 'suggested'}</small>
             </span>
-            {b.kind === 'study' && b.subject && <button className="btn btn-sm" onClick={() => t.run({ type: 'timer', label: '', subject: b.subject! })}>Start</button>}
+            {b.kind === 'study' && b.subject && (
+              <span className="row" style={{ gap: 6 }}>
+                {!b.planned && <button className="btn btn-sm btn-ghost" onClick={() => accept(b)} title="Keep this block in your plan">Accept</button>}
+                <button className="btn btn-sm" onClick={() => t.run({ type: 'timer', label: '', subject: b.subject! })}>Start</button>
+              </span>
+            )}
           </li>
         ))}
       </ul>
+      {later.length > 0 && (
+        <div className="later">
+          <div className="eyebrow">Planned later</div>
+          <ul className="slots">
+            {later.slice(0, 4).map((p) => (
+              <li key={p.id} className="slot study">
+                <span className="slot-time">{new Date(p.start).toLocaleDateString('en-GB', { weekday: 'short' })}<small>{hhmm(p.start)}</small></span>
+                <span className="slot-bar" style={{ background: subjectColor(p.subject) }} />
+                <span className="slot-main"><b>{p.subject}</b><small>{hhmm(p.start)}–{hhmm(p.end)}{p.note ? ` · ${p.note}` : ''}</small></span>
+                <button className="btn btn-sm btn-ghost" aria-label="Remove" onClick={() => setPlanned(planned.filter((x) => x.id !== p.id))}><Icon name="x" size={14} /></button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+      {planning && <PlanSheet t={t} onClose={() => setPlanning(false)} />}
     </section>
   );
 }
