@@ -1523,12 +1523,19 @@ button.subject-tile { font: inherit; cursor: pointer; }
 .learn-steps { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
 .learn-steps-count { font-size: var(--text-sm, 0.84rem); font-variant-numeric: tabular-nums; color: var(--ink-3); flex: none; }
 .learn-section .eyebrow, .learn-check .eyebrow { margin-bottom: 6px; }
-.learn-newwords { margin: 0; display: grid; grid-template-columns: minmax(110px, max-content) 1fr; gap: 10px 14px; align-items: baseline; padding: 12px 14px; border-radius: 14px; background: var(--surface-2); }
+.learn-newwords { margin: 0; display: grid; grid-template-columns: minmax(120px, max-content) 1fr; column-gap: 18px; align-items: baseline; }
 .learn-newwords > div { display: contents; }
+.learn-newwords :is(dt, dd) { padding: 9px 0; border-top: 1px solid var(--line); }
+.learn-newwords > div:first-child > * { border-top: 0; padding-top: 2px; }
 .learn-newwords dt { min-width: 0; }
-.learn-newwords dd { margin: 0; font-size: var(--text-sm, 0.92rem); line-height: 1.5; }
-.learn-term { border: 0; font: inherit; font-size: var(--text-sm, 0.92rem); font-weight: 600; cursor: pointer; text-align: left; }
-@media (max-width: 560px) { .learn-newwords { grid-template-columns: 1fr; gap: 2px; } .learn-newwords dd { margin-bottom: 8px; } }
+.learn-newwords dd { margin: 0; font-size: var(--text-sm, 0.92rem); line-height: 1.5; color: var(--ink-2); }
+.learn-term { padding: 0; border: 0; background: none; font: inherit; font-size: var(--text-sm, 0.92rem); font-weight: 650; color: var(--ink); cursor: pointer; text-align: left; }
+.learn-term:hover { color: var(--accent); }
+@media (max-width: 560px) {
+  .learn-newwords { grid-template-columns: 1fr; }
+  .learn-newwords dt { padding-bottom: 0; }
+  .learn-newwords dd { border-top: 0; padding-top: 2px; }
+}
 .learn-all-words summary { cursor: pointer; list-style: none; }
 .learn-all-words summary::-webkit-details-marker { display: none; }
 .learn-all-words summary::after { content: ' ›'; }
@@ -1585,12 +1592,16 @@ button.subject-tile { font: inherit; cursor: pointer; }
 input[type='date'][value=''], input[type='date'][value='']::-webkit-datetime-edit, input[type='date'][value='']::-webkit-datetime-edit-text { color: var(--ink-3); }
 
 /* CFA annotated PDF: every page with selectable text, highlighted notes beside it, mark text or an area to explain */
-.learn:has(.anno) { max-width: 1180px; }
+/* the PDF page has the same width in "Original" and "Annotated": the lesson column (760px minus the page padding);
+   shown notes go beside it (the column widens), or below it when there is no room */
+.learn { --lesson-page: 696px; }
+.learn:has(.anno:not(.notes-hidden)) { max-width: calc(760px + 338px); }
+.anno { container-type: inline-size; }
 .anno-tools { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 12px; position: sticky; top: 0; z-index: 5; padding: 8px 0; background: var(--paper); }
 .anno-hint { margin-left: 4px; }
-.anno-row { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(260px, 1fr); gap: 18px; align-items: start; margin-bottom: 22px; }
-.anno-row.no-notes { grid-template-columns: minmax(0, 1.55fr) minmax(260px, 1fr); }
-.anno.notes-hidden .anno-row { grid-template-columns: minmax(0, 1fr); }
+.anno-row { display: grid; grid-template-columns: minmax(0, var(--lesson-page)) 320px; gap: 18px; align-items: start; margin-bottom: 22px; }
+.anno.notes-hidden .anno-row { grid-template-columns: minmax(0, var(--lesson-page)); }
+@container (max-width: 1033px) { .anno-row { grid-template-columns: minmax(0, var(--lesson-page)); } }
 .anno-page { position: relative; }
 .anno-page .pdf-page { box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18); }
 .anno-marks { position: absolute; inset: 0; pointer-events: none; }
@@ -1610,7 +1621,6 @@ input[type='date'][value=''], input[type='date'][value='']::-webkit-datetime-edi
 .explain-image { max-width: 100%; border-radius: 10px; box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15); background: #fff; }
 .explain-word { display: grid; gap: 2px; padding: 8px 12px; border-radius: 12px; background: var(--surface-2); font-size: var(--text-sm, 0.92rem); }
 @media (max-width: 820px) {
-  .anno-row, .anno-row.no-notes { grid-template-columns: 1fr; }
   .anno-selbar { bottom: calc(84px + env(safe-area-inset-bottom)); }
 }
 
