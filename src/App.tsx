@@ -137,7 +137,7 @@ function Shell({ path, children }: { path: string; children: ReactNode }) {
           </span>
         </a>
         <nav className="nav" aria-label="Main">
-          {NAV.map((n) => (
+          {NAV.filter((n) => n.path !== '/settings').map((n) => (
             <a key={n.path} href={`#${n.path}`} className={`nav-item${active(n.path) ? ' active' : ''}`} aria-current={active(n.path) ? 'page' : undefined}>
               <Icon name={n.icon} />
               {n.label}
@@ -145,9 +145,18 @@ function Shell({ path, children }: { path: string; children: ReactNode }) {
             </a>
           ))}
         </nav>
-        <div className="sidebar-foot">
-          <SyncLine />
-          Offline · no ads · your data stays yours
+        {/* Settings sits at the bottom of the sidebar, just above the footer */}
+        <div className="sidebar-bottom">
+          <nav className="nav" aria-label="Settings">
+            <a href="#/settings" className={`nav-item${active('/settings') ? ' active' : ''}`} aria-current={active('/settings') ? 'page' : undefined}>
+              <Icon name="settings" />
+              Settings
+            </a>
+          </nav>
+          <div className="sidebar-foot">
+            <SyncLine />
+            Offline · no ads · your data stays yours
+          </div>
         </div>
       </aside>
       <InboxBell />

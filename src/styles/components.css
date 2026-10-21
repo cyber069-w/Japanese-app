@@ -71,7 +71,8 @@
   text-align: center;
 }
 
-.sidebar-foot { margin-top: auto; padding: 0 8px; font-size: 0.78rem; color: var(--ink-3); }
+.sidebar-bottom { margin-top: auto; display: flex; flex-direction: column; gap: 12px; }
+.sidebar-foot { padding: 0 8px; font-size: 0.78rem; color: var(--ink-3); }
 
 .main { min-width: 0; }
 
