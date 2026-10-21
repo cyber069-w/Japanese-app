@@ -1523,19 +1523,12 @@ button.subject-tile { font: inherit; cursor: pointer; }
 .learn-steps { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
 .learn-steps-count { font-size: var(--text-sm, 0.84rem); font-variant-numeric: tabular-nums; color: var(--ink-3); flex: none; }
 .learn-section .eyebrow, .learn-check .eyebrow { margin-bottom: 6px; }
-.learn-newwords { margin: 0; display: grid; grid-template-columns: minmax(120px, max-content) 1fr; column-gap: 18px; align-items: baseline; }
+.learn-newwords { margin: 0; display: grid; grid-template-columns: minmax(110px, max-content) 1fr; gap: 10px 14px; align-items: baseline; padding: 12px 14px; border-radius: 14px; background: var(--surface-2); }
 .learn-newwords > div { display: contents; }
-.learn-newwords :is(dt, dd) { padding: 9px 0; border-top: 1px solid var(--line); }
-.learn-newwords > div:first-child > * { border-top: 0; padding-top: 2px; }
 .learn-newwords dt { min-width: 0; }
-.learn-newwords dd { margin: 0; font-size: var(--text-sm, 0.92rem); line-height: 1.5; color: var(--ink-2); }
-.learn-term { padding: 0; border: 0; background: none; font: inherit; font-size: var(--text-sm, 0.92rem); font-weight: 650; color: var(--ink); cursor: pointer; text-align: left; }
-.learn-term:hover { color: var(--accent); }
-@media (max-width: 560px) {
-  .learn-newwords { grid-template-columns: 1fr; }
-  .learn-newwords dt { padding-bottom: 0; }
-  .learn-newwords dd { border-top: 0; padding-top: 2px; }
-}
+.learn-newwords dd { margin: 0; font-size: var(--text-sm, 0.92rem); line-height: 1.5; }
+.learn-term { border: 0; font: inherit; font-size: var(--text-sm, 0.92rem); font-weight: 600; cursor: pointer; text-align: left; }
+@media (max-width: 560px) { .learn-newwords { grid-template-columns: 1fr; gap: 2px; } .learn-newwords dd { margin-bottom: 8px; } }
 .learn-all-words summary { cursor: pointer; list-style: none; }
 .learn-all-words summary::-webkit-details-marker { display: none; }
 .learn-all-words summary::after { content: ' ›'; }

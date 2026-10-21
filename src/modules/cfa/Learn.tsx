@@ -208,7 +208,7 @@ function Learn({ lesson, lang }: { lesson: CfaLesson; lang: Lang }) {
             <dl className="learn-newwords">
               {fresh.map((t) => (
                 <div key={t.term}>
-                  <dt><button type="button" className="learn-term" onClick={() => setWord(t)}>{t.term}</button></dt>
+                  <dt><button type="button" className="lex-formation learn-term" onClick={() => setWord(t)}>{t.term}</button></dt>
                   <dd>{meaning(t)}</dd>
                 </div>
               ))}
