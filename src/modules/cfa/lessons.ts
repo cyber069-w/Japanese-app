@@ -9,8 +9,26 @@ export interface CfaExample { title: string; problem: string; solution: string }
 export interface CfaLearnSectionDe { title?: string; text?: string; example?: string; remember?: string; trap?: string; check?: CfaQuestion }
 /** One step of the guided lesson. In `text`, [[word]] marks a glossary word (a term or a word from `words`). */
 export interface CfaLearnSection { title: string; text: string; example?: string; remember?: string; trap?: string; check?: CfaQuestion; de?: CfaLearnSectionDe }
+/** A note on the original PDF: highlights `quote` (text on that page) and explains it in the margin. */
+export interface CfaAnnotation {
+  page: number;
+  quote: string;
+  /** word = a term explained · plain = the passage in plain words · formula = symbols taken apart · trap = exam trap */
+  kind: 'word' | 'plain' | 'formula' | 'trap';
+  title?: string;
+  note: string;
+  de?: { title?: string; note?: string };
+}
 /** The guided, beginner-friendly version of a lesson (optional). `de` holds the German intro and summary. */
-export interface CfaLearn { intro: string; sections: CfaLearnSection[]; summary: string[]; words: CfaTerm[]; de?: { intro?: string; summary?: string[] } }
+export interface CfaLearn {
+  intro: string;
+  sections: CfaLearnSection[];
+  summary: string[];
+  words: CfaTerm[];
+  de?: { intro?: string; summary?: string[] };
+  /** Notes on the original PDF (the "Annotated PDF" view). */
+  annotations?: CfaAnnotation[];
+}
 
 export interface CfaLesson {
   id: string;
@@ -113,7 +131,22 @@ function toLearn(raw: unknown): CfaLearn | undefined {
     summary: strings(r.summary),
     words: toTerms(r.words),
     ...(de ? { de: { intro: str(de.intro) || undefined, summary: strings(de.summary).length ? strings(de.summary) : undefined } } : {}),
+    ...(toAnnotations(r.annotations).length ? { annotations: toAnnotations(r.annotations) } : {}),
   };
+}
+
+const KINDS: CfaAnnotation['kind'][] = ['word', 'plain', 'formula', 'trap'];
+function toAnnotations(raw: unknown): CfaAnnotation[] {
+  return (Array.isArray(raw) ? raw : [])
+    .map((a: any): CfaAnnotation => ({
+      page: Number.isInteger(a?.page) && a.page > 0 ? a.page : 0,
+      quote: str(a?.quote),
+      kind: KINDS.includes(a?.kind) ? a.kind : 'plain',
+      title: str(a?.title) || undefined,
+      note: str(a?.note),
+      ...(a?.de ? { de: { title: str(a.de.title) || undefined, note: str(a.de.note) || undefined } } : {}),
+    }))
+    .filter((a) => a.page && a.quote && a.note);
 }
 
 const strings = (v: unknown) => (Array.isArray(v) ? v : []).map(str).filter(Boolean);

@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { parseCfaLessons } from './lessons';
 import { mergeShipped, upToDate } from './lessonPacks';
+import { findQuote } from './annotate';
+import { wordsIn } from './Explain';
 
 const good = {
   topic: 'quant', module: 2, title: 'Time value of money',
@@ -67,5 +69,28 @@ describe('upToDate', () => {
     expect(upToDate([], [s])).toBe(false);
     expect(upToDate([{ ...s, title: 'changed' }], [s])).toBe(false);
     expect(upToDate([old, s], [s])).toBe(false);
+  });
+});
+
+describe('findQuote', () => {
+  it('finds a quote across text items, ignoring spaces and case', () => {
+    const items = [{ str: 'The holding period ' }, { str: 'return is the gain' }, { str: 'over one period.' }];
+    expect(findQuote(items, 'Holding Period Return')).toEqual([{ item: 0, from: 4, to: 18 }, { item: 1, from: 0, to: 6 }]);
+    expect(findQuote(items, 'gainover')).toEqual([{ item: 1, from: 14, to: 18 }, { item: 2, from: 0, to: 4 }]);
+    expect(findQuote(items, 'not there')).toEqual([]);
+  });
+});
+
+describe('wordsIn', () => {
+  it('finds lesson words in marked text (also the short form in brackets and plurals)', () => {
+    const words = [
+      { term: 'Holding period return (HPR)', definition: 'x' },
+      { term: 'dividend', definition: 'y' },
+      { term: 'index', definition: 'z' },
+    ];
+    expect(wordsIn('A stock paying a $2 dividend earns HPR = 10%', words).map((w) => w.term)).toEqual(['Holding period return (HPR)', 'dividend']);
+    expect(wordsIn('The holding period return is the gain', words)).toHaveLength(1);
+    expect(wordsIn('two dividends', words)[0].term).toBe('dividend');
+    expect(wordsIn('indexation', words)).toEqual([]);
   });
 });

@@ -5,6 +5,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Icon } from '../../components/Icon';
+import { openPdf } from './pdfjs';
 
 export default function PdfViewer({ blob }: { blob: Blob }) {
   const box = useRef<HTMLDivElement>(null);
@@ -19,12 +20,8 @@ export default function PdfViewer({ blob }: { blob: Blob }) {
     let destroy = () => {};
     (async () => {
       try {
-        const pdfjs = await import('pdfjs-dist');
-        const worker = (await import('pdfjs-dist/build/pdf.worker.min.mjs?url')).default;
-        pdfjs.GlobalWorkerOptions.workerSrc = worker;
-        const task = pdfjs.getDocument({ data: new Uint8Array(await blob.arrayBuffer()) });
+        const { task, doc } = await openPdf(blob);
         destroy = () => void task.destroy();
-        const doc = await task.promise;
         const el = box.current;
         if (!el || cancelled) return;
         el.replaceChildren();

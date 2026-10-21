@@ -110,5 +110,10 @@ The user found the drill-only packs hard ("I don't know most of the words") and 
   **Workflow after editing a lesson:** `python3 scripts/cfa/merge-learn.py quant && node scripts/cfa/build-lessons.mjs`, commit, push.
 - Guided lessons (21 Oct): per step "New words" (first use of a glossary word), "Ask tutor about this step/word" (copies a prompt,
   opens Claude; later the API), English | Deutsch switch. German texts live in each section's `de` and `learn.de`; only quant 11 so far.
+- **Annotated PDF** tab (21 Oct, every lesson): all pages with a pdf.js text layer (`AnnotatedPdf.tsx`). Notes = `learn.annotations`
+  `[{page, quote, kind: word|plain|formula|trap, title, note, de: {title, note}}]`, placed by finding `quote` in the page text
+  (`annotate.ts`, spaces/case ignored). Mark text → Explain bar; "Mark area" → image (+ text inside the box). `Explain.tsx` shows matching
+  lesson words/notes offline, else "Ask tutor" (prompt) / "Send image to tutor" (Web Share). **API later: answer inside ExplainSheet.**
+  Only quant 11 page 1 has notes so far (draft, user to review).
 - CFA topic pages (`#/c/cfa/t/<topic>`) list the imported lessons; a row opens the lesson window `#/learn/<id>` with two tabs, Guided lesson / Original PDF, plus Practise (user's wish: one quick link, both versions inside).
 - Note: FreeFellow's module numbers are **alphabetical**, not the curriculum order (e.g. TVM is 10, Types of returns 11). Not changed – it would change lesson ids.

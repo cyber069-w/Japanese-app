@@ -2,7 +2,7 @@
  * /learn/:id – one CFA lesson in two versions: the guided lesson (one short step at a time: its new words first,
  * then the explanation, example, quick check and "Ask tutor"; English or German explanations) and the original PDF.
  */
-import { Fragment, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { Fragment, lazy, Suspense, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { setSelection, useApp } from '../../core/store';
 import { navigate } from '../../lib/router';
 import { Icon } from '../../components/Icon';
@@ -11,6 +11,9 @@ import { TutorButton } from '../../components/TutorButton';
 import type { TutorRequest } from '../../lib/tutor';
 import { LessonPdfPanel } from './LessonPdf';
 import { loadLessonPacks } from './lessonPacks';
+
+const AnnotatedPdf = lazy(() => import('./AnnotatedPdf'));
+type View = 'guided' | 'annotated' | 'pdf';
 import { CFA_TOPIC_NAMES, type CfaLesson, type CfaQuestion, type CfaTerm } from './lessons';
 
 const read = (k: string) => {
@@ -38,7 +41,7 @@ export function practiceLesson(l: CfaLesson) {
 
 export function LearnScreen({ id }: { id: string }) {
   const lesson = useApp((s) => s.content.cfaLessons.find((l) => l.id === id));
-  const [view, setViewState] = useState<'guided' | 'pdf'>(() => (read('cfa-lesson-view') === 'pdf' ? 'pdf' : 'guided'));
+  const [view, setViewState] = useState<View>(() => (read('cfa-lesson-view') as View | null) ?? 'guided');
   useEffect(() => {
     void loadLessonPacks(); // an older copy on this device gets the current version (with its guided lesson)
   }, []);
@@ -49,11 +52,11 @@ export function LearnScreen({ id }: { id: string }) {
       </div>
     );
   }
-  const setView = (v: 'guided' | 'pdf') => {
+  const setView = (v: View) => {
     setViewState(v);
     write('cfa-lesson-view', v);
   };
-  const shown = lesson.learn ? view : 'pdf';
+  const shown: View = view === 'guided' && !lesson.learn ? 'annotated' : view;
   return (
     <div className="page learn">
       <a href={`#/c/cfa/t/${lesson.topic}`} className="btn btn-ghost btn-sm" style={{ marginLeft: -10, marginBottom: 6 }}>
@@ -64,6 +67,9 @@ export function LearnScreen({ id }: { id: string }) {
         <div className="seg" role="tablist" aria-label="Version">
           <button role="tab" aria-selected={shown === 'guided'} className={shown === 'guided' ? 'on' : ''} disabled={!lesson.learn} onClick={() => setView('guided')}>
             <Icon name="book" size={16} /> {lesson.learn ? 'Guided lesson' : 'Guided (not loaded)'}
+          </button>
+          <button role="tab" aria-selected={shown === 'annotated'} className={shown === 'annotated' ? 'on' : ''} onClick={() => setView('annotated')}>
+            <Icon name="pen" size={16} /> Annotated PDF
           </button>
           <button role="tab" aria-selected={shown === 'pdf'} className={shown === 'pdf' ? 'on' : ''} onClick={() => setView('pdf')}>
             <Icon name="text" size={16} /> Original PDF
@@ -78,7 +84,13 @@ export function LearnScreen({ id }: { id: string }) {
           open <a href={`#/c/cfa/t/${lesson.topic}`}>{CFA_TOPIC_NAMES[lesson.topic] ?? lesson.topic}</a> and enter your course-pack passphrase there.
         </p>
       )}
-      {shown === 'guided' ? <Learn key={lesson.id} lesson={lesson} /> : <LessonPdfPanel lesson={lesson} />}
+      {shown === 'guided' && <Learn key={lesson.id} lesson={lesson} />}
+      {shown === 'annotated' && (
+        <Suspense fallback={<p className="muted small">Loading…</p>}>
+          <AnnotatedPdf lesson={lesson} />
+        </Suspense>
+      )}
+      {shown === 'pdf' && <LessonPdfPanel lesson={lesson} />}
     </div>
   );
 }
