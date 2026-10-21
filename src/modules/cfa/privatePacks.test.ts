@@ -25,7 +25,9 @@ describe.skipIf(!existsSync(file))('private CFA packs', () => {
     expect(new Set(positions).size).toBeGreaterThan(1);
   });
   it('every [[word]] in a guided lesson has a definition', () => {
-    for (const l of parseCfaLessons(readFileSync(file, 'utf8')).lessons) {
+    const lessons = parseCfaLessons(readFileSync(file, 'utf8')).lessons;
+    expect(lessons.filter((l) => !l.learn).map((l) => l.title)).toEqual([]);
+    for (const l of lessons) {
       if (!l.learn) continue;
       const known = new Set([...l.terms, ...l.learn.words].map((t) => t.term.toLowerCase()));
       const texts = [l.learn.intro, ...l.learn.summary, ...l.learn.sections.flatMap((s) => [s.text, s.example ?? '', s.remember ?? '', s.trap ?? ''])];

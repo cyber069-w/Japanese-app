@@ -94,7 +94,9 @@ The user found the drill-only packs hard ("I don't know most of the words") and 
   (German translation first, then ": short note") – only shown with the small **DE** switch (user's wish: German must stay discreet; exam is English).
   Plain English for a beginner, one idea per step, every number recomputed. Screen: `src/modules/cfa/Learn.tsx`, route `#/learn/<lesson id>`.
   `privatePacks.test.ts` checks every `[[word]]` resolves and every step has a check question.
-  **Status: only quant 11 (Types of Financial Returns) has a guided version – a sample for the user to approve before the other 11 are written.**
+  **Status: all 12 quant lessons have a guided version** (user approved the style of the quant 11 sample). Source of truth:
+  `private/cfa/learn/<topic>-NN.json` (`{learn, de: {term: German}}`); `python3 scripts/cfa/merge-learn.py <topic>` puts them into the packs
+  and rebuilds `<topic>-all.json` without reshuffling. Next topic: write its packs first (section 4), then its guided lessons.
 - **PDF**: all 105 lesson PDFs ship encrypted in `public/cfa-pdf/<topic>-<module>.enc` (+ `index.json` with the shared salt), made by
   `node scripts/cfa/build-pdfs.mjs` with the course-pack passphrase (user's choice, 21 Oct: encrypted on the site is OK, like `pack.enc`).
   The app derives the key once per device (Settings → Course pack unlock, or the passphrase field in the PDF view), keeps it in IndexedDB,

@@ -27,7 +27,7 @@ const write = (k: string, v: string) => {
 };
 
 /** "Holding period return – Haltedauerrendite: …" → the German word only (before the first ":"). */
-const deShort = (de: string) => de.split(/[:–]/)[0].trim();
+const deShort = (de: string) => de.split(/[:–]/)[0].trim().replace(/\.$/, '');
 
 export function practiceLesson(l: CfaLesson) {
   setSelection('cfa', [l.id]);
