@@ -116,7 +116,7 @@ Original), quiet **Practise** button (selects this lesson in the CFA drills). La
   ≥ 1034px), else below. User complained when the sizes differed – keep them equal.
 
 **Guided** – the `learn` part of a pack: steps with **New words** (glossary words a step uses for the first time; style: blue chips on a
-grey box – the user tried a plain list and preferred this one), Explanation, Example, Remember, Exam trap, Quick check, "Ask tutor about
+grey box with a thin line across between the words – the user tried a plain list and preferred this one), Explanation, Example, Remember, Exam trap, Quick check, "Ask tutor about
 this step" (and about a word in the word sheet). Slim progress line "n / total". Step position is saved per device (localStorage).
 - Format: `{ intro, words: [{term, definition, de}], sections: [{title, text, example?, remember?, trap?, check, de?: {title, text, example,
   remember, trap, check}}], summary, de?: {intro, summary}, annotations? }`. In texts `[[word]]` / `[[shown|glossary term]]` = tappable word.
