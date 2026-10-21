@@ -49,7 +49,12 @@ export default function AnnotatedPdf({ lesson }: { lesson: CfaLesson }) {
   const [selection, setSelection] = useState<{ text: string; page: number } | null>(null);
   const [marked, setMarked] = useState<Marked | null>(null);
   const [active, setActive] = useState<string | null>(null);
+  const [showNotes, setShowNotesState] = useState(() => read('cfa-anno-notes') !== '0');
   const root = useRef<HTMLDivElement>(null);
+  const setShowNotes = (v: boolean) => {
+    setShowNotesState(v);
+    write('cfa-anno-notes', v ? '1' : '0');
+  };
 
   const setLang = (l: Lang) => {
     setLangState(l);
@@ -124,11 +129,16 @@ export default function AnnotatedPdf({ lesson }: { lesson: CfaLesson }) {
   };
 
   return (
-    <div className="anno" ref={root}>
+    <div className={`anno${showNotes ? '' : ' notes-hidden'}`} ref={root}>
       <div className="row anno-tools">
         <button className={`btn btn-sm${areaMode ? ' btn-primary' : ''}`} aria-pressed={areaMode} onClick={() => setAreaMode(!areaMode)}>
           <Icon name="shapes" size={16} /> {areaMode ? 'Drag a box around it…' : 'Mark area'}
         </button>
+        {notes.length > 0 && (
+          <button className="btn btn-sm" aria-pressed={showNotes} onClick={() => setShowNotes(!showNotes)}>
+            <Icon name={showNotes ? 'eye' : 'list'} size={16} /> {showNotes ? 'Hide notes' : `Show notes (${notes.length})`}
+          </button>
+        )}
         <span className="faint small grow">Mark any text to get it explained · “Mark area” for diagrams and formulas</span>
         <div className="seg" role="group" aria-label="Language of the notes">
           <button className={lang === 'en' ? 'on' : ''} aria-pressed={lang === 'en'} onClick={() => setLang('en')}>English</button>
@@ -142,7 +152,7 @@ export default function AnnotatedPdf({ lesson }: { lesson: CfaLesson }) {
             key={n}
             pdf={pdf}
             n={n}
-            notes={notes.filter((a) => a.page === n)}
+            notes={showNotes ? notes.filter((a) => a.page === n) : []}
             lang={lang}
             areaMode={areaMode}
             active={active}

@@ -1580,6 +1580,7 @@ input[type='date'][value=''], input[type='date'][value='']::-webkit-datetime-edi
 .anno-tools { gap: 10px; align-items: center; margin-bottom: 12px; position: sticky; top: 0; z-index: 5; padding: 8px 0; background: var(--paper); }
 .anno-row { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(260px, 1fr); gap: 18px; align-items: start; margin-bottom: 22px; }
 .anno-row.no-notes { grid-template-columns: minmax(0, 1.55fr) minmax(260px, 1fr); }
+.anno.notes-hidden .anno-row { grid-template-columns: minmax(0, 1fr); }
 .anno-page { position: relative; }
 .anno-page .pdf-page { box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18); }
 .anno-marks { position: absolute; inset: 0; pointer-events: none; }
