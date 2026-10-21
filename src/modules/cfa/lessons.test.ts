@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { parseCfaLessons } from './lessons';
-import { mergeShipped } from './lessonPacks';
+import { mergeShipped, upToDate } from './lessonPacks';
 
 const good = {
   topic: 'quant', module: 2, title: 'Time value of money',
@@ -56,5 +56,16 @@ describe('mergeShipped', () => {
     const [b] = parseCfaLessons(JSON.stringify({ ...good, topic: 'economics', module: 1, title: 'Own import' })).lessons;
     const [c] = parseCfaLessons(JSON.stringify({ ...good, module: 1, title: 'New title' })).lessons;
     expect(mergeShipped([a, b], [c]).map((l) => l.title)).toEqual(['Own import', 'New title']);
+  });
+});
+
+describe('upToDate', () => {
+  it('spots a missing, changed or duplicated shipped lesson', () => {
+    const [s] = parseCfaLessons(JSON.stringify({ ...good, module: 1, title: 'Shipped' })).lessons;
+    const [old] = parseCfaLessons(JSON.stringify({ ...good, module: 1, title: 'Old copy' })).lessons;
+    expect(upToDate([s], [s])).toBe(true);
+    expect(upToDate([], [s])).toBe(false);
+    expect(upToDate([{ ...s, title: 'changed' }], [s])).toBe(false);
+    expect(upToDate([old, s], [s])).toBe(false);
   });
 });

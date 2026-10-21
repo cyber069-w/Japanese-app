@@ -9,7 +9,7 @@ import './styles/base.css';
 import './styles/components.css';
 import './styles/apple.css';
 import { initStore } from './core/store';
-import { startSync } from './core/sync';
+import { onSyncFinished, startSync } from './core/sync';
 import { loadLessonPacks } from './modules/cfa/lessonPacks';
 import { App } from './App';
 
@@ -24,6 +24,7 @@ initStore().then(() => {
   );
   // sync with your other devices in the background (only if you connected one)
   void startSync();
-  // new versions of the CFA lessons that ship (encrypted) with the app
+  // new versions of the CFA lessons that ship (encrypted) with the app – also after a sync, which may bring an older copy
   void loadLessonPacks();
+  onSyncFinished(() => void loadLessonPacks());
 });

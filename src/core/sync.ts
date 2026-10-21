@@ -87,6 +87,17 @@ function setStatus(patch: Partial<SyncStatus>) {
   status = { ...status, ...patch };
   statusListeners.forEach((l) => l());
 }
+/** Calls `l` after every finished sync (e.g. to put back data an older copy from another device replaced). */
+export function onSyncFinished(l: () => void) {
+  let last = status.lastSync;
+  statusListeners.add(() => {
+    if (status.lastSync !== last) {
+      last = status.lastSync;
+      l();
+    }
+  });
+}
+
 export function useSyncStatus(): SyncStatus {
   return useSyncExternalStore(
     (l) => {

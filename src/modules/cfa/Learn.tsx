@@ -2,7 +2,7 @@
  * /learn/:id – one CFA lesson in two versions: the guided lesson (one short step at a time: its new words first,
  * then the explanation, example, quick check and "Ask tutor"; English or German explanations) and the original PDF.
  */
-import { Fragment, useMemo, useState, type ReactNode } from 'react';
+import { Fragment, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { setSelection, useApp } from '../../core/store';
 import { navigate } from '../../lib/router';
 import { Icon } from '../../components/Icon';
@@ -10,6 +10,7 @@ import { Sheet } from '../../components/Sheet';
 import { TutorButton } from '../../components/TutorButton';
 import type { TutorRequest } from '../../lib/tutor';
 import { LessonPdfPanel } from './LessonPdf';
+import { loadLessonPacks } from './lessonPacks';
 import { CFA_TOPIC_NAMES, type CfaLesson, type CfaQuestion, type CfaTerm } from './lessons';
 
 const read = (k: string) => {
@@ -38,6 +39,9 @@ export function practiceLesson(l: CfaLesson) {
 export function LearnScreen({ id }: { id: string }) {
   const lesson = useApp((s) => s.content.cfaLessons.find((l) => l.id === id));
   const [view, setViewState] = useState<'guided' | 'pdf'>(() => (read('cfa-lesson-view') === 'pdf' ? 'pdf' : 'guided'));
+  useEffect(() => {
+    void loadLessonPacks(); // an older copy on this device gets the current version (with its guided lesson)
+  }, []);
   if (!lesson) {
     return (
       <div className="page">
@@ -59,7 +63,7 @@ export function LearnScreen({ id }: { id: string }) {
       <div className="row lesson-head">
         <div className="seg" role="tablist" aria-label="Version">
           <button role="tab" aria-selected={shown === 'guided'} className={shown === 'guided' ? 'on' : ''} disabled={!lesson.learn} onClick={() => setView('guided')}>
-            <Icon name="book" size={16} /> {lesson.learn ? 'Guided lesson' : 'Guided (coming soon)'}
+            <Icon name="book" size={16} /> {lesson.learn ? 'Guided lesson' : 'Guided (not loaded)'}
           </button>
           <button role="tab" aria-selected={shown === 'pdf'} className={shown === 'pdf' ? 'on' : ''} onClick={() => setView('pdf')}>
             <Icon name="text" size={16} /> Original PDF
@@ -68,6 +72,12 @@ export function LearnScreen({ id }: { id: string }) {
         <span className="grow" />
         <button className="btn btn-sm" onClick={() => practiceLesson(lesson)}><Icon name="cards" size={16} /> Practise</button>
       </div>
+      {!lesson.learn && (
+        <p className="faint small" style={{ margin: '0 0 12px' }}>
+          The guided version isn’t on this device yet. It loads by itself when the app is online and unlocked – if it doesn’t appear,
+          open <a href={`#/c/cfa/t/${lesson.topic}`}>{CFA_TOPIC_NAMES[lesson.topic] ?? lesson.topic}</a> and enter your course-pack passphrase there.
+        </p>
+      )}
       {shown === 'guided' ? <Learn key={lesson.id} lesson={lesson} /> : <LessonPdfPanel lesson={lesson} />}
     </div>
   );
