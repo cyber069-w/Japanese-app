@@ -40,11 +40,10 @@ const write = (k: string, v: string) => {
   }
 };
 
-export default function AnnotatedPdf({ lesson }: { lesson: CfaLesson }) {
+export default function AnnotatedPdf({ lesson, lang }: { lesson: CfaLesson; lang: Lang }) {
   const notes = useMemo(() => lesson.learn?.annotations ?? [], [lesson]);
   const [pdf, setPdf] = useState<Pdf | null>(null);
   const [msg, setMsg] = useState('Loading…');
-  const [lang, setLangState] = useState<Lang>(() => (read('cfa-learn-lang') === 'de' ? 'de' : 'en'));
   const [areaMode, setAreaMode] = useState(false);
   const [selection, setSelection] = useState<{ text: string; page: number } | null>(null);
   const [marked, setMarked] = useState<Marked | null>(null);
@@ -56,10 +55,6 @@ export default function AnnotatedPdf({ lesson }: { lesson: CfaLesson }) {
     write('cfa-anno-notes', v ? '1' : '0');
   };
 
-  const setLang = (l: Lang) => {
-    setLangState(l);
-    write('cfa-learn-lang', l);
-  };
 
   useEffect(() => {
     let cancelled = false;
@@ -129,21 +124,17 @@ export default function AnnotatedPdf({ lesson }: { lesson: CfaLesson }) {
   };
 
   return (
-    <div className={`anno${showNotes ? '' : ' notes-hidden'}`} ref={root}>
-      <div className="row anno-tools">
-        <button className={`btn btn-sm${areaMode ? ' btn-primary' : ''}`} aria-pressed={areaMode} onClick={() => setAreaMode(!areaMode)}>
-          <Icon name="shapes" size={16} /> {areaMode ? 'Drag a box around it…' : 'Mark area'}
+    <div className={`anno${showNotes && notes.length ? '' : ' notes-hidden'}`} ref={root}>
+      <div className="anno-tools">
+        <button className={`btn btn-sm${areaMode ? ' btn-primary' : ''}`} aria-pressed={areaMode} onClick={() => setAreaMode(!areaMode)} title="Drag a box around a diagram or formula to get it explained">
+          <Icon name="shapes" size={16} /> {areaMode ? 'Drag a box…' : 'Mark area'}
         </button>
         {notes.length > 0 && (
           <button className="btn btn-sm" aria-pressed={showNotes} onClick={() => setShowNotes(!showNotes)}>
-            <Icon name={showNotes ? 'eye' : 'list'} size={16} /> {showNotes ? 'Hide notes' : `Show notes (${notes.length})`}
+            <Icon name="list" size={16} /> {showNotes ? 'Hide notes' : `Notes (${notes.length})`}
           </button>
         )}
-        <span className="faint small grow">Mark any text to get it explained · “Mark area” for diagrams and formulas</span>
-        <div className="seg" role="group" aria-label="Language of the notes">
-          <button className={lang === 'en' ? 'on' : ''} aria-pressed={lang === 'en'} onClick={() => setLang('en')}>English</button>
-          <button className={lang === 'de' ? 'on' : ''} aria-pressed={lang === 'de'} onClick={() => setLang('de')}>Deutsch</button>
-        </div>
+        <span className="faint small anno-hint">{areaMode ? 'Drag a box over the page' : 'Select text to get it explained'}</span>
       </div>
       {msg && <p className="muted small">{msg}</p>}
       {pdf &&

@@ -41,7 +41,9 @@ export function practiceLesson(l: CfaLesson) {
 
 export function LearnScreen({ id }: { id: string }) {
   const lesson = useApp((s) => s.content.cfaLessons.find((l) => l.id === id));
-  const [view, setViewState] = useState<View>(() => (read('cfa-lesson-view') as View | null) ?? 'guided');
+  const [view, setViewState] = useState<View>(() => (read('cfa-lesson-view') as View | null) ?? 'pdf');
+  // one language for the guided lesson and the notes
+  const [lang, setLangState] = useState<Lang>(() => (read('cfa-learn-lang') ?? (read('cfa-learn-de') === '1' ? 'de' : 'en')) as Lang);
   useEffect(() => {
     void loadLessonPacks(); // an older copy on this device gets the current version (with its guided lesson)
   }, []);
@@ -56,41 +58,53 @@ export function LearnScreen({ id }: { id: string }) {
     setViewState(v);
     write('cfa-lesson-view', v);
   };
+  const setLang = (l: Lang) => {
+    setLangState(l);
+    write('cfa-learn-lang', l);
+  };
   const shown: View = view === 'guided' && !lesson.learn ? 'annotated' : view;
+  const tabs: Array<[View, string, string, boolean]> = [
+    ['pdf', 'text', 'Original', true],
+    ['annotated', 'pen', 'Annotated', true],
+    ['guided', 'book', 'Guided', !!lesson.learn],
+  ];
   return (
     <div className="page learn">
       <a href={`#/c/cfa/t/${lesson.topic}`} className="btn btn-ghost btn-sm" style={{ marginLeft: -10, marginBottom: 6 }}>
         <Icon name="left" size={16} /> {CFA_TOPIC_NAMES[lesson.topic] ?? lesson.topic}
       </a>
       <h1 className="lesson-title">{lesson.title}</h1>
-      <div className="row lesson-head">
-        <div className="seg" role="tablist" aria-label="Version">
-          <button role="tab" aria-selected={shown === 'guided'} className={shown === 'guided' ? 'on' : ''} disabled={!lesson.learn} onClick={() => setView('guided')}>
-            <Icon name="book" size={16} /> {lesson.learn ? 'Guided lesson' : 'Guided (not loaded)'}
-          </button>
-          <button role="tab" aria-selected={shown === 'annotated'} className={shown === 'annotated' ? 'on' : ''} onClick={() => setView('annotated')}>
-            <Icon name="pen" size={16} /> Annotated PDF
-          </button>
-          <button role="tab" aria-selected={shown === 'pdf'} className={shown === 'pdf' ? 'on' : ''} onClick={() => setView('pdf')}>
-            <Icon name="text" size={16} /> Original PDF
-          </button>
+      <div className="lesson-bar">
+        <div className="seg lesson-tabs" role="tablist" aria-label="Version">
+          {tabs.map(([v, icon, label, enabled]) => (
+            <button key={v} role="tab" aria-selected={shown === v} className={shown === v ? 'on' : ''} disabled={!enabled} onClick={() => setView(v)}>
+              <Icon name={icon} size={16} /> {label}
+            </button>
+          ))}
         </div>
-        <span className="grow" />
-        <button className="btn btn-sm" onClick={() => practiceLesson(lesson)}><Icon name="cards" size={16} /> Practise</button>
+        <div className="lesson-bar-end">
+          {shown !== 'pdf' && (
+            <div className="seg seg-sm" role="group" aria-label="Language of the explanations">
+              <button className={lang === 'en' ? 'on' : ''} aria-pressed={lang === 'en'} onClick={() => setLang('en')} title="English">EN</button>
+              <button className={lang === 'de' ? 'on' : ''} aria-pressed={lang === 'de'} onClick={() => setLang('de')} title="Deutsch">DE</button>
+            </div>
+          )}
+          <button className="btn btn-sm btn-ghost" onClick={() => practiceLesson(lesson)}><Icon name="cards" size={16} /> Practise</button>
+        </div>
       </div>
-      {!lesson.learn && (
+      {!lesson.learn && shown === 'annotated' && (
         <p className="faint small" style={{ margin: '0 0 12px' }}>
           The guided version isn’t on this device yet. It loads by itself when the app is online and unlocked – if it doesn’t appear,
           open <a href={`#/c/cfa/t/${lesson.topic}`}>{CFA_TOPIC_NAMES[lesson.topic] ?? lesson.topic}</a> and enter your course-pack passphrase there.
         </p>
       )}
-      {shown === 'guided' && <Learn key={lesson.id} lesson={lesson} />}
+      {shown === 'pdf' && <LessonPdfPanel lesson={lesson} />}
       {shown === 'annotated' && (
         <Suspense fallback={<p className="muted small">Loading…</p>}>
-          <AnnotatedPdf lesson={lesson} />
+          <AnnotatedPdf lesson={lesson} lang={lang} />
         </Suspense>
       )}
-      {shown === 'pdf' && <LessonPdfPanel lesson={lesson} />}
+      {shown === 'guided' && <Learn key={lesson.id} lesson={lesson} lang={lang} />}
     </div>
   );
 }
@@ -101,11 +115,10 @@ const wordKeys = (text = '') => [...text.matchAll(/\[\[([^|\]]+)(?:\|([^\]]+))?\
 /** Text without the [[…]] markup, for the tutor prompt. */
 const plain = (text = '') => text.replace(/\[\[([^|\]]+)(?:\|[^\]]+)?\]\]/g, '$1');
 
-function Learn({ lesson }: { lesson: CfaLesson }) {
+function Learn({ lesson, lang }: { lesson: CfaLesson; lang: Lang }) {
   const learn = lesson.learn!;
   const total = learn.sections.length + 2; // intro · sections · summary
   const [step, setStepState] = useState(() => Math.min(Number(read(`cfa-learn-step:${lesson.id}`)) || 0, total - 1));
-  const [lang, setLangState] = useState<Lang>(() => (read('cfa-learn-lang') ?? (read('cfa-learn-de') === '1' ? 'de' : 'en')) as Lang);
   const [word, setWord] = useState<CfaTerm | null>(null);
   const de = lang === 'de';
 
@@ -114,11 +127,6 @@ function Learn({ lesson }: { lesson: CfaLesson }) {
     write(`cfa-learn-step:${lesson.id}`, String(n));
     window.scrollTo({ top: 0 });
   };
-  const setLang = (l: Lang) => {
-    setLangState(l);
-    write('cfa-learn-lang', l);
-  };
-
   const glossary = useMemo(() => {
     const m = new Map<string, CfaTerm>();
     for (const t of [...lesson.terms, ...learn.words]) m.set(t.term.toLowerCase(), t);
@@ -185,14 +193,10 @@ function Learn({ lesson }: { lesson: CfaLesson }) {
 
   return (
     <div>
-      <div className="row learn-steps">
-        <div className="eyebrow grow">Step {step + 1} of {total}</div>
-        <div className="seg" role="group" aria-label="Language of the explanations">
-          <button className={lang === 'en' ? 'on' : ''} aria-pressed={lang === 'en'} onClick={() => setLang('en')}>English</button>
-          <button className={de ? 'on' : ''} aria-pressed={de} onClick={() => setLang('de')}>Deutsch</button>
-        </div>
+      <div className="learn-steps" aria-label={`Step ${step + 1} of ${total}`}>
+        <div className="learn-progress"><span style={{ width: `${((step + 1) / total) * 100}%` }} /></div>
+        <span className="learn-steps-count">{step + 1} / {total}</span>
       </div>
-      <div className="learn-progress"><span style={{ width: `${((step + 1) / total) * 100}%` }} /></div>
 
       <article className="card card-pad learn-card">
         <h2>{step === 0 ? lesson.title : section ? (sde?.title ?? section.title) : de ? 'Das Wichtigste' : 'What to take away'}</h2>
