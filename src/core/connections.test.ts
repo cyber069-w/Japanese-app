@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { azureConn, canvasConn, syncConn, timetableConn } from './connections';
-import { addEntry, filterHistory, MAX_HISTORY, type HistoryEntry } from './history';
+import { addEntry, filterHistory, groupHistory, MAX_HISTORY, type HistoryEntry, type HistoryGroup } from './history';
 import { parseAzureFile } from './azure';
 
 const now = Date.parse('2026-10-19T12:00:00');
@@ -36,5 +36,24 @@ describe('history', () => {
     const l = [e(1, 'canvas', 'Deadline BWL'), e(2, 'focus', 'Entry Mikro')];
     expect(filterHistory(l, 'canvas', '')).toHaveLength(1);
     expect(filterHistory(l, 'all', 'mikro')).toHaveLength(1);
+  });
+  it('groups a run of speaking checks into one test, keeps lone checks and other entries apart', () => {
+    const min = 60_000;
+    const check = (t: number, s: string, score: number): HistoryEntry => ({ id: String(t), at: t * min, kind: 'speaking', text: `Pronunciation check: ${s} – ${score}/100` });
+    const l = [
+      check(100, 'watashi wa yamada desu', 88), check(99, 'ano kata wa kimurasan desu', 27), check(98, 'wansan mo isha desu ka', 92),
+      { id: 'f', at: 90 * min, kind: 'focus' as const, text: 'Entry' },
+      check(10, 'watashi mo gakusei desu', 86),
+      check(5, 'old', 50), // 5 minutes before the previous check → same test
+    ];
+    const g = groupHistory(l);
+    expect(g).toHaveLength(3);
+    const first = g[0] as HistoryGroup;
+    expect(first.entries).toHaveLength(3);
+    expect(first.title).toBe('Pronunciation test · 3 sentences · average 69/100');
+    expect((g[1] as HistoryEntry).kind).toBe('focus');
+    expect((g[2] as HistoryGroup).entries.map((e) => e.id)).toEqual(['10', '5']);
+    // more than 30 minutes apart → two separate single entries
+    expect(groupHistory([check(100, 'a', 10), check(60, 'b', 20)]).every((x) => !('entries' in x))).toBe(true);
   });
 });

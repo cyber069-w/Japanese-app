@@ -5,7 +5,7 @@ import { loadCalendar } from '../core/calendar';
 import { useSyncStatus } from '../core/sync';
 import { azureConn, canvasConn, syncConn, timetableConn, type Conn } from '../core/connections';
 import { loadAzure, saveAzure, type AzureSource } from '../core/azure';
-import { clearHistory, deleteEntry, filterHistory, HISTORY_KINDS, useHistory, type HistoryKind } from '../core/history';
+import { clearHistory, deleteEntry, filterHistory, groupHistory, HISTORY_KINDS, parseCheck, useHistory, type HistoryEntry, type HistoryKind } from '../core/history';
 import { Icon } from '../components/Icon';
 import { useStored } from '../core/kv';
 import { ruleStats, type RuleLog } from '../core/rules';
@@ -84,6 +84,13 @@ function RuleStats() {
   );
 }
 
+const when = (at: number) => new Date(at).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+const hm = (at: number) => new Date(at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+const scoreOf = (e: HistoryEntry) => {
+  const c = parseCheck(e);
+  return c?.score == null ? '' : `${c.score}${e.text.endsWith('%') ? '%' : '/100'}`;
+};
+
 export function HistorySettings() {
   const all = useHistory();
   const [kind, setKind] = useState<HistoryKind | 'all'>('all');
@@ -109,13 +116,35 @@ export function HistorySettings() {
         <div className="muted small">{all.length ? 'Nothing matches.' : 'Nothing yet – deadlines you accept, prompts you copy, focus entries and imports show up here.'}</div>
       ) : (
         <ul className="today-list">
-          {list.slice(0, 100).map((e) => (
-            <li key={e.id} className="today-row">
-              <span className="today-time">{new Date(e.at).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</span>
-              <div className="grow"><span className="tag" style={{ marginRight: 8 }}>{HISTORY_KINDS[e.kind]}</span>{e.text}</div>
-              <button className="btn btn-sm btn-ghost" aria-label="Delete entry" onClick={() => deleteEntry(e.id)}><Icon name="x" size={15} /></button>
-            </li>
-          ))}
+          {groupHistory(list).slice(0, 100).map((e) =>
+            'entries' in e ? (
+              <li key={e.id} className="today-row history-group">
+                <details>
+                  <summary className="row">
+                    <span className="today-time">{when(e.from)}{hm(e.from) !== hm(e.at) && `–${hm(e.at)}`}</span>
+                    <div className="grow"><span className="tag" style={{ marginRight: 8 }}>{HISTORY_KINDS.speaking}</span>{e.title}</div>
+                    <button className="btn btn-sm btn-ghost" aria-label="Delete this test" onClick={(ev) => { ev.preventDefault(); if (confirm(`Delete all ${e.entries.length} entries of this test?`)) e.entries.forEach((x) => deleteEntry(x.id)); }}><Icon name="x" size={15} /></button>
+                  </summary>
+                  <ul className="history-sub">
+                    {e.entries.map((x) => (
+                      <li key={x.id} className="row">
+                        <span className="faint tiny">{hm(x.at)}</span>
+                        <span className="grow">{parseCheck(x)?.sentence ?? x.text}</span>
+                        <b className="small">{scoreOf(x)}</b>
+                        <button className="btn btn-sm btn-ghost" aria-label="Delete entry" onClick={() => deleteEntry(x.id)}><Icon name="x" size={14} /></button>
+                      </li>
+                    ))}
+                  </ul>
+                </details>
+              </li>
+            ) : (
+              <li key={e.id} className="today-row">
+                <span className="today-time">{when(e.at)}</span>
+                <div className="grow"><span className="tag" style={{ marginRight: 8 }}>{HISTORY_KINDS[e.kind]}</span>{e.text}</div>
+                <button className="btn btn-sm btn-ghost" aria-label="Delete entry" onClick={() => deleteEntry(e.id)}><Icon name="x" size={15} /></button>
+              </li>
+            ),
+          )}
         </ul>
       )}
     </section>
