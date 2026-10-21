@@ -104,5 +104,11 @@ The user found the drill-only packs hard ("I don't know most of the words") and 
 - **Watermark removed** (user has the owner's permission, 21 Oct): `scripts/cfa/remove-watermark.py` (needs pypdf in a virtualenv) strips the
   diagonal FREEFELLOW.ORG text (45° rotation, size 80, Cinzel) from `private/cfa/lessons-original-pdf/` → `private/cfa/lessons/`; text checked
   identical otherwise. Then `node scripts/cfa/build-pdfs.mjs` (keeps the salt, new `version` makes devices re-download once).
+- **Lessons ship with the app (no import)**: `node scripts/cfa/build-lessons.mjs` encrypts `private/cfa/packs/<topic>-all.json` into
+  `public/cfa-lessons/<topic>.enc` (same passphrase + salt as the PDFs; user's decision 21 Oct: "I shouldn't have to import").
+  `src/modules/cfa/lessonPacks.ts` loads them at start-up when `index.json`'s version is new (replaces same topic + module).
+  **Workflow after editing a lesson:** `python3 scripts/cfa/merge-learn.py quant && node scripts/cfa/build-lessons.mjs`, commit, push.
+- Guided lessons (21 Oct): per step "New words" (first use of a glossary word), "Ask tutor about this step/word" (copies a prompt,
+  opens Claude; later the API), English | Deutsch switch. German texts live in each section's `de` and `learn.de`; only quant 11 so far.
 - CFA topic pages (`#/c/cfa/t/<topic>`) list the imported lessons; a row opens the lesson window `#/learn/<id>` with two tabs, Guided lesson / Original PDF, plus Practise (user's wish: one quick link, both versions inside).
 - Note: FreeFellow's module numbers are **alphabetical**, not the curriculum order (e.g. TVM is 10, Types of returns 11). Not changed – it would change lesson ids.

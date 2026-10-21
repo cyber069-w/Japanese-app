@@ -40,29 +40,34 @@ async function keep(l: CfaLesson, version: string, blob: Blob) {
 /** No key on this device yet – ask for the course-pack passphrase once. */
 export class NeedPassphraseError extends Error {}
 
-async function fetchBytes(path: string): Promise<Uint8Array> {
+export async function fetchBytes(path: string): Promise<Uint8Array> {
   if (typeof navigator !== 'undefined' && navigator.onLine === false) throw new Error('You are offline – this PDF has not been downloaded to this device yet.');
   const res = await fetch(path, { cache: 'no-cache' }); // revalidate: a rebuilt PDF keeps its file name
   if (!res.ok || (res.headers.get('content-type') ?? '').includes('text/html')) throw new Error('There is no PDF for this lesson.');
   return new Uint8Array(await res.arrayBuffer());
 }
 
-async function decrypt(file: Uint8Array, key: CryptoKey): Promise<Blob> {
-  if (new TextDecoder().decode(file.slice(0, 4)) !== 'NHPK' || file[4] !== 1) throw new Error('This file is not an encrypted lesson PDF.');
+/** The device's key for the encrypted CFA files (PDFs and lesson packs), if the passphrase was entered here. */
+export const savedKey = () => storage.get<CryptoKey>(KEY);
+
+/** Decrypts an "NHPK" file (see scripts/cfa/build-pdfs.mjs). */
+export async function decryptFile(file: Uint8Array, key: CryptoKey): Promise<ArrayBuffer> {
+  if (new TextDecoder().decode(file.slice(0, 4)) !== 'NHPK' || file[4] !== 1) throw new Error('This file is not an encrypted CFA file.');
   try {
-    const plain = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: file.slice(21, 33) }, key, file.slice(33));
-    return new Blob([plain], { type: 'application/pdf' });
+    return await crypto.subtle.decrypt({ name: 'AES-GCM', iv: file.slice(21, 33) }, key, file.slice(33));
   } catch {
     throw new NeedPassphraseError('Wrong passphrase.');
   }
 }
+
+const decrypt = async (file: Uint8Array, key: CryptoKey) => new Blob([await decryptFile(file, key)], { type: 'application/pdf' });
 
 /** The lesson's PDF: from this device, or downloaded once, decrypted and kept. */
 export async function getPdf(l: CfaLesson): Promise<Blob> {
   const version = (await pdfIndex())?.version ?? '1';
   const current = await storage.getBlob(pdfKey(l, version));
   if (current) return current;
-  const key = await storage.get<CryptoKey>(KEY);
+  const key = await savedKey();
   if (!key) throw new NeedPassphraseError();
   try {
     const blob = await decrypt(await fetchBytes(fileOf(l)), key);
@@ -87,5 +92,12 @@ export async function rememberPdfPassphrase(passphrase: string, check?: CfaLesso
     { name: 'PBKDF2', salt: fromBase64(salt) as BufferSource, iterations: 310_000, hash: 'SHA-256' }, material, { name: 'AES-GCM', length: 256 }, false, ['decrypt'],
   );
   if (check) await keep(check, version, await decrypt(await fetchBytes(fileOf(check)), key));
+  else {
+    // no lesson at hand: prove the passphrase on the first lesson pack instead, so a typo is never stored
+    const packs = await fetch('cfa-lessons/index.json').then((r) => (r.ok ? (r.json() as Promise<{ topics: string[] }>) : null)).catch(() => null);
+    if (packs?.topics[0]) await decryptFile(await fetchBytes(`cfa-lessons/${packs.topics[0]}.enc`), key);
+  }
   await storage.set(KEY, key);
+  // the same key opens the lesson packs: load them now
+  void import('./lessonPacks').then((m) => m.loadLessonPacks());
 }

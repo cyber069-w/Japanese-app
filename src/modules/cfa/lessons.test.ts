@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { parseCfaLessons } from './lessons';
+import { mergeShipped } from './lessonPacks';
 
 const good = {
   topic: 'quant', module: 2, title: 'Time value of money',
@@ -48,3 +49,12 @@ describe('parseCfaLessons', () => {
   });
 });
 
+
+describe('mergeShipped', () => {
+  it('replaces stored lessons with the same topic + module or id, keeps the rest', () => {
+    const [a] = parseCfaLessons(JSON.stringify({ ...good, module: 1, title: 'Old title' })).lessons;
+    const [b] = parseCfaLessons(JSON.stringify({ ...good, topic: 'economics', module: 1, title: 'Own import' })).lessons;
+    const [c] = parseCfaLessons(JSON.stringify({ ...good, module: 1, title: 'New title' })).lessons;
+    expect(mergeShipped([a, b], [c]).map((l) => l.title)).toEqual(['Own import', 'New title']);
+  });
+});
