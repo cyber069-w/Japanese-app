@@ -24,6 +24,7 @@ import { FocusWidget } from './screens/FocusWidget';
 import { Settings } from './screens/Settings';
 import { SessionScreen } from './screens/Session';
 import { CourseRoute, TopicPage } from './screens/Course';
+import { LearnScreen } from './modules/cfa/Learn';
 
 const NAV: Array<{ path: string; label: string; icon: IconName }> = [
   { path: '/', label: 'Home', icon: 'home' },
@@ -85,6 +86,7 @@ function route(path: string): ReactNode {
   if (path === '/settings') return <Settings />;
   if ((p = match('/c/:id', path))) return <CourseRoute key={p.id} id={p.id} />;
   if ((p = match('/c/:id/t/:topic', path))) return <TopicPage key={path} courseId={p.id} topicId={p.topic} />;
+  if ((p = match('/learn/:id', path))) return <LearnScreen key={p.id} id={p.id} />;
   if ((p = match('/m/:id', path))) return <ModuleScreen key={p.id} id={p.id} />;
   if ((p = match('/m/:id/t/:tool', path))) return <ToolScreen key={path} id={p.id} tool={p.tool} />;
   return <Home />;

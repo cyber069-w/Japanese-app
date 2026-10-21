@@ -140,6 +140,15 @@ export async function readSyncedFile<T>(path: string): Promise<T | null> {
   return file ? decryptJson<T>(file.bytes, config.key) : null;
 }
 
+/** Encrypts a value and writes it to the sync repo (same password as progress.enc). False if sync is off. */
+export async function writeSyncedFile(path: string, value: unknown, message: string): Promise<boolean> {
+  if (!config) return false;
+  const gh = createGitHub(config.token, config);
+  const old = await gh.getFile(path);
+  await gh.putFile(path, await encryptJson(value, config.key, config.salt), old?.sha, message);
+  return true;
+}
+
 export const syncConfigured = () => !!config;
 
 /** Sync now (or right after the sync that is already running). */

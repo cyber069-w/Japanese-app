@@ -92,7 +92,7 @@ export default defineConfig({
       },
       workbox: {
         // the app itself + the font files its built-in text needs (≈ 2.5 MB), so it renders fully offline
-        globPatterns: ['**/*.{js,css,html,svg,png,json,m4a}', ...fontGlobs(process.cwd())],
+        globPatterns: ['**/*.{js,mjs,css,html,svg,png,json,m4a}', ...fontGlobs(process.cwd())],
         globIgnores: ['**/pack.enc'],
         maximumFileSizeToCacheInBytes: 6 * 1024 * 1024,
         // Japanese fonts are split into many small files – cache the ones actually used

@@ -13,6 +13,7 @@ import { ExamPanel } from '../components/ExamPanel';
 import { Icon } from '../components/Icon';
 import { TutorButton } from '../components/TutorButton';
 import { TutorNotes } from '../components/TutorNotes';
+import { CfaTopicLessons } from '../modules/cfa/TopicLessons';
 
 const AREAS = [
   { id: 'study', label: 'Study' },
@@ -217,18 +218,22 @@ export function TopicPage({ courseId, topicId }: { courseId: string; topicId: st
           </div>
         </div>
       </div>
-      <div className="card card-pad">
-        {Array.from({ length: topic.modules }, (_, i) => (
-          <div className="mod-row" key={i}>
-            <span className="serif">{i + 1}</span>
-            <span>
-              <b>Learning module {i + 1}</b>
-              <span className="faint small"> · no notes yet</span>
-            </span>
-            <span className="tag">empty</span>
-          </div>
-        ))}
-      </div>
+      {course.id === 'cfa' ? (
+        <CfaTopicLessons topicId={topic.id} />
+      ) : (
+        <div className="card card-pad">
+          {Array.from({ length: topic.modules }, (_, i) => (
+            <div className="mod-row" key={i}>
+              <span className="serif">{i + 1}</span>
+              <span>
+                <b>Learning module {i + 1}</b>
+                <span className="faint small"> · no notes yet</span>
+              </span>
+              <span className="tag">empty</span>
+            </div>
+          ))}
+        </div>
+      )}
       <p className="faint small" style={{ marginTop: 14 }}>
         Notes, key terms, formulas, worked examples and practice questions for each module will come from your own material.
       </p>

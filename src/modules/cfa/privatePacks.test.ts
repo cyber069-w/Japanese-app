@@ -24,4 +24,14 @@ describe.skipIf(!existsSync(file))('private CFA packs', () => {
     const positions = r.lessons.flatMap((l) => l.questions.map((q) => q.answer));
     expect(new Set(positions).size).toBeGreaterThan(1);
   });
+  it('every [[word]] in a guided lesson has a definition', () => {
+    for (const l of parseCfaLessons(readFileSync(file, 'utf8')).lessons) {
+      if (!l.learn) continue;
+      const known = new Set([...l.terms, ...l.learn.words].map((t) => t.term.toLowerCase()));
+      const texts = [l.learn.intro, ...l.learn.summary, ...l.learn.sections.flatMap((s) => [s.text, s.example ?? '', s.remember ?? '', s.trap ?? ''])];
+      const missing = texts.flatMap((t) => [...t.matchAll(/\[\[([^|\]]+)(?:\|([^\]]+))?\]\]/g)].map((m) => (m[2] ?? m[1]).trim())).filter((w) => !known.has(w.toLowerCase()));
+      expect(missing, l.title).toEqual([]);
+      expect(l.learn.sections.every((s) => s.check), l.title).toBe(true);
+    }
+  });
 });

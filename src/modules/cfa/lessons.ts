@@ -1,9 +1,14 @@
 /** CFA lesson packs: key terms, formulas and exam-style questions that you import after each lesson. */
 
-export interface CfaTerm { term: string; definition: string }
+export interface CfaTerm { term: string; definition: string; /** German translation + short note, shown only with the DE toggle. */ de?: string }
 export interface CfaFormula { name: string; formula: string; note?: string }
 export interface CfaQuestion { q: string; options: string[]; answer: number; explain?: string }
 export interface CfaExample { title: string; problem: string; solution: string }
+
+/** One step of the guided lesson. In `text`, [[word]] marks a glossary word (a term or a word from `words`). */
+export interface CfaLearnSection { title: string; text: string; example?: string; remember?: string; trap?: string; check?: CfaQuestion }
+/** The guided, beginner-friendly version of a lesson (optional). */
+export interface CfaLearn { intro: string; sections: CfaLearnSection[]; summary: string[]; words: CfaTerm[] }
 
 export interface CfaLesson {
   id: string;
@@ -16,6 +21,8 @@ export interface CfaLesson {
   questions: CfaQuestion[];
   /** Worked examples (optional – older packs have none). */
   examples?: CfaExample[];
+  /** Guided lesson (optional). */
+  learn?: CfaLearn;
 }
 
 export const CFA_TOPIC_NAMES: Record<string, string> = {
@@ -49,19 +56,15 @@ function toLesson(raw: unknown, i: number, errors: string[]): CfaLesson | null {
   }
   const topic = str(r.topic).toLowerCase() || 'other';
   const module = typeof r.module === 'number' ? r.module : undefined;
-  const terms = (Array.isArray(r.terms) ? r.terms : []).map((t: any) => ({ term: str(t?.term), definition: str(t?.definition) })).filter((t) => t.term && t.definition);
+  const terms = toTerms(r.terms);
   const formulas = (Array.isArray(r.formulas) ? r.formulas : [])
     .map((f: any) => ({ name: str(f?.name), formula: str(f?.formula), note: str(f?.note) || undefined }))
     .filter((f) => f.name && f.formula);
   const questions: CfaQuestion[] = [];
-  (Array.isArray(r.questions) ? r.questions : []).forEach((q: any, n: number) => {
-    const options = (Array.isArray(q?.options) ? q.options : []).map(str).filter(Boolean);
-    const a = typeof q?.answer === 'string' ? 'abc'.indexOf(q.answer.trim().toLowerCase()) : q?.answer;
-    if (!str(q?.q) || options.length < 2 || !Number.isInteger(a) || a < 0 || a >= options.length) {
-      errors.push(`${title}: question ${n + 1} skipped (needs "q", at least two options and a valid "answer").`);
-      return;
-    }
-    questions.push({ q: str(q.q), options, answer: a, explain: str(q.explain) || undefined });
+  (Array.isArray(r.questions) ? r.questions : []).forEach((q: unknown, n: number) => {
+    const ok = toQuestion(q);
+    if (ok) questions.push(ok);
+    else errors.push(`${title}: question ${n + 1} skipped (needs "q", at least two options and a valid "answer").`);
   });
   const examples = (Array.isArray(r.examples) ? r.examples : [])
     .map((x: any) => ({ title: str(x?.title), problem: str(x?.problem), solution: str(x?.solution) }))
@@ -70,7 +73,37 @@ function toLesson(raw: unknown, i: number, errors: string[]): CfaLesson | null {
     errors.push(`${title}: nothing to import (no terms, formulas or questions).`);
     return null;
   }
-  return { id: `${topic}-${module ?? 'x'}-${slug(title)}`, topic, module, title, terms, formulas, questions, ...(examples.length ? { examples } : {}) };
+  const learn = toLearn(r.learn);
+  return { id: `${topic}-${module ?? 'x'}-${slug(title)}`, topic, module, title, terms, formulas, questions, ...(examples.length ? { examples } : {}), ...(learn ? { learn } : {}) };
+}
+
+function toTerms(raw: unknown): CfaTerm[] {
+  return (Array.isArray(raw) ? raw : [])
+    .map((t: any) => ({ term: str(t?.term), definition: str(t?.definition), de: str(t?.de) || undefined }))
+    .filter((t) => t.term && t.definition);
+}
+
+function toQuestion(q: any): CfaQuestion | null {
+  const options = (Array.isArray(q?.options) ? q.options : []).map(str).filter(Boolean);
+  const a = typeof q?.answer === 'string' ? 'abc'.indexOf(q.answer.trim().toLowerCase()) : q?.answer;
+  if (!str(q?.q) || options.length < 2 || !Number.isInteger(a) || a < 0 || a >= options.length) return null;
+  return { q: str(q.q), options, answer: a, explain: str(q.explain) || undefined };
+}
+
+function toLearn(raw: unknown): CfaLearn | undefined {
+  const r = (raw ?? {}) as Record<string, unknown>;
+  const sections = (Array.isArray(r.sections) ? r.sections : [])
+    .map((x: any): CfaLearnSection => ({
+      title: str(x?.title),
+      text: str(x?.text),
+      example: str(x?.example) || undefined,
+      remember: str(x?.remember) || undefined,
+      trap: str(x?.trap) || undefined,
+      check: x?.check ? toQuestion(x.check) ?? undefined : undefined,
+    }))
+    .filter((x) => x.title && x.text);
+  if (!sections.length) return undefined;
+  return { intro: str(r.intro), sections, summary: (Array.isArray(r.summary) ? r.summary : []).map(str).filter(Boolean), words: toTerms(r.words) };
 }
 
 /** Accepts one lesson, an array, or {lessons:[…]}; tolerates a ```json fence around it. */

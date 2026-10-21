@@ -84,3 +84,18 @@ Not verified on real devices: microphone flows, Apple Calendar import, iA Writer
 
 Open decisions for the user: Monkeytype ApeKey (H2), Outlook key (calendar sync), weekly-plan day window, Canvas rules review (BWL handouts),
 API-key policy for an in-app tutor.
+
+## 7 · Guided lessons and lesson PDFs (21 Oct, later session)
+
+The user found the drill-only packs hard ("I don't know most of the words") and asked for two ways to learn each lesson:
+- **Learn** (guided): optional `learn` field in a pack – `{ intro, words: [{term, definition, de}], sections: [{title, text, example?, remember?, trap?, check: {q, options, answer, explain}}], summary: [] }`.
+  In texts, `[[word]]` or `[[shown text|glossary term]]` makes a tappable word (looked up in `terms` + `learn.words`). Terms and words may have `de`
+  (German translation first, then ": short note") – only shown with the small **DE** switch (user's wish: German must stay discreet; exam is English).
+  Plain English for a beginner, one idea per step, every number recomputed. Screen: `src/modules/cfa/Learn.tsx`, route `#/learn/<lesson id>`.
+  `privatePacks.test.ts` checks every `[[word]]` resolves and every step has a check question.
+  **Status: only quant 11 (Types of Financial Returns) has a guided version – a sample for the user to approve before the other 11 are written.**
+- **PDF**: the original lesson PDF, rendered in-app with pdf.js (`PdfViewer.tsx`, lazy). Loaded once per account via the topic page →
+  "Load lesson PDFs" (files named `<topic>-NN-….pdf`, ready in `~/Desktop/cfa-lesson-pdfs/`); stored in IndexedDB and, with device sync on,
+  copied encrypted to the sync repo as `cfa-pdf/<topic>-<module>.enc`. Other devices fetch a PDF the first time it is opened, then keep it offline (`pdfs.ts`).
+- CFA topic pages (`#/c/cfa/t/<topic>`) now list the imported lessons with Learn · PDF · Practise (`TopicLessons.tsx`).
+- Note: FreeFellow's module numbers are **alphabetical**, not the curriculum order (e.g. TVM is 10, Types of returns 11). Not changed – it would change lesson ids.
