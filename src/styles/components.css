@@ -1505,12 +1505,13 @@ button.subject-tile { font: inherit; cursor: pointer; }
 
 /* ============================== CFA guided lesson ============================== */
 
-.lesson-row { grid-template-columns: 34px 1fr auto; }
-.lesson-actions { gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
-@media (max-width: 640px) {
-  .lesson-row { grid-template-columns: 34px 1fr; }
-  .lesson-actions { grid-column: 2; justify-content: flex-start; }
-}
+.lesson-row { color: inherit; text-decoration: none; border-radius: 10px; transition: background 0.15s; }
+.lesson-row:hover { background: var(--accent-tint); }
+.lesson-row > svg { color: var(--ink-3); }
+.lesson-title { font-size: 1.5rem; margin-bottom: 12px; }
+.lesson-head { gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
+.lesson-head .seg button { display: inline-flex; align-items: center; gap: 6px; }
+.learn-steps { align-items: center; }
 .learn { max-width: 760px; }
 .learn-progress { height: 4px; border-radius: 4px; background: var(--line); margin: 8px 0 16px; overflow: hidden; }
 .learn-progress span { display: block; height: 100%; background: var(--accent); transition: width 0.25s; }
@@ -1537,6 +1538,5 @@ button.subject-tile { font: inherit; cursor: pointer; }
 .learn-nav { margin-top: 16px; }
 .pdf-viewer { display: flex; flex-direction: column; gap: 10px; }
 .pdf-tools { gap: 8px; align-items: center; }
-.pdf-pages { overflow: auto; display: flex; flex-direction: column; gap: 10px; max-height: 70dvh; }
+.pdf-pages { overflow-x: auto; display: flex; flex-direction: column; gap: 10px; }
 .pdf-page { display: block; flex: none; max-width: none; height: auto; box-shadow: var(--shadow, 0 1px 4px rgba(0, 0, 0, 0.15)); background: #fff; }
-.sheet:has(.pdf-viewer) { width: min(900px, 100%); }

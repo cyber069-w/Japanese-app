@@ -16,6 +16,7 @@ prepare the material for an AI tutor later (when the user has API credits – se
 - **Lesson content stays private.** It lives only in `private/cfa/` (git-ignored) and, once imported, on the user's own devices
   (synced through their *private* GitHub sync repo, encrypted). **Never** put lesson text or packs into `src/`, `public/`,
   commits, PRs, or the deployed site. `git ls-files | grep private/` must stay empty.
+  Exception (user's decision, 21 Oct): the lesson **PDFs** may ship *encrypted* in `public/cfa-pdf/` (see section 7). Packs and lesson text still never.
 - Pack text: original questions, paraphrased explanations; short numbers/definitions from the lesson are fine for private study use. Do not paste long passages.
 - UI text English; the packs are English (CFA exam language). Unknown = "–"; never invent facts – if the lesson text is garbled, say so.
 - One finished piece → commit + push `nihongo-update`, fast-forward `main` (deploys via GitHub Actions). The user is on **Sonnet, medium effort**.
@@ -94,8 +95,9 @@ The user found the drill-only packs hard ("I don't know most of the words") and 
   Plain English for a beginner, one idea per step, every number recomputed. Screen: `src/modules/cfa/Learn.tsx`, route `#/learn/<lesson id>`.
   `privatePacks.test.ts` checks every `[[word]]` resolves and every step has a check question.
   **Status: only quant 11 (Types of Financial Returns) has a guided version – a sample for the user to approve before the other 11 are written.**
-- **PDF**: the original lesson PDF, rendered in-app with pdf.js (`PdfViewer.tsx`, lazy). Loaded once per account via the topic page →
-  "Load lesson PDFs" (files named `<topic>-NN-….pdf`, ready in `~/Desktop/cfa-lesson-pdfs/`); stored in IndexedDB and, with device sync on,
-  copied encrypted to the sync repo as `cfa-pdf/<topic>-<module>.enc`. Other devices fetch a PDF the first time it is opened, then keep it offline (`pdfs.ts`).
-- CFA topic pages (`#/c/cfa/t/<topic>`) now list the imported lessons with Learn · PDF · Practise (`TopicLessons.tsx`).
+- **PDF**: all 105 lesson PDFs ship encrypted in `public/cfa-pdf/<topic>-<module>.enc` (+ `index.json` with the shared salt), made by
+  `node scripts/cfa/build-pdfs.mjs` with the course-pack passphrase (user's choice, 21 Oct: encrypted on the site is OK, like `pack.enc`).
+  The app derives the key once per device (Settings → Course pack unlock, or the passphrase field in the PDF view), keeps it in IndexedDB,
+  downloads a PDF the first time it is opened and keeps it offline (`pdfs.ts`, `PdfViewer.tsx` with pdf.js). Not precached.
+- CFA topic pages (`#/c/cfa/t/<topic>`) list the imported lessons; a row opens the lesson window `#/learn/<id>` with two tabs, Guided lesson / Original PDF, plus Practise (user's wish: one quick link, both versions inside).
 - Note: FreeFellow's module numbers are **alphabetical**, not the curriculum order (e.g. TVM is 10, Types of returns 11). Not changed – it would change lesson ids.

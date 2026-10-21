@@ -1,13 +1,14 @@
 /**
- * /learn/:id – the guided version of a CFA lesson: one short step at a time, plain English,
- * tap a highlighted word for its meaning, a quick check after each step. German only with the DE switch.
+ * /learn/:id – one CFA lesson in two versions: the guided lesson (one short step at a time, plain English,
+ * tap a highlighted word for its meaning, a quick check after each step, German only with the DE switch)
+ * and the original PDF.
  */
 import { Fragment, useMemo, useState, type ReactNode } from 'react';
 import { setSelection, useApp } from '../../core/store';
 import { navigate } from '../../lib/router';
 import { Icon } from '../../components/Icon';
 import { Sheet } from '../../components/Sheet';
-import { LessonPdfButton } from './LessonPdf';
+import { LessonPdfPanel } from './LessonPdf';
 import { CFA_TOPIC_NAMES, type CfaLesson, type CfaQuestion, type CfaTerm } from './lessons';
 
 const read = (k: string) => {
@@ -35,14 +36,40 @@ export function practiceLesson(l: CfaLesson) {
 
 export function LearnScreen({ id }: { id: string }) {
   const lesson = useApp((s) => s.content.cfaLessons.find((l) => l.id === id));
-  if (!lesson?.learn) {
+  const [view, setViewState] = useState<'guided' | 'pdf'>(() => (read('cfa-lesson-view') === 'pdf' ? 'pdf' : 'guided'));
+  if (!lesson) {
     return (
       <div className="page">
-        <div className="empty">{lesson ? 'This lesson has no guided version yet – open the PDF or practise its cards.' : 'Lesson not found – import it under CFA lessons → Import lesson.'}</div>
+        <div className="empty">Lesson not found – import it under CFA lessons → Import lesson.</div>
       </div>
     );
   }
-  return <Learn key={lesson.id} lesson={lesson} />;
+  const setView = (v: 'guided' | 'pdf') => {
+    setViewState(v);
+    write('cfa-lesson-view', v);
+  };
+  const shown = lesson.learn ? view : 'pdf';
+  return (
+    <div className="page learn">
+      <a href={`#/c/cfa/t/${lesson.topic}`} className="btn btn-ghost btn-sm" style={{ marginLeft: -10, marginBottom: 6 }}>
+        <Icon name="left" size={16} /> {CFA_TOPIC_NAMES[lesson.topic] ?? lesson.topic}
+      </a>
+      <h1 className="lesson-title">{lesson.title}</h1>
+      <div className="row lesson-head">
+        <div className="seg" role="tablist" aria-label="Version">
+          <button role="tab" aria-selected={shown === 'guided'} className={shown === 'guided' ? 'on' : ''} disabled={!lesson.learn} onClick={() => setView('guided')}>
+            <Icon name="book" size={16} /> {lesson.learn ? 'Guided lesson' : 'Guided (coming soon)'}
+          </button>
+          <button role="tab" aria-selected={shown === 'pdf'} className={shown === 'pdf' ? 'on' : ''} onClick={() => setView('pdf')}>
+            <Icon name="text" size={16} /> Original PDF
+          </button>
+        </div>
+        <span className="grow" />
+        <button className="btn btn-sm" onClick={() => practiceLesson(lesson)}><Icon name="cards" size={16} /> Practise</button>
+      </div>
+      {shown === 'guided' ? <Learn key={lesson.id} lesson={lesson} /> : <LessonPdfPanel lesson={lesson} />}
+    </div>
+  );
 }
 
 function Learn({ lesson }: { lesson: CfaLesson }) {
@@ -92,22 +119,16 @@ function Learn({ lesson }: { lesson: CfaLesson }) {
   const back = `/c/cfa/t/${lesson.topic}`;
 
   return (
-    <div className="page learn">
-      <div className="row" style={{ marginBottom: 10 }}>
-        <a href={`#${back}`} className="btn btn-ghost btn-sm" style={{ marginLeft: -10 }}>
-          <Icon name="left" size={16} /> {CFA_TOPIC_NAMES[lesson.topic] ?? lesson.topic}
-        </a>
-        <span className="grow" />
+    <div>
+      <div className="row learn-steps">
+        <div className="eyebrow grow">Step {step + 1} of {total}</div>
         <button type="button" className={`btn btn-sm learn-de-toggle${de ? ' on' : ''}`} onClick={toggleDe} aria-pressed={de} title="Show German translations">DE</button>
-        <LessonPdfButton lesson={lesson} />
       </div>
-      <div className="eyebrow">{lesson.module ? `Module ${lesson.module} · ` : ''}Step {step + 1} of {total}</div>
       <div className="learn-progress"><span style={{ width: `${((step + 1) / total) * 100}%` }} /></div>
 
       <article className="card card-pad learn-card">
         {step === 0 && (
           <>
-            <h1>{lesson.title}</h1>
             <div className="learn-text">{rich(learn.intro)}</div>
             {learn.words.length > 0 && (
               <>

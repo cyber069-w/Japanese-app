@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest';
 import { parseCfaLessons } from './lessons';
-import { lessonForFile } from './pdfs';
 
 const good = {
   topic: 'quant', module: 2, title: 'Time value of money',
@@ -44,12 +43,3 @@ describe('parseCfaLessons', () => {
   });
 });
 
-describe('lessonForFile', () => {
-  const ls = parseCfaLessons(JSON.stringify([good, { ...good, topic: 'fixed-income', module: 3, title: 'Yield measures' }])).lessons;
-  it('matches topic + module first, then the title', () => {
-    expect(lessonForFile('quant-02-whatever.pdf', ls)?.title).toBe('Time value of money');
-    expect(lessonForFile('fixed-income-03-x.pdf', ls)?.title).toBe('Yield measures');
-    expect(lessonForFile('02-time-value-of-money.pdf', ls)?.title).toBe('Time value of money');
-    expect(lessonForFile('notes.pdf', ls)).toBeUndefined();
-  });
-});

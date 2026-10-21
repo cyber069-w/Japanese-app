@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { eraseEverything, installPack, removePack, resetModule, updateSettings, useApp } from '../core/store';
 import { exportBackup, importBackup } from '../core/backup';
 import { packAvailable, unlockPack } from '../core/privatePack';
+import { rememberPdfPassphrase } from '../modules/cfa/pdfs';
 import type { Settings as S } from '../core/types';
 import { MODULES } from '../modules';
 import { COURSES } from '../courses';
@@ -256,6 +257,7 @@ function CoursePack() {
     try {
       const pack = await unlockPack(pass);
       await installPack(pack);
+      await rememberPdfPassphrase(pass).catch(() => {}); // same passphrase opens the CFA lesson PDFs
       setPass('');
       setMsg({ kind: 'good', text: 'Unlocked – the pictures and your course vocab are now on this device.' });
     } catch (e) {
