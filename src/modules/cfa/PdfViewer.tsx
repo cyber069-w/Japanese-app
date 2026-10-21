@@ -1,11 +1,16 @@
-/** Shows a PDF inside the app with pdf.js (iPhone / iPad can't show a PDF in a page reliably). Loaded only when opened. */
+/**
+ * Shows a PDF inside the app with pdf.js (iPhone / iPad can't show a PDF in a page reliably). Loaded only when opened.
+ * Pages sit on a neutral grey reading surface; "Full screen" covers the app (no sidebar, no coloured background).
+ */
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Icon } from '../../components/Icon';
 
 export default function PdfViewer({ blob }: { blob: Blob }) {
   const box = useRef<HTMLDivElement>(null);
   const [zoom, setZoom] = useState(1);
   const [error, setError] = useState('');
+  const [full, setFull] = useState(false);
   const url = useMemo(() => URL.createObjectURL(blob), [blob]);
   useEffect(() => () => URL.revokeObjectURL(url), [url]);
 
@@ -44,19 +49,38 @@ export default function PdfViewer({ blob }: { blob: Blob }) {
       cancelled = true;
       destroy();
     };
-  }, [blob, zoom]);
+  }, [blob, zoom, full]); // full screen swaps the box, so draw again at the new width
 
-  return (
-    <div className="pdf-viewer">
+  useEffect(() => {
+    if (!full) return;
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setFull(false);
+    window.addEventListener('keydown', onKey);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      document.body.style.overflow = prev;
+    };
+  }, [full]);
+
+  const viewer = (
+    <div className={`pdf-viewer${full ? ' pdf-full' : ''}`} role={full ? 'dialog' : undefined} aria-modal={full || undefined}>
       <div className="row pdf-tools">
         <button className="btn btn-sm" onClick={() => setZoom((z) => Math.max(1, z - 0.25))} disabled={zoom <= 1} aria-label="Zoom out">−</button>
-        <span className="small muted">{Math.round(zoom * 100)}%</span>
+        <span className="small pdf-zoom">{Math.round(zoom * 100)}%</span>
         <button className="btn btn-sm" onClick={() => setZoom((z) => Math.min(2.5, z + 0.25))} aria-label="Zoom in">+</button>
         <span className="grow" />
         <a className="btn btn-sm" href={url} download="lesson.pdf"><Icon name="download" size={16} /> Save</a>
+        {full ? (
+          <button className="btn btn-sm" onClick={() => setFull(false)}><Icon name="x" size={16} /> Close</button>
+        ) : (
+          <button className="btn btn-sm" onClick={() => setFull(true)}><Icon name="eye" size={16} /> Full screen</button>
+        )}
       </div>
       {error && <div className="notice warn small">{error}</div>}
       <div className="pdf-pages" ref={box} />
     </div>
   );
+  // the animated page would become the containing block for position: fixed, so full screen goes into <body>
+  return full ? createPortal(viewer, document.body) : viewer;
 }
