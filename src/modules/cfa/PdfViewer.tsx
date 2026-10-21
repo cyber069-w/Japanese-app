@@ -1,6 +1,6 @@
 /**
  * Shows a PDF inside the app with pdf.js (iPhone / iPad can't show a PDF in a page reliably). Loaded only when opened.
- * Pages sit on a neutral grey reading surface; "Full screen" covers the app (no sidebar, no coloured background).
+ * "Full screen" covers the app with just the pages on a neutral grey (no sidebar, no coloured background).
  */
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
