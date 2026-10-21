@@ -30,7 +30,8 @@ describe.skipIf(!existsSync(file))('private CFA packs', () => {
     for (const l of lessons) {
       if (!l.learn) continue;
       const known = new Set([...l.terms, ...l.learn.words].map((t) => t.term.toLowerCase()));
-      const texts = [l.learn.intro, ...l.learn.summary, ...l.learn.sections.flatMap((s) => [s.text, s.example ?? '', s.remember ?? '', s.trap ?? ''])];
+      const parts = (s: { text?: string; example?: string; remember?: string; trap?: string } = {}) => [s.text ?? '', s.example ?? '', s.remember ?? '', s.trap ?? ''];
+      const texts = [l.learn.intro, ...l.learn.summary, l.learn.de?.intro ?? '', ...(l.learn.de?.summary ?? []), ...l.learn.sections.flatMap((s) => [...parts(s), ...parts(s.de)])];
       const missing = texts.flatMap((t) => [...t.matchAll(/\[\[([^|\]]+)(?:\|([^\]]+))?\]\]/g)].map((m) => (m[2] ?? m[1]).trim())).filter((w) => !known.has(w.toLowerCase()));
       expect(missing, l.title).toEqual([]);
       expect(l.learn.sections.every((s) => s.check), l.title).toBe(true);

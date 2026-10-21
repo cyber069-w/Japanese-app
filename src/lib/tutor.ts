@@ -18,6 +18,7 @@ export interface TutorRequest {
 }
 
 const STYLE: Record<string, string> = {
+  cfa: 'Ich bereite mich auf CFA Level I vor (Prüfung auf Englisch) und bin Anfänger: erkläre einfach, Schritt für Schritt, und erkläre jeden Fachbegriff. Die Sprache deiner Antwort steht in der Aufgabe.',
   japanese: 'Antworte auf Deutsch. Ich kann noch keine japanische Schrift lesen: schreib Japanisch immer in Romaji (Hepburn) und nur zusätzlich in Klammern in Kana/Kanji.',
 };
 

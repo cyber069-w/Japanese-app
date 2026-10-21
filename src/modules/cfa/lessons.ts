@@ -5,10 +5,12 @@ export interface CfaFormula { name: string; formula: string; note?: string }
 export interface CfaQuestion { q: string; options: string[]; answer: number; explain?: string }
 export interface CfaExample { title: string; problem: string; solution: string }
 
+/** The German version of a step's texts (each part optional – missing parts fall back to English). */
+export interface CfaLearnSectionDe { title?: string; text?: string; example?: string; remember?: string; trap?: string; check?: CfaQuestion }
 /** One step of the guided lesson. In `text`, [[word]] marks a glossary word (a term or a word from `words`). */
-export interface CfaLearnSection { title: string; text: string; example?: string; remember?: string; trap?: string; check?: CfaQuestion }
-/** The guided, beginner-friendly version of a lesson (optional). */
-export interface CfaLearn { intro: string; sections: CfaLearnSection[]; summary: string[]; words: CfaTerm[] }
+export interface CfaLearnSection { title: string; text: string; example?: string; remember?: string; trap?: string; check?: CfaQuestion; de?: CfaLearnSectionDe }
+/** The guided, beginner-friendly version of a lesson (optional). `de` holds the German intro and summary. */
+export interface CfaLearn { intro: string; sections: CfaLearnSection[]; summary: string[]; words: CfaTerm[]; de?: { intro?: string; summary?: string[] } }
 
 export interface CfaLesson {
   id: string;
@@ -100,10 +102,25 @@ function toLearn(raw: unknown): CfaLearn | undefined {
       remember: str(x?.remember) || undefined,
       trap: str(x?.trap) || undefined,
       check: x?.check ? toQuestion(x.check) ?? undefined : undefined,
+      ...(x?.de ? { de: toSectionDe(x.de) } : {}),
     }))
     .filter((x) => x.title && x.text);
   if (!sections.length) return undefined;
-  return { intro: str(r.intro), sections, summary: (Array.isArray(r.summary) ? r.summary : []).map(str).filter(Boolean), words: toTerms(r.words) };
+  const de = (r.de ?? null) as Record<string, unknown> | null;
+  return {
+    intro: str(r.intro),
+    sections,
+    summary: strings(r.summary),
+    words: toTerms(r.words),
+    ...(de ? { de: { intro: str(de.intro) || undefined, summary: strings(de.summary).length ? strings(de.summary) : undefined } } : {}),
+  };
+}
+
+const strings = (v: unknown) => (Array.isArray(v) ? v : []).map(str).filter(Boolean);
+
+function toSectionDe(x: any): CfaLearnSectionDe {
+  const opt = (v: unknown) => str(v) || undefined;
+  return { title: opt(x.title), text: opt(x.text), example: opt(x.example), remember: opt(x.remember), trap: opt(x.trap), check: x.check ? toQuestion(x.check) ?? undefined : undefined };
 }
 
 /** Accepts one lesson, an array, or {lessons:[…]}; tolerates a ```json fence around it. */

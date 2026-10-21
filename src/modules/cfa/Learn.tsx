@@ -1,13 +1,14 @@
 /**
- * /learn/:id – one CFA lesson in two versions: the guided lesson (one short step at a time, plain English,
- * tap a highlighted word for its meaning, a quick check after each step, German only with the DE switch)
- * and the original PDF.
+ * /learn/:id – one CFA lesson in two versions: the guided lesson (one short step at a time: its new words first,
+ * then the explanation, example, quick check and "Ask tutor"; English or German explanations) and the original PDF.
  */
 import { Fragment, useMemo, useState, type ReactNode } from 'react';
 import { setSelection, useApp } from '../../core/store';
 import { navigate } from '../../lib/router';
 import { Icon } from '../../components/Icon';
 import { Sheet } from '../../components/Sheet';
+import { TutorButton } from '../../components/TutorButton';
+import type { TutorRequest } from '../../lib/tutor';
 import { LessonPdfPanel } from './LessonPdf';
 import { CFA_TOPIC_NAMES, type CfaLesson, type CfaQuestion, type CfaTerm } from './lessons';
 
@@ -72,21 +73,28 @@ export function LearnScreen({ id }: { id: string }) {
   );
 }
 
+type Lang = 'en' | 'de';
+/** [[shown|glossary key]] → the glossary keys used in a text, in order. */
+const wordKeys = (text = '') => [...text.matchAll(/\[\[([^|\]]+)(?:\|([^\]]+))?\]\]/g)].map((m) => (m[2] ?? m[1]).trim().toLowerCase());
+/** Text without the [[…]] markup, for the tutor prompt. */
+const plain = (text = '') => text.replace(/\[\[([^|\]]+)(?:\|[^\]]+)?\]\]/g, '$1');
+
 function Learn({ lesson }: { lesson: CfaLesson }) {
   const learn = lesson.learn!;
   const total = learn.sections.length + 2; // intro · sections · summary
   const [step, setStepState] = useState(() => Math.min(Number(read(`cfa-learn-step:${lesson.id}`)) || 0, total - 1));
-  const [de, setDeState] = useState(() => read('cfa-learn-de') === '1');
+  const [lang, setLangState] = useState<Lang>(() => (read('cfa-learn-lang') ?? (read('cfa-learn-de') === '1' ? 'de' : 'en')) as Lang);
   const [word, setWord] = useState<CfaTerm | null>(null);
+  const de = lang === 'de';
 
   const setStep = (n: number) => {
     setStepState(n);
     write(`cfa-learn-step:${lesson.id}`, String(n));
     window.scrollTo({ top: 0 });
   };
-  const toggleDe = () => {
-    setDeState(!de);
-    write('cfa-learn-de', de ? '0' : '1');
+  const setLang = (l: Lang) => {
+    setLangState(l);
+    write('cfa-learn-lang', l);
   };
 
   const glossary = useMemo(() => {
@@ -94,6 +102,25 @@ function Learn({ lesson }: { lesson: CfaLesson }) {
     for (const t of [...lesson.terms, ...learn.words]) m.set(t.term.toLowerCase(), t);
     return m;
   }, [lesson, learn]);
+
+  /** For every step, the glossary words it uses for the first time in the lesson. */
+  const newWords = useMemo(() => {
+    const steps = [[learn.intro], ...learn.sections.map((x) => [x.text, x.example, x.remember, x.trap]), learn.summary];
+    const seen = new Set<string>();
+    return steps.map((texts) => {
+      const fresh: CfaTerm[] = [];
+      for (const k of texts.flatMap((t) => wordKeys(t))) {
+        const t = glossary.get(k);
+        if (t && !seen.has(k)) {
+          seen.add(k);
+          fresh.push(t);
+        }
+      }
+      return fresh;
+    });
+  }, [learn, glossary]);
+
+  const meaning = (t: CfaTerm) => (de && t.de ? t.de : t.definition);
 
   /** Paragraphs with [[word]] / [[shown text|glossary word]] as tappable words. */
   const rich = (text: string): ReactNode =>
@@ -116,63 +143,107 @@ function Learn({ lesson }: { lesson: CfaLesson }) {
     ));
 
   const section = step >= 1 && step <= learn.sections.length ? learn.sections[step - 1] : null;
+  const sde = de ? section?.de : undefined;
+  const missingDe = de && ((section && !sde?.text) || (step === 0 && !learn.de?.intro) || (step === total - 1 && !learn.de?.summary));
+  const fresh = newWords[step] ?? [];
   const back = `/c/cfa/t/${lesson.topic}`;
+  const stepTitle = step === 0 ? 'Introduction' : section ? section.title : 'Summary';
+
+  const tutor = (): TutorRequest => ({
+    courseId: 'cfa',
+    courseName: 'CFA Level I',
+    topic: `${CFA_TOPIC_NAMES[lesson.topic] ?? lesson.topic} – ${lesson.title} – ${stepTitle}`,
+    context: section
+      ? [plain(section.text), section.example && `Example:\n${plain(section.example)}`, section.remember && `Remember: ${plain(section.remember)}`, section.trap && `Exam trap: ${plain(section.trap)}`].filter(Boolean).join('\n\n')
+      : plain(step === 0 ? learn.intro : learn.summary.join('\n')),
+    task: de
+      ? 'Erkläre mir diesen Schritt noch einmal einfacher, Schritt für Schritt, mit einem neuen kleinen Zahlenbeispiel. Antworte auf Deutsch und nenne die englischen Fachbegriffe in Klammern. Danach beantworte meine Fragen dazu.'
+      : 'Explain this step again in simpler words, step by step, with one new small example with numbers. Answer in English and explain every technical term. Then answer my follow-up questions.',
+  });
 
   return (
     <div>
       <div className="row learn-steps">
         <div className="eyebrow grow">Step {step + 1} of {total}</div>
-        <button type="button" className={`btn btn-sm learn-de-toggle${de ? ' on' : ''}`} onClick={toggleDe} aria-pressed={de} title="Show German translations">DE</button>
+        <div className="seg" role="group" aria-label="Language of the explanations">
+          <button className={lang === 'en' ? 'on' : ''} aria-pressed={lang === 'en'} onClick={() => setLang('en')}>English</button>
+          <button className={de ? 'on' : ''} aria-pressed={de} onClick={() => setLang('de')}>Deutsch</button>
+        </div>
       </div>
       <div className="learn-progress"><span style={{ width: `${((step + 1) / total) * 100}%` }} /></div>
 
       <article className="card card-pad learn-card">
+        <h2>{step === 0 ? lesson.title : section ? (sde?.title ?? section.title) : de ? 'Das Wichtigste' : 'What to take away'}</h2>
+        {missingDe && <div className="faint small">This step isn’t in German yet – shown in English.</div>}
+
+        {fresh.length > 0 && (
+          <section className="learn-section">
+            <div className="eyebrow">New words</div>
+            <dl className="learn-newwords">
+              {fresh.map((t) => (
+                <div key={t.term}>
+                  <dt><button type="button" className="lex-formation learn-term" onClick={() => setWord(t)}>{t.term}</button></dt>
+                  <dd>{meaning(t)}</dd>
+                </div>
+              ))}
+            </dl>
+          </section>
+        )}
+
         {step === 0 && (
           <>
-            <div className="learn-text">{rich(learn.intro)}</div>
+            <section className="learn-section">
+              <div className="eyebrow">What this lesson is about</div>
+              <div className="learn-text">{rich((de && learn.de?.intro) || learn.intro)}</div>
+            </section>
             {learn.words.length > 0 && (
-              <>
-                <h3>Words you will meet</h3>
+              <details className="learn-section learn-all-words">
+                <summary className="eyebrow">All words in this lesson ({learn.words.length + lesson.terms.length})</summary>
                 <div className="learn-words">
-                  {learn.words.map((w) => (
+                  {[...learn.words, ...lesson.terms].map((w) => (
                     <button key={w.term} type="button" className="learn-chip" onClick={() => setWord(w)}>
                       {w.term}
                       {de && w.de && <span className="learn-de"> · {deShort(w.de)}</span>}
                     </button>
                   ))}
                 </div>
-              </>
+              </details>
             )}
           </>
         )}
 
         {section && (
           <>
-            <h2>{section.title}</h2>
-            <div className="learn-text">{rich(section.text)}</div>
+            <section className="learn-section">
+              <div className="eyebrow">Explanation</div>
+              <div className="learn-text">{rich(sde?.text ?? section.text)}</div>
+            </section>
             {section.example && (
-              <div className="learn-box example"><div className="eyebrow">Example</div>{rich(section.example)}</div>
+              <section className="learn-box example"><div className="eyebrow">Example</div>{rich(sde?.example ?? section.example)}</section>
             )}
             {section.remember && (
-              <div className="learn-box remember"><div className="eyebrow">Remember</div>{rich(section.remember)}</div>
+              <section className="learn-box remember"><div className="eyebrow">Remember</div>{rich(sde?.remember ?? section.remember)}</section>
             )}
             {section.trap && (
-              <div className="learn-box trap"><div className="eyebrow">Exam trap</div>{rich(section.trap)}</div>
+              <section className="learn-box trap"><div className="eyebrow">Exam trap</div>{rich(sde?.trap ?? section.trap)}</section>
             )}
-            {section.check && <Check key={step} q={section.check} />}
+            {section.check && <Check key={`${step}-${lang}`} q={sde?.check ?? section.check} />}
           </>
         )}
 
         {step === total - 1 && (
           <>
-            <h2>What to take away</h2>
-            <ul className="learn-summary">{learn.summary.map((s, i) => <li key={i}>{rich(s)}</li>)}</ul>
-            <div className="row" style={{ marginTop: 18 }}>
+            <ul className="learn-summary">{((de && learn.de?.summary) || learn.summary).map((s, i) => <li key={i}>{rich(s)}</li>)}</ul>
+            <div className="row" style={{ marginTop: 8 }}>
               <button className="btn btn-primary" onClick={() => practiceLesson(lesson)}><Icon name="cards" size={16} /> Practise this lesson</button>
               <button className="btn" onClick={() => setStep(0)}><Icon name="refresh" size={16} /> Start again</button>
             </div>
           </>
         )}
+
+        <div className="learn-tutor">
+          <TutorButton small label="Ask tutor about this step" request={tutor} />
+        </div>
       </article>
 
       <div className="row learn-nav">
@@ -187,8 +258,31 @@ function Learn({ lesson }: { lesson: CfaLesson }) {
 
       {word && (
         <Sheet title={word.term} onClose={() => setWord(null)}>
-          <p>{word.definition}</p>
-          {de && word.de && <p className="muted small" style={{ marginTop: 10 }}><b>DE</b> · {word.de}</p>}
+          <div className="stack" style={{ '--gap': '12px' } as React.CSSProperties}>
+            {de && word.de ? (
+              <>
+                <p>{word.de}</p>
+                <p className="muted small">{word.definition}</p>
+              </>
+            ) : (
+              <p>{word.definition}</p>
+            )}
+            <div>
+              <TutorButton
+                small
+                label="Ask tutor about this word"
+                request={() => ({
+                  courseId: 'cfa',
+                  courseName: 'CFA Level I',
+                  topic: `${lesson.title} – term: ${word.term}`,
+                  context: `Definition: ${word.definition}`,
+                  task: de
+                    ? 'Erkläre mir diesen Begriff ganz einfach auf Deutsch (englischer Fachbegriff in Klammern), mit einem Alltagsbeispiel und einem kleinen Zahlenbeispiel, und sag mir, wie er in der Prüfung vorkommt.'
+                    : 'Explain this term very simply in English, with an everyday example and a small numeric example, and tell me how it shows up in the exam.',
+                })}
+              />
+            </div>
+          </div>
         </Sheet>
       )}
     </div>

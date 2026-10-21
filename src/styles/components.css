@@ -1512,7 +1512,19 @@ button.subject-tile { font: inherit; cursor: pointer; }
 .lesson-title { font-size: 1.5rem; margin-bottom: 12px; }
 .lesson-head { gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
 .lesson-head .seg button { display: inline-flex; align-items: center; gap: 6px; }
-.learn-steps { align-items: center; }
+.learn-steps { align-items: center; gap: 10px; }
+.learn-section .eyebrow, .learn-check .eyebrow { margin-bottom: 6px; }
+.learn-newwords { margin: 0; display: grid; grid-template-columns: minmax(110px, max-content) 1fr; gap: 10px 14px; align-items: baseline; padding: 12px 14px; border-radius: 14px; background: var(--surface-2); }
+.learn-newwords > div { display: contents; }
+.learn-newwords dt { min-width: 0; }
+.learn-newwords dd { margin: 0; font-size: var(--text-sm, 0.92rem); line-height: 1.5; }
+.learn-term { border: 0; font: inherit; font-size: var(--text-sm, 0.92rem); font-weight: 600; cursor: pointer; text-align: left; }
+@media (max-width: 560px) { .learn-newwords { grid-template-columns: 1fr; gap: 2px; } .learn-newwords dd { margin-bottom: 8px; } }
+.learn-all-words summary { cursor: pointer; list-style: none; }
+.learn-all-words summary::-webkit-details-marker { display: none; }
+.learn-all-words summary::after { content: ' ›'; }
+.learn-all-words[open] summary { margin-bottom: 8px; }
+.learn-tutor { border-top: 1px solid var(--line); padding-top: 12px; }
 .learn { max-width: 760px; }
 .learn-progress { height: 4px; border-radius: 4px; background: var(--line); margin: 8px 0 16px; overflow: hidden; }
 .learn-progress span { display: block; height: 100%; background: var(--accent); transition: width 0.25s; }
@@ -1522,8 +1534,6 @@ button.subject-tile { font: inherit; cursor: pointer; }
 .learn-text p + p, .learn-box p + p { margin-top: 10px; }
 .learn-word { color: var(--accent); font-weight: 600; text-decoration: underline dotted; text-underline-offset: 3px; cursor: pointer; }
 .learn-de { font-size: 0.8em; font-weight: 400; color: var(--ink-3); }
-.learn-de-toggle { min-width: 40px; font-weight: 700; letter-spacing: 0.04em; }
-.learn-de-toggle.on { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
 .learn-words { display: flex; flex-wrap: wrap; gap: 8px; }
 .learn-chip { padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line-2); background: var(--surface-2); font: inherit; font-size: 0.9rem; cursor: pointer; }
 .learn-chip:hover { border-color: var(--accent); }

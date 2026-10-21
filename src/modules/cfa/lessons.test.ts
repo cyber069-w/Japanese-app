@@ -36,6 +36,11 @@ describe('parseCfaLessons', () => {
     expect(l.learn?.summary).toEqual(['s']);
     expect(l.learn?.words[0].de).toBe('Anleihe');
     expect(parseCfaLessons(JSON.stringify(good)).lessons[0].learn).toBeUndefined();
+    const withDe = { ...learn, de: { intro: 'Hallo', summary: ['z', ''] }, sections: [{ ...learn.sections[0], de: { text: 'Eine [[bond]].', check: { q: 'F?', options: ['a', 'b', 'c'], answer: 2 } } }] };
+    const [d] = parseCfaLessons(JSON.stringify({ ...good, learn: withDe })).lessons;
+    expect(d.learn?.de).toEqual({ intro: 'Hallo', summary: ['z'] });
+    expect(d.learn?.sections[0].de).toMatchObject({ text: 'Eine [[bond]].', check: { q: 'F?', answer: 2 } });
+    expect(d.learn?.sections[0].de?.title).toBeUndefined();
   });
   it('accepts arrays and rejects non-JSON', () => {
     expect(parseCfaLessons(JSON.stringify([good, good])).lessons).toHaveLength(2);
