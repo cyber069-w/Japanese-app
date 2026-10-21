@@ -101,5 +101,8 @@ The user found the drill-only packs hard ("I don't know most of the words") and 
   `node scripts/cfa/build-pdfs.mjs` with the course-pack passphrase (user's choice, 21 Oct: encrypted on the site is OK, like `pack.enc`).
   The app derives the key once per device (Settings → Course pack unlock, or the passphrase field in the PDF view), keeps it in IndexedDB,
   downloads a PDF the first time it is opened and keeps it offline (`pdfs.ts`, `PdfViewer.tsx` with pdf.js). Not precached.
+- **Watermark removed** (user has the owner's permission, 21 Oct): `scripts/cfa/remove-watermark.py` (needs pypdf in a virtualenv) strips the
+  diagonal FREEFELLOW.ORG text (45° rotation, size 80, Cinzel) from `private/cfa/lessons-original-pdf/` → `private/cfa/lessons/`; text checked
+  identical otherwise. Then `node scripts/cfa/build-pdfs.mjs` (keeps the salt, new `version` makes devices re-download once).
 - CFA topic pages (`#/c/cfa/t/<topic>`) list the imported lessons; a row opens the lesson window `#/learn/<id>` with two tabs, Guided lesson / Original PDF, plus Practise (user's wish: one quick link, both versions inside).
 - Note: FreeFellow's module numbers are **alphabetical**, not the curriculum order (e.g. TVM is 10, Types of returns 11). Not changed – it would change lesson ids.
