@@ -1,6 +1,6 @@
 /**
- * The lesson PDF to study on: every page with selectable text (pdf.js text layer) and the lesson's notes – highlighted
- * quotes with an explanation beside the page. Mark any text (a word, a sentence, a formula line) or drag a box around a
+ * The lesson PDF to study on: every page with selectable text (pdf.js text layer) and the lesson's notes beside it –
+ * the page stays clean; tapping a note lights up its passage for a moment. Mark any text (a word, a sentence, a formula line) or drag a box around a
  * diagram or formula ("Mark area") and tap Explain: what the lesson already explains shows at once, the rest goes to
  * the tutor (today: Claude with the marked text or image; later the API inside the app). Loaded only when opened.
  */
@@ -111,9 +111,16 @@ export default function AnnotatedPdf({ lesson }: { lesson: CfaLesson }) {
     setMarked({ kind: 'text', text, page, pageText: await pageText(page) });
   };
 
+  // tapping a note lights up its passage on the page for a moment – the page itself stays clean
+  const [flash, setFlash] = useState(0);
+  const flashTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const pick = (id: string, scrollTo: 'note' | 'mark') => {
     setActive(id);
-    document.getElementById(`${scrollTo}-${id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    setFlash((f) => f + 1);
+    clearTimeout(flashTimer.current);
+    flashTimer.current = setTimeout(() => setActive(null), 2600);
+    // after React has drawn the highlight
+    requestAnimationFrame(() => document.getElementById(`${scrollTo}-${id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' }));
   };
 
   return (
@@ -139,6 +146,7 @@ export default function AnnotatedPdf({ lesson }: { lesson: CfaLesson }) {
             lang={lang}
             areaMode={areaMode}
             active={active}
+            flash={flash}
             onPick={pick}
             onArea={async (image, text) => {
               setAreaMode(false);
@@ -163,13 +171,14 @@ export default function AnnotatedPdf({ lesson }: { lesson: CfaLesson }) {
   );
 }
 
-function PageView({ pdf, n, notes, lang, areaMode, active, onPick, onArea }: {
+function PageView({ pdf, n, notes, lang, areaMode, active, flash, onPick, onArea }: {
   pdf: Pdf;
   n: number;
   notes: CfaAnnotation[];
   lang: Lang;
   areaMode: boolean;
   active: string | null;
+  flash: number;
   onPick: (id: string, scrollTo: 'note' | 'mark') => void;
   onArea: (image: Blob, text: string) => void;
 }) {
@@ -280,18 +289,11 @@ function PageView({ pdf, n, notes, lang, areaMode, active, onPick, onArea }: {
       <div className="anno-page" ref={box} data-page={n}>
         <div ref={canvasBox} className="anno-canvas" />
         <div className="anno-marks" aria-hidden="true">
-          {marks.map((rects, i) => rects.map((r, j) => (
-            <span key={`${i}-${j}`} className={`anno-mark ${notes[i]?.kind}${active === id(i) ? ' on' : ''}`} style={{ left: `${r.left}%`, top: `${r.top}%`, width: `${r.width}%`, height: `${r.height}%` }} />
+          {marks.map((rects, i) => active === id(i) && rects.map((r, j) => (
+            <span key={`${i}-${j}-${flash}`} id={j === 0 ? `mark-${id(i)}` : undefined} className="anno-mark" style={{ left: `${r.left}%`, top: `${r.top}%`, width: `${r.width}%`, height: `${r.height}%` }} />
           )))}
         </div>
         <div ref={textBox} className="textLayer" />
-        <div className="anno-badges">
-          {marks.map((rects, i) => rects[0] && (
-            <button key={i} id={`mark-${id(i)}`} type="button" className={`anno-num ${notes[i]?.kind}`} style={{ left: `${rects[0].left}%`, top: `${rects[0].top}%` }} onClick={() => onPick(id(i), 'note')} aria-label={`Note ${i + 1}`}>
-              {i + 1}
-            </button>
-          ))}
-        </div>
         {areaMode && (
           <div
             className="anno-area"
@@ -315,11 +317,8 @@ function PageView({ pdf, n, notes, lang, areaMode, active, onPick, onArea }: {
       {notes.length > 0 && (
         <ol className="anno-notes">
           {notes.map((note, i) => (
-            <li key={i} id={`note-${id(i)}`} className={`anno-note ${note.kind}${active === id(i) ? ' on' : ''}${marks[i] && !marks[i].length ? ' unplaced' : ''}`} onClick={() => onPick(id(i), 'mark')}>
-              <div className="row anno-note-head">
-                <span className={`anno-num static ${note.kind}`}>{i + 1}</span>
-                <span className="eyebrow">{KIND_LABEL[note.kind][de ? 1 : 0]}</span>
-              </div>
+            <li key={i} id={`note-${id(i)}`} className={`anno-note${active === id(i) ? ' on' : ''}${marks[i] && !marks[i].length ? ' unplaced' : ''}`} onClick={() => onPick(id(i), 'mark')}>
+              <span className="eyebrow">{KIND_LABEL[note.kind][de ? 1 : 0]}</span>
               {(de ? note.de?.title ?? note.title : note.title) && <b>{de ? note.de?.title ?? note.title : note.title}</b>}
               <p>{de ? note.de?.note ?? note.note : note.note}</p>
             </li>

@@ -85,7 +85,7 @@ export function ExplainSheet({ lesson, marked, lang, onClose }: { lesson: CfaLes
           <section className="stack" style={{ '--gap': '8px' } as React.CSSProperties}>
             <div className="eyebrow">{de ? 'Aus dieser Lektion' : 'From this lesson'}</div>
             {notes.map((n, i) => (
-              <div key={`n${i}`} className={`anno-note ${n.kind}`}>
+              <div key={`n${i}`} className="anno-note">
                 {(de ? n.de?.title ?? n.title : n.title) && <b>{de ? n.de?.title ?? n.title : n.title}</b>}
                 <p>{de ? n.de?.note ?? n.note : n.note}</p>
               </div>
