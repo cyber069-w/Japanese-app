@@ -31,8 +31,11 @@ describe('parseCfaLessons', () => {
       ],
       summary: ['s', ''],
     };
-    const [l] = parseCfaLessons(JSON.stringify({ ...good, terms: [{ term: 'PV', definition: 'Present value', de: 'Barwert' }], learn })).lessons;
+    const [l] = parseCfaLessons(JSON.stringify({ ...good, terms: [{ term: 'PV', definition: 'Present value', plain: 'What money later is worth today.', de: 'Barwert' }], learn })).lessons;
     expect(l.terms[0].de).toBe('Barwert');
+    expect(l.terms[0].plain).toBe('What money later is worth today.');
+    expect(l.terms[0].definition).toBe('Present value'); // drills keep using the exam-style definition
+    expect(parseCfaLessons(JSON.stringify(good)).lessons[0].terms[0].plain).toBeUndefined();
     expect(l.learn?.sections.map((s) => s.title)).toEqual(['One', 'Two']);
     expect(l.learn?.sections[0].check?.answer).toBe(2);
     expect(l.learn?.sections[1].check).toBeUndefined();

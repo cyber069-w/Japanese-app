@@ -150,7 +150,7 @@ function Learn({ lesson, lang }: { lesson: CfaLesson; lang: Lang }) {
     });
   }, [learn, glossary]);
 
-  const meaning = (t: CfaTerm) => (de && t.de ? t.de : t.definition);
+  const meaning = (t: CfaTerm) => (de && t.de ? t.de : (t.plain ?? t.definition));
 
   /** Paragraphs with [[word]] / [[shown text|glossary word]] as tappable words. */
   const rich = (text: string): ReactNode =>
@@ -285,9 +285,9 @@ function Learn({ lesson, lang }: { lesson: CfaLesson; lang: Lang }) {
       {word && (
         <Sheet title={word.term} onClose={() => setWord(null)}>
           <div className="stack" style={{ '--gap': '12px' } as React.CSSProperties}>
-            {de && word.de ? (
+            {(de && word.de) || word.plain ? (
               <>
-                <p>{word.de}</p>
+                <p>{de && word.de ? word.de : word.plain}</p>
                 <p className="muted small">{word.definition}</p>
               </>
             ) : (

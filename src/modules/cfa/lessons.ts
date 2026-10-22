@@ -1,6 +1,14 @@
 /** CFA lesson packs: key terms, formulas and exam-style questions that you import after each lesson. */
 
-export interface CfaTerm { term: string; definition: string; /** German translation + short note, shown only with the DE toggle. */ de?: string }
+export interface CfaTerm {
+  term: string;
+  /** Exam-style definition (drill cards and quizzes use this). */
+  definition: string;
+  /** Plain-language meaning for beginners; the guided lesson's New words and word sheet show it before `definition`. */
+  plain?: string;
+  /** German translation + short note, shown only with the DE toggle. */
+  de?: string;
+}
 export interface CfaFormula { name: string; formula: string; note?: string }
 export interface CfaQuestion { q: string; options: string[]; answer: number; explain?: string }
 export interface CfaExample { title: string; problem: string; solution: string }
@@ -99,7 +107,7 @@ function toLesson(raw: unknown, i: number, errors: string[]): CfaLesson | null {
 
 function toTerms(raw: unknown): CfaTerm[] {
   return (Array.isArray(raw) ? raw : [])
-    .map((t: any) => ({ term: str(t?.term), definition: str(t?.definition), de: str(t?.de) || undefined }))
+    .map((t: any) => ({ term: str(t?.term), definition: str(t?.definition), plain: str(t?.plain) || undefined, de: str(t?.de) || undefined }))
     .filter((t) => t.term && t.definition);
 }
 

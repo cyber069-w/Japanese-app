@@ -37,4 +37,8 @@ describe.skipIf(!existsSync(file))('private CFA packs', () => {
       expect(l.learn.sections.every((s) => s.check), l.title).toBe(true);
     }
   });
+  it('every term has a plain-language meaning for the New words box', () => {
+    const lessons = parseCfaLessons(readFileSync(file, 'utf8')).lessons;
+    expect(lessons.flatMap((l) => l.terms.filter((t) => !t.plain).map((t) => `${l.title}: ${t.term}`))).toEqual([]);
+  });
 });

@@ -93,7 +93,7 @@ export function ExplainSheet({ lesson, marked, lang, onClose }: { lesson: CfaLes
             {words.map((w) => (
               <div key={w.term} className="explain-word">
                 <b>{w.term}</b>
-                <span>{de && w.de ? w.de : w.definition}</span>
+                <span>{de && w.de ? w.de : (w.plain ?? w.definition)}</span>
               </div>
             ))}
           </section>
