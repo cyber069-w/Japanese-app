@@ -82,7 +82,7 @@ Status: [ ] open · [x] done · [~] solved differently / blocked (reason in the 
 ## Phase 6 – Pronunciation check with Azure Speech
 - [x] Read aloud: with a key (private/azure-speech.json via the dev server, or Settings → Connections, device only) the app records, converts to 16 kHz WAV and calls the REST short-audio endpoint (ja-JP, word granularity, reference = the sentence's written form). Shows overall / accuracy / fluency / completeness and per word romaji + score + error type, colour-coded; without a key the browser check stays as before. Attempts (best / last / count per sentence) are kept on the device and logged in History. REST instead of the SDK: no extra dependency
 - [x] Verified outside the browser: with region `germanywestcentral` the key is accepted and CORS allows the call from the app. Microphone → score not run end to end here
-- [ ] **Your `private/azure-speech.json` has region `wesgermanywestcentral` – that host doesn't exist (typo). Change it to `germanywestcentral`**
+- [x] Azure region typo fixed (`germanywestcentral`, checked 22 Oct)
 - Limits: the recording goes to Microsoft (not stored by the app); pitch accent / mora length only partly scored; a clip is limited to 20 s here (Azure short-audio limit ~30 s); Japanese word segmentation is Azure's, so kanji words are shown as written when they can't be turned into romaji
 
 ## Home redesign (19 Oct)
