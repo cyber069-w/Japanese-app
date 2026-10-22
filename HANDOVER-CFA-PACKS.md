@@ -1,4 +1,4 @@
-# Handover – CFA study packs and lesson window (and project state), updated 21 Oct 2026 (evening)
+# Handover – CFA study packs and lesson window (and project state), updated 22 Oct 2026
 
 For a **new chat / account** that continues this work. Read this file, then `todo-next/README.md` (rule: if you cannot deliver
 the quality asked, stop and ask the user about switching model / effort / splitting the task), `FEATURES.md` and `TODO.md`.
@@ -38,7 +38,7 @@ prepare the material for an AI tutor later (when the user has API credits – se
 | Validation test | `src/modules/cfa/privatePacks.test.ts` (checks `private/cfa/packs/quant-all.json` with the app's importer; skipped if the file is absent) |
 | Tutor setup + prompts (no lesson content) | `docs/CFA-TUTOR.md` |
 
-Status (21 Oct evening): Quant packs + guided lessons for all 12 lessons are live in the app (they ship encrypted, no import needed).
+Status (22 Oct): Quant packs + guided lessons (EN + DE) + page notes for every PDF page + plain word meanings for all 12 lessons are live (they ship encrypted, no import needed).
 The user uses them on Mac/iPad (Apple look, often dark mode). Economics was started and put on hold by the user.
 
 ### Counts per topic (lessons in the manifest)
@@ -71,15 +71,17 @@ quant 12 (done) · economics 8 · corporate 7 · fsa 12 · equities 13 · fixed-
 **Focus now (user, 21 Oct): perfect the Quant lessons; they become the template for the other topics. Economics is ON HOLD – do not start
 other topics until the user asks.**
 
+**Done 22 Oct:** German guided lessons for all 12 Quant lessons · page notes on **every page** of all 12 Quant PDFs (842 notes, all quotes
+found, none unplaced in the browser) · plain-language meanings (`term.plain`) for all 149 Quant pack terms in "New words".
+**User's decision (22 Oct): German is not needed any more** – exam questions are answered in English. Don't write new German texts
+(notes for quant 4–10 and 12 are English only; the DE switch falls back to English). Existing German stays.
+
 1. Ask how the lesson window feels on the iPad (Original · Annotated · Guided, Explain, share sheet) – nothing was tested on a real device yet.
-2. German versions of the guided lessons for quant 1–10 and 12 (only 11 has them) – the user saw the framework and wants German as an option.
-   Write them into `private/cfa/learn/quant-NN.json` (`section.de`, `learn.de`), same answer index as the English check.
-3. Notes for the Annotated tab: so far only quant 11 page 1 (11 notes, EN + DE, user liked it). Next: the rest of lesson 11, then the others.
-   Each note: `{page, quote (exact text on that page), kind, title, note, de}` – check that every quote is found (browser: no "unplaced" note).
-4. Simplify the dense pack term definitions that show up as "New words" (e.g. "Holding period return (HPR)" starts with a formula).
-5. When the user has API credits: answer "Explain" / "Ask tutor" inside the app (`Explain.tsx`, `lib/tutor.ts`). Their rule: keys only in `private/`.
-6. Later: other topics (Economics 8, Corporate 7, FSA 12, Equities 13, Fixed Income 19, Derivatives 10, Alternatives 7, Portfolio 6, Ethics 11) –
-   packs (section 4) + guided lessons + notes, in the Quant format. Ethics: vignette-style questions.
+   Ask whether the notes are too many/too few per page (6–11 per page now, incl. answers to the PDF's "Check yourself" questions).
+2. When the user has API credits: answer "Explain" / "Ask tutor" inside the app (`Explain.tsx`, `lib/tutor.ts`). Their rule: keys only in `private/`.
+3. Later (only when the user asks): other topics (Economics 8, Corporate 7, FSA 12, Equities 13, Fixed Income 19, Derivatives 10, Alternatives 7,
+   Portfolio 6, Ethics 11) – packs (section 4) + guided lessons + notes + `plain` meanings, in the Quant format, English only.
+   Ethics: vignette-style questions.
 
 ## 6 · Project state (short)
 
@@ -89,7 +91,7 @@ glass/Apple looks, shutdown, applications, interview prep, reading list + news, 
 Mac-job extras (exam dates, Claude drafts and overnight grading – off by default). Details: `FEATURES.md`, `todo-next/FEATURE-QUEUE.md`,
 test list for the user: `TEST-CHECKLIST.md`.
 
-Environment: Node in `~/.local/node/bin` (`export PATH=$HOME/.local/node/bin:$PATH`), `npm test` (≈ 290 tests), `npm run build`, dev server `npm run dev`
+Environment: Node in `~/.local/node/bin` (`export PATH=$HOME/.local/node/bin:$PATH`), `npm test` (300 tests), `npm run build`, dev server `npm run dev`
 (port 5173; start it in the user's terminal or from the app folder, not from the parent folder). macOS has `swift` (PDFKit) – no poppler/pdftotext here.
 Not verified on real devices: microphone flows, Apple Calendar import, iA Writer path, GitHub sync, `claude -p` jobs (no `claude` on the Mac's PATH).
 
@@ -109,6 +111,11 @@ Original), quiet **Practise** button (selects this lesson in the CFA drills). La
   in the page text (`annotate.ts`, spaces/case ignored; highlight boxes in % of the page). Page stays clean: **no permanent markers, no
   numbers, one neutral note style** (user's wish); tapping a note lights its passage up in soft blue for ~2.6 s. "Notes (n) / Hide notes"
   hides the whole column (remembered). Only lessons with notes show that button.
+- Writing notes: own wording, 6–11 per page, `de` optional. Each PDF's first page often starts with the end of the previous lesson –
+  one note says so; answers to the PDF's "Check yourself" questions ("Answer on this lesson's page") are notes too (recomputed).
+  Check quotes the way the app does: pdf.js `getTextContent()` per page, join the items, drop all whitespace, lowercase, `indexOf`.
+  Quotes must come from prose (formula pieces are scattered at the end of a page's text). Helper scripts used on 22 Oct (paths inside
+  point to that session's scratchpad – adjust): `~/Library/Application Support/Claude/side-session-notes/local_132d5d51-…/cfa-note-tools/`.
 - Mark text → "Explain" bar (portal to body; keeps the text while tapped – iPad clears selections on tap). "Mark area" → drag a box →
   image + the page text inside the box. `Explain.tsx`: matching lesson words/notes at once (offline), else "Ask tutor" (prompt with the
   page text) / "Send image to tutor" (Web Share → Claude app; fallback copies the image).
@@ -120,10 +127,14 @@ grey box with a thin line across between the words – the user tried a plain li
 this step" (and about a word in the word sheet). Slim progress line "n / total". Step position is saved per device (localStorage).
 - Format: `{ intro, words: [{term, definition, de}], sections: [{title, text, example?, remember?, trap?, check, de?: {title, text, example,
   remember, trap, check}}], summary, de?: {intro, summary}, annotations? }`. In texts `[[word]]` / `[[shown|glossary term]]` = tappable word.
-  German: explanations in German, exam terms stay English with the German word in brackets; untranslated steps say so.
-- All 12 quant lessons have a guided version (EN); German only quant 11.
+  German: explanations in German, exam terms stay English. In DE mode the app itself adds the German word after every `[[word]]`
+  that has a `de` – don't add your own "(German)" brackets after it (shows twice). Untranslated steps say so.
+- All 12 quant lessons have a guided version in EN and DE.
+- **New words / word sheet** show `term.plain` (a beginner meaning) when it exists, else `definition`; the sheet shows the exam
+  `definition` small underneath. Drill cards and quizzes keep using `definition`. `plain` is optional in the pack format.
 
-**Where the lessons come from (no import):** source of truth `private/cfa/learn/<topic>-NN.json` (`{learn, de: {term: German}}`) →
+**Where the lessons come from (no import):** source of truth `private/cfa/learn/<topic>-NN.json` (`{learn, de: {term: German},
+plain: {term: plain meaning}}`) →
 `python3 scripts/cfa/merge-learn.py quant` (into `private/cfa/packs/`, no reshuffling) → `node scripts/cfa/build-lessons.mjs`
 (encrypted `public/cfa-lessons/<topic>.enc` + `index.json` version) → commit + push. Devices load them at start-up, after every sync and
 when a CFA page opens (`lessonPacks.ts`: keeps the decrypted packs per version, repairs any older copy, e.g. written back by sync).
@@ -133,10 +144,14 @@ A device without the key shows an unlock field on the topic page (wrong passphra
 `version` makes devices re-download once). Watermark removed with `scripts/cfa/remove-watermark.py` (pypdf in a virtualenv;
 originals kept in `private/cfa/lessons-original-pdf/`; user has the owner's permission).
 
-**Tests:** `privatePacks.test.ts` (all quant lessons have a guided version, every `[[word]]` resolves in EN and DE texts),
-`lessons.test.ts` (format, merge, quote finding, word matching). ≈ 299 tests.
+**Tests:** `privatePacks.test.ts` (all quant lessons have a guided version, every `[[word]]` resolves in EN and DE texts, every term
+has `plain`), `lessons.test.ts` (format, merge, quote finding, word matching). 300 tests.
 
 **Testing tips (browser pane):** pdf.js only draws while the pane is visible – a hidden pane makes "Loading…" hang (call show_pane first).
+The pane has no course-pack key; never type the passphrase. Instead, in the console: load `/private/cfa/packs/quant-all.json` (the dev
+server serves it locally), `parseCfaLessons` + `setCfaLessons(mergeShipped(…))`; for PDFs put the plain `private/cfa/lessons/quant/NN-*.pdf`
+into `storage.setBlob('cfa-pdf:<version from cfa-pdf/index.json>:quant-<n>', blob)` – `getPdf` then uses it without a key.
+Long checks: start them without awaiting and read the result later (the console call times out after 45 s).
 After code edits, `import('/src/…')` in the console may give a different module instance than the app's; use `storage` from
 `/src/core/db.ts` or reload. Screenshots of an emulated 1180px viewport are scaled down – check sizes with JS instead.
 
