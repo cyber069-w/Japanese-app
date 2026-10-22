@@ -19,7 +19,17 @@ export interface CanvasDraft { id: string; subject: string; file: string; format
 export interface CanvasGrading { id: string; score: number; feedback: string; at: string }
 export interface NewsItem { title: string; link: string; date: string }
 export interface NewsSource { source: string; items: NewsItem[]; error?: string }
-export interface CanvasInbox { at: string; deadlines: CanvasDeadline[]; announcements: CanvasAnnouncement[]; files: CanvasFile[]; /** file names in <subject>/Prüfungen */ exams?: CanvasExam[]; readings?: CanvasReading[]; news?: NewsSource[]; /** exam dates the Mac job found (accept / ignore) */ examDates?: CanvasExamDate[]; /** drafts made overnight by Claude Code on the Mac (accept / ignore) */ drafts?: CanvasDraft[]; /** feedback on your queued free-text answers */ gradings?: CanvasGrading[] }
+/** Monkeytype stats the Mac job fetches once a day (scripts/canvas/monkeytype.py). */
+export interface TypingStats {
+  at: string;
+  week?: { tests: number; minutes: number; wpm: number | null; best: number | null; acc: number | null };
+  days?: { date: string; tests: number; minutes: number; wpm: number | null }[];
+  recent?: { at: string; wpm: number; acc: number; test: string }[];
+  total?: { tests: number; hours: number };
+  /** set when the last fetch failed; the other fields are then the last good stats */
+  error?: string;
+}
+export interface CanvasInbox { at: string; deadlines: CanvasDeadline[]; announcements: CanvasAnnouncement[]; files: CanvasFile[]; /** file names in <subject>/Prüfungen */ exams?: CanvasExam[]; readings?: CanvasReading[]; news?: NewsSource[]; /** exam dates the Mac job found (accept / ignore) */ examDates?: CanvasExamDate[]; /** drafts made overnight by Claude Code on the Mac (accept / ignore) */ drafts?: CanvasDraft[]; /** feedback on your queued free-text answers */ gradings?: CanvasGrading[]; typing?: TypingStats | null }
 
 export interface CanvasPrefs {
   muted: boolean;

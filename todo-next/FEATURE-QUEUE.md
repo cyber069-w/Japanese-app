@@ -33,7 +33,7 @@ Tags: [READY] build now · [WAITING] blocked · [ON HOLD] do not build.
 - G2 [READY] Study-costs tracker (CHF, categories, totals, CSV).
 - G3 [LATER] Full budgeting – keep model open (kind: "study-cost").
 - H1 [READY] Monkeytype link (Home quick links, Focus subject area, optional "Typing" timer).
-- H2 [WAITING user step] Monkeytype stats via Mac job (ApeKey in private/monkeytype.json).
+- H2 [BUILT, waits for your ApeKey] Monkeytype stats via Mac job (ApeKey in private/monkeytype.json) → Focus "Typing".
 - H3 [READY, lowest] Quick capture (Home input, shortcut N, inbox → shutdown triage).
 - I1 [READY] "Today" screen (ordered list + two suggested blocks with Start).
 - I2 [READY] Claude Code drafts in the inbox (Mac job, `claude -p`, once a day).
@@ -57,7 +57,7 @@ Not possible in a web app: AirPods posture, eye/gesture tracking, Apple Watch ap
 - [x] Sync of the new stores (to-dos, readings, applications, interview questions + attempts, shutdown log): item-by-item merge, newest change wins, newer deletion beats older edit, first-time data never lost (`core/kvSync.ts`, 8 tests incl. the sync file). Run end to end only in unit tests, not against GitHub. NOT synced: recordings (audio stays on the device), planned blocks, focus targets, news state, and these stores are not part of the JSON backup yet
 - [x] F1 Clubs (#/clubs): name + colour, one Markdown notes field, dated checklist (dated open items show in To-dos / What to do next), synced
 - [x] G1+G2 Finance (#/finance): vault with finance password (PBKDF2-SHA-256 600k + AES-GCM, per-entry ciphertext so it syncs and merges without the password, locks after 5 min idle and when the app is hidden, warning shown), study-costs tracker (CHF default, editable categories, totals per month / semester (HS = Sep–Feb, FS = Mar–Aug) / category, CSV export; entries carry kind "study-cost" for G3). Tested: create, add, lock, wrong and right password, no plaintext in storage. Not built: changing the password, a second device creating its own vault at the same time (its entries would show as “could not be decrypted”)
-- [x] H1 Monkeytype link (Home tile, Focus button that also starts a “Typing” timer); H2 NOT built (waits for your ApeKey)
+- [x] H1 Monkeytype link (Home tile, Focus button that also starts a “Typing” timer); H2 built (scripts/canvas/monkeytype.py → Focus "Typing"); shows data once your ApeKey is in private/monkeytype.json
 - [x] I1 Today screen (#/today); I5 Sunday banner + “Plan next week with Claude” (report + planning JSON); I6 rule outcomes (Settings → History), ECTS target suggestion (27.5 h per credit over 14 weeks), exam record banner after an exam; I7 market log (#/market) with one-tap interview cards
 - [x] I4 exam dates: the Canvas job looks in syllabus, info pages, calendar events and announcements (German/English date formats, 4 unit tests). Your Canvas syllabi are empty and only one announcement mentions a (past) test date, so nothing is proposed right now
 - [x] H3 quick capture (Home field, key N; inbox synced; shutdown triage: To-do / Card / Reading / Club item / Application note / Delete). Decision: “Card” makes an Interview card (deck Technical, topic “Captured”) with a placeholder answer

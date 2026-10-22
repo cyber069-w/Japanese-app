@@ -13,6 +13,7 @@ Safety rules:
   - Only files matched by a rule are downloaded ("planned"); everything else is listed as optional.
 
 Needs: private/canvas-token.txt (your Canvas access token), private/canvas-config.json.
+Optional: private/monkeytype.json ({"apeKey": "..."}) for typing stats (scripts/canvas/monkeytype.py).
   python3 scripts/canvas/canvas_sync.py --inbox  # only refresh deadlines / announcements
 
 Writes: private/canvas-state.json (what was fetched), private/canvas-report.json (last run),
@@ -32,6 +33,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import claude_jobs  # noqa: E402
+import monkeytype  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[2]
 PRIVATE = ROOT / 'private'
@@ -340,7 +342,8 @@ def collect_inbox(new_files, readings=None):
              + old.get('files', []))
     drafts, gradings = claude_work(files, old)
     inbox = {'at': stamp, 'deadlines': sorted(deadlines.values(), key=lambda d: d['due'] or ''), 'announcements': sorted(announcements, key=lambda a: a['posted'] or '', reverse=True), 'files': files[:60], 'exams': collect_exams(),
-             'readings': readings if readings is not None else old.get('readings', []), 'news': collect_news(), 'examDates': collect_exam_dates(announcements), 'drafts': drafts, 'gradings': gradings}
+             'readings': readings if readings is not None else old.get('readings', []), 'news': collect_news(), 'examDates': collect_exam_dates(announcements), 'drafts': drafts, 'gradings': gradings,
+             'typing': monkeytype.collect(PRIVATE, old.get('typing'))}
     inbox_file.write_text(json.dumps(inbox, ensure_ascii=False, indent=1))
     push_to_sync_repo()
     return inbox

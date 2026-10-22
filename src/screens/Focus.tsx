@@ -16,6 +16,7 @@ import {
 import { dayKey, formatDuration } from '../lib/date';
 import { FocusPanel, hhmm, openFocusPip, pipSupported, subjectColor, useNow } from './FocusWidget';
 import { Lectures } from './Lectures';
+import { useCanvas } from '../core/canvas';
 
 const pad = (n: number) => String(n).padStart(2, '0');
 const timeOf = (ms: number) => `${pad(new Date(ms).getHours())}:${pad(new Date(ms).getMinutes())}`;
@@ -170,6 +171,8 @@ export function Focus() {
           )}
         </div>
       </div>
+
+      <Typing />
 
       <Reminders />
 
@@ -345,6 +348,43 @@ function Subjects() {
         <input className="input" style={{ flex: '1 1 200px' }} placeholder="Add a subject" value={name} maxLength={40} onChange={(e) => setName(e.target.value)} aria-label="New subject" />
         <button className="btn btn-sm" type="submit" disabled={!name.trim()}>Add</button>
       </form>
+    </div>
+  );
+}
+
+/** Monkeytype stats from the Mac job (once a day, needs private/monkeytype.json). Hidden until there are any. */
+function Typing() {
+  const t = useCanvas().inbox?.typing;
+  if (!t) return null;
+  const w = t.week;
+  const days = t.days ?? [];
+  const max = Math.max(1, ...days.map((d) => d.wpm ?? 0));
+  return (
+    <div className="section">
+      <div className="section-head">
+        <h2>Typing</h2>
+        <span className="spacer" />
+        <span className="faint small">Monkeytype · {t.at.slice(0, 10)}</span>
+      </div>
+      <div className="card card-pad stack" style={{ '--gap': '10px' } as React.CSSProperties}>
+        {t.error && <div className="notice small">{t.error}</div>}
+        {w && (
+          <div className="small">
+            Last 7 days: <b>{w.tests}</b> tests · <b>{w.minutes}</b> min
+            {w.wpm != null && <> · avg <b>{w.wpm}</b> wpm · best <b>{w.best}</b> · <b>{w.acc}%</b> accuracy</>}
+          </div>
+        )}
+        {days.map((d) => (
+          <div key={d.date}>
+            <div className="row small" style={{ justifyContent: 'space-between' }}>
+              <span>{d.date.slice(5)}</span>
+              <span className="muted">{d.wpm} wpm · {d.tests} tests</span>
+            </div>
+            <div className="bar-track"><div style={{ width: `${((d.wpm ?? 0) / max) * 100}%`, background: 'var(--accent)' }} /></div>
+          </div>
+        ))}
+        {t.total && <div className="faint small">All time: {t.total.tests} tests, {t.total.hours} h typing</div>}
+      </div>
     </div>
   );
 }
