@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- Every 15 min: Apple Calendar busy times into the study app's inbox (canvas_sync.py --calendar).
+     Install: cp scripts/calendar/com.maximilian.calendarbusy.plist ~/Library/LaunchAgents/ && launchctl load ~/Library/LaunchAgents/com.maximilian.calendarbusy.plist -->
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>com.maximilian.calendarbusy</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/usr/bin/python3</string>
+    <string>/Users/maximilianhedtmann/Claude Code/nihongo-app/scripts/canvas/canvas_sync.py</string>
+    <string>--calendar</string>
+  </array>
+  <key>StartInterval</key><integer>900</integer>
+  <key>StandardOutPath</key><string>/Users/maximilianhedtmann/Claude Code/nihongo-app/private/calendar-busy.log</string>
+  <key>StandardErrorPath</key><string>/Users/maximilianhedtmann/Claude Code/nihongo-app/private/calendar-busy.log</string>
+  <key>ProcessType</key><string>Background</string>
+</dict>
+</plist>

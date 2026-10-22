@@ -14,9 +14,10 @@ export function Today() {
   useEffect(initFocus, []);
   const important = t.shown.find((i) => i.kind === 'deadline' || i.kind === 'suggestion' || i.kind === 'application' || i.kind === 'club');
   const upcoming = t.day.filter((b) => b.end > t.now);
-  // lectures stay, but only two suggested study blocks
+  // with weekly targets the rolling plan shows every block; without, lectures plus two suggested blocks
   let blocks = 0;
-  const timeline = upcoming.filter((b) => b.kind === 'lecture' || (b.kind === 'study' && ++blocks <= 2));
+  const timeline = t.plan ? upcoming : upcoming.filter((b) => b.kind === 'lecture' || (b.kind === 'study' && ++blocks <= 2));
+  const tomorrow = (t.plan?.blocks ?? []).filter((b) => b.day === 'tomorrow');
   const date = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
   return (
     <div className="page">
@@ -36,19 +37,31 @@ export function Today() {
           <div className="row"><span className="big-number" style={{ fontSize: '2.4rem' }}>{due.total}</span><span className="muted small">card{due.total === 1 ? '' : 's'} due today</span><span className="spacer" /><button className="btn btn-primary" disabled={!due.total} onClick={() => navigate('/review')}><Icon name="review" size={16} /> Review now</button></div>
         </section>
         <section className="glass">
-          <div className="glass-head"><h2>Lectures and study blocks</h2><span className="faint tiny">{hhmm(t.winStart)}–{hhmm(t.winEnd)}</span></div>
+          <div className="glass-head"><h2>{t.plan ? 'Your plan' : 'Lectures and study blocks'}</h2><span className="faint tiny">{hhmm(t.winStart)}–{hhmm(t.winEnd)}</span></div>
           {timeline.length === 0 ? <EmptyState icon="calendar" title="Nothing scheduled" hint={t.calendar === null ? 'Import your timetable in Focus to see lectures.' : 'No lecture or free block left in your day window.'} /> : (
             <ul className="slots">
               {timeline.map((b) => (
                 <li key={`${b.kind}${b.start}`} className={`slot ${b.kind}${b.start <= t.now ? ' now' : ''}`}>
                   <span className="slot-time">{hhmm(b.start)}<small>{hhmm(b.end)}</small></span>
                   <span className="slot-bar" style={{ background: b.subject ? subjectColor(b.subject) : undefined }} />
-                  <span className="slot-main"><b>{b.kind === 'lecture' ? b.title : `Study ${b.subject}`}</b><small>{b.kind === 'lecture' ? 'lecture' : b.planned ? 'planned' : 'suggested'}</small></span>
+                  <span className="slot-main"><b>{b.kind === 'lecture' ? b.title : `Study ${b.subject}`}</b><small>{b.kind === 'lecture' ? 'lecture' : b.planned ? 'planned' : b.why ?? 'suggested'}</small></span>
                   {b.kind === 'study' && b.subject && <button className="btn btn-sm btn-primary" onClick={() => t.run({ type: 'timer', label: '', subject: b.subject! })}>Start</button>}
                 </li>
               ))}
             </ul>
           )}
+          {t.plan && (
+            <div className="stack small" style={{ '--gap': '6px', marginTop: 10 } as React.CSSProperties}>
+              {tomorrow.length > 0 && (
+                <div className="muted">Tomorrow: {tomorrow.map((b) => `${hhmm(b.start)} ${b.subject}`).join(' · ')}</div>
+              )}
+              {t.plan.dropped.length > 0 && (
+                <div className="faint">Doesn't fit before tomorrow night: {t.plan.dropped.map((d) => `${d.subject} ${d.hours} h`).join(', ')}</div>
+              )}
+              <div className="faint">The plan updates itself: log what you did in Focus (or fill a gap) – missed time moves that subject up, and the next free time is used.</div>
+            </div>
+          )}
+          {!t.plan && !t.hasTargets && <div className="faint small" style={{ marginTop: 10 }}>Set weekly targets in <a href="#/focus">Focus → Targets</a> and this becomes a plan that adapts to what you actually do.</div>}
         </section>
       </div>
     </div>

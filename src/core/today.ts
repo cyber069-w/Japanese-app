@@ -199,7 +199,7 @@ export const visibleItems = (items: TodayItem[], dismissed: Record<string, numbe
 export const pruneDismissed = (dismissed: Record<string, number>, now: number) =>
   Object.fromEntries(Object.entries(dismissed).filter(([, t]) => t > now - DISMISS_MS));
 
-export interface DayBlock { kind: 'lecture' | 'study'; start: number; end: number; title: string; subject?: string; planned?: boolean }
+export interface DayBlock { kind: 'lecture' | 'study'; start: number; end: number; title: string; subject?: string; planned?: boolean; /** why the rolling plan picked this subject */ why?: string }
 
 /**
  * Timeline from now to the end of the day window: lectures, then up to 90 min study blocks in free gaps of ≥ 45 min.

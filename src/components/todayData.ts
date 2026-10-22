@@ -14,14 +14,15 @@ import { useStored } from '../core/kv';
 import { clubDates, type Club } from '../core/clubs';
 import { applicationDates, type Application } from '../core/applications';
 import { warmupDone, type Attempt } from '../modules/interview/stats';
-import type { PlannedBlock } from '../core/targets';
+import { hoursBySubject, weekStart, type PlannedBlock, type Targets } from '../core/targets';
+import { planDemands, rollingPlan, type RollingPlan } from '../core/rollingPlan';
 import { askTutor } from '../lib/tutor';
 import { notesRequest } from '../lib/notesPrompt';
 import { daysUntil } from '../lib/date';
 import { navigate } from '../lib/router';
 import {
-  buildDay, buildItems, COURSE_SUBJECT, canvasStatus, pruneDismissed, visibleItems,
-  type SourceStatus, type TodayAction,
+  buildDay, buildItems, COURSE_SUBJECT, canvasStatus, focusSubject, pruneDismissed, visibleItems,
+  type DayBlock, type SourceStatus, type TodayAction,
 } from '../core/today';
 
 const DISMISS_KEY = 'today:dismissed';
@@ -49,6 +50,8 @@ export function useToday() {
   const canvasState = useCanvas();
   const [calendar, setCalendar] = useState<CalendarData | null | undefined>(undefined);
   const [planned] = useStored<PlannedBlock[]>('today:planned', []);
+  const [targets] = useStored<Targets>('focus:targets', {});
+  const [otherExams] = useStored<Record<string, string>>('exams:other', {});
   const [apps] = useStored<Application[]>('applications', []);
   const [clubs] = useStored<Club[]>('clubs', []);
   const [attempts] = useStored<Attempt[]>('interview:attempts', []);
@@ -68,7 +71,7 @@ export function useToday() {
   const [winStart, winEnd] = dayWindow(now);
   const lectures = useMemo(() => (calendar ? occurrences(calendar.events, now - 3_600_000, winEnd + 8 * 86_400_000) : []), [calendar, now, winEnd]);
 
-  const { items, day, sources } = useMemo(() => {
+  const { items, day, plan, sources } = useMemo(() => {
     const intervals = focus.sessions.flatMap(sessionIntervals);
     const open = gaps(intervals, Math.max(winStart, now - 60_000), Math.min(winEnd, Math.max(now, winStart)), 30 * 60_000);
     const cards = COURSES.map((c) => {
@@ -88,8 +91,26 @@ export function useToday() {
       { name: 'Focus', read: focus.sessions.length, act: open.length, state: 'ok' },
       { name: 'Cards', read: COURSES.length, act: cards.filter((c) => c.n > 0).length, state: 'ok' },
     ];
-    return { items: built, day: buildDay(now, winEnd, today, intervals.filter(([a]) => a < winEnd), ranked, 45, planned), sources: src };
-  }, [view.accepted, view.suggestions, view.unseenImportant, view.files, view.announcements, view.badge, view.examProposals, view.draftsPending, view.gradingsNew.length, lectures, focus.sessions, calendar, due.perCourse, settings.examDates, settings.examDate, canvasState.inbox, planned, apps, clubs, attempts, hasInterview, now, winStart, winEnd]);
+    // rolling plan for the rest of today and tomorrow, from the weekly targets (falls back to simple suggestions without targets)
+    const [tomStart, tomEnd] = dayWindow(now + 86_400_000);
+    const busy: Array<[number, number]> = [
+      ...lectures.filter((l) => !l.allDay).map((l) => [l.start, l.end] as [number, number]),
+      ...intervals,
+      ...(focus.active ? [[focus.active.startedAt, now + 15 * 60_000] as [number, number]] : []), // the running timer
+      ...planned.map((p) => [p.start, p.end] as [number, number]),
+      ...(canvasState.inbox?.busy ?? []).map((b) => [Date.parse(b.start), Date.parse(b.end)] as [number, number]),
+    ];
+    const exams = [
+      ...COURSES.flatMap((c) => { const d = settings.examDates?.[c.id] || (c.id === 'japanese' ? settings.examDate : ''); return d ? [{ subject: COURSE_SUBJECT[c.id] ?? c.name, due: Date.parse(d) }] : []; }),
+      ...Object.entries(otherExams).map(([subject, d]) => ({ subject, due: Date.parse(d) })),
+    ];
+    const deadlines = view.accepted.map((d) => ({ subject: focusSubject(d.subject), due: d.due ? Date.parse(d.due) : undefined }));
+    const demands = planDemands(targets, hoursBySubject(focus.sessions, weekStart(now)), deadlines, exams, now);
+    const plan: RollingPlan | null = demands.length ? rollingPlan(now, [[Math.max(now, winStart), Math.max(now, winEnd)], [tomStart, tomEnd]], busy, demands) : null;
+    const base = buildDay(now, winEnd, today, intervals.filter(([a]) => a < winEnd), plan ? [] : ranked, 45, planned);
+    const rolled = (plan?.blocks ?? []).filter((b) => b.day === 'today').map((b): DayBlock => ({ kind: 'study', start: b.start, end: b.end, title: `Study ${b.subject}`, subject: b.subject, why: b.why }));
+    return { items: built, day: [...base, ...rolled].sort((x, y) => x.start - y.start), plan, sources: src };
+  }, [targets, otherExams, focus.active, view.accepted, view.suggestions, view.unseenImportant, view.files, view.announcements, view.badge, view.examProposals, view.draftsPending, view.gradingsNew.length, lectures, focus.sessions, calendar, due.perCourse, settings.examDates, settings.examDate, canvasState.inbox, planned, apps, clubs, attempts, hasInterview, now, winStart, winEnd]);
 
   const shown = visibleItems(items, dismissed, now);
   const hiddenItems = items.filter((i) => !shown.includes(i));
@@ -121,5 +142,5 @@ export function useToday() {
   const outcome = (id: string, o: 'acted' | 'dismissed') => { const n = markOutcome(logRef.current, id, o, Date.now()); if (n !== logRef.current) setRuleLog(n); };
   const dismiss = (id: string) => { outcome(id, 'dismissed'); if (id.startsWith('exam:x-')) canvasIgnore(id.slice(5)); else if (id.startsWith('draft:')) canvasIgnore(id.slice(6)); else dismissRaw(id); };
   const act = (i: { id: string; action: TodayAction }) => { outcome(i.id, 'acted'); run(i.action); };
-  return { draft, closeDraft: () => setDraft(null), shown, hiddenItems, act, day, sources, lectures, calendar, covered, winStart, winEnd, now, run, dismiss, restore };
+  return { draft, closeDraft: () => setDraft(null), shown, hiddenItems, act, day, plan, hasTargets: Object.values(targets).some((t) => t > 0), sources, lectures, calendar, covered, winStart, winEnd, now, run, dismiss, restore };
 }

@@ -19,6 +19,7 @@ export interface CanvasDraft { id: string; subject: string; file: string; format
 export interface CanvasGrading { id: string; score: number; feedback: string; at: string }
 export interface NewsItem { title: string; link: string; date: string }
 export interface NewsSource { source: string; items: NewsItem[]; error?: string }
+export interface BusyEvent { start: string; end: string; title: string }
 /** Monkeytype stats the Mac job fetches once a day (scripts/canvas/monkeytype.py). */
 export interface TypingStats {
   at: string;
@@ -29,7 +30,7 @@ export interface TypingStats {
   /** set when the last fetch failed; the other fields are then the last good stats */
   error?: string;
 }
-export interface CanvasInbox { at: string; deadlines: CanvasDeadline[]; announcements: CanvasAnnouncement[]; files: CanvasFile[]; /** file names in <subject>/Prüfungen */ exams?: CanvasExam[]; readings?: CanvasReading[]; news?: NewsSource[]; /** exam dates the Mac job found (accept / ignore) */ examDates?: CanvasExamDate[]; /** drafts made overnight by Claude Code on the Mac (accept / ignore) */ drafts?: CanvasDraft[]; /** feedback on your queued free-text answers */ gradings?: CanvasGrading[]; typing?: TypingStats | null }
+export interface CanvasInbox { at: string; deadlines: CanvasDeadline[]; announcements: CanvasAnnouncement[]; files: CanvasFile[]; /** file names in <subject>/Prüfungen */ exams?: CanvasExam[]; readings?: CanvasReading[]; news?: NewsSource[]; /** exam dates the Mac job found (accept / ignore) */ examDates?: CanvasExamDate[]; /** drafts made overnight by Claude Code on the Mac (accept / ignore) */ drafts?: CanvasDraft[]; /** feedback on your queued free-text answers */ gradings?: CanvasGrading[]; typing?: TypingStats | null; /** Apple Calendar events (times only) for today and the next two days, from the Mac job */ busy?: BusyEvent[] }
 
 export interface CanvasPrefs {
   muted: boolean;

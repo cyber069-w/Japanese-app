@@ -55,7 +55,7 @@ export function LessonsCard({ t }: { t: Today }) {
             <span className="slot-bar" style={{ background: b.subject ? subjectColor(b.subject) : undefined }} />
             <span className="slot-main">
               <b>{b.kind === 'lecture' ? b.title : `Study ${b.subject}`}</b>
-              <small>{b.start <= t.now ? 'now' : b.kind === 'lecture' ? 'lecture' : b.planned ? 'planned' : 'suggested'}</small>
+              <small>{b.start <= t.now ? 'now' : b.kind === 'lecture' ? 'lecture' : b.planned ? 'planned' : b.why ?? 'suggested'}</small>
             </span>
             {b.kind === 'study' && b.subject && (
               <span className="row" style={{ gap: 6 }}>

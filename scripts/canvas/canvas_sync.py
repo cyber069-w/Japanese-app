@@ -15,6 +15,7 @@ Safety rules:
 Needs: private/canvas-token.txt (your Canvas access token), private/canvas-config.json.
 Optional: private/monkeytype.json ({"apeKey": "..."}) for typing stats (scripts/canvas/monkeytype.py).
   python3 scripts/canvas/canvas_sync.py --inbox  # only refresh deadlines / announcements
+  python3 scripts/canvas/canvas_sync.py --calendar # only refresh Apple Calendar busy times (every 15 min)
 
 Writes: private/canvas-state.json (what was fetched), private/canvas-report.json (last run),
         private/canvas-inbox.json (deadlines, announcements and new files – read by the app's bell).
@@ -341,9 +342,10 @@ def collect_inbox(new_files, readings=None):
              + [{'id': f"note-{f['to']}", 'subject': f['course'], 'file': f['file'], 'to': f['to'], 'at': stamp, 'kind': 'notes'} for f in notes]
              + old.get('files', []))
     drafts, gradings = claude_work(files, old)
+    busy = collect_busy()
     inbox = {'at': stamp, 'deadlines': sorted(deadlines.values(), key=lambda d: d['due'] or ''), 'announcements': sorted(announcements, key=lambda a: a['posted'] or '', reverse=True), 'files': files[:60], 'exams': collect_exams(),
              'readings': readings if readings is not None else old.get('readings', []), 'news': collect_news(), 'examDates': collect_exam_dates(announcements), 'drafts': drafts, 'gradings': gradings,
-             'typing': monkeytype.collect(PRIVATE, old.get('typing'))}
+             'typing': monkeytype.collect(PRIVATE, old.get('typing')), 'busy': busy if busy is not None else old.get('busy', [])}
     inbox_file.write_text(json.dumps(inbox, ensure_ascii=False, indent=1))
     push_to_sync_repo()
     return inbox
@@ -378,6 +380,35 @@ def claude_work(files, old):
     return drafts, gradings
 
 
+def collect_busy():
+    """Apple Calendar events (times and titles, next 2–3 days) via scripts/calendar/busy.swift – the app plans around them.
+    None when calendar access isn't allowed or Swift fails; the job goes on without them."""
+    try:
+        r = subprocess.run(['/usr/bin/swift', str(ROOT / 'scripts/calendar/busy.swift')], capture_output=True, text=True, timeout=180)
+        if r.returncode:
+            print(f'Calendar not read: {(r.stderr or "").strip()[:200]}')
+            return None
+        return json.loads(r.stdout or '[]')
+    except Exception as e:
+        print(f'Calendar not read: {e}')
+        return None
+
+
+def refresh_busy():
+    """--calendar: only the calendar part of the inbox, written and copied to the phone when it changed (cheap, every 15 min)."""
+    inbox_file = PRIVATE / 'canvas-inbox.json'
+    busy = collect_busy()
+    if busy is None or not inbox_file.exists():
+        return
+    inbox = json.loads(inbox_file.read_text())
+    if inbox.get('busy') == busy:
+        return
+    inbox['busy'] = busy
+    inbox_file.write_text(json.dumps(inbox, ensure_ascii=False, indent=1))
+    print(f'Calendar: {len(busy)} events')
+    push_to_sync_repo()
+
+
 def push_to_sync_repo():
     """Copies the inbox, encrypted, into the device-sync repo so the phone can read it (skips if not set up)."""
     node = Path.home() / '.local/node/bin/node'
@@ -389,6 +420,9 @@ def push_to_sync_repo():
 
 
 def main():
+    if '--calendar' in sys.argv:
+        refresh_busy()
+        return
     if '--inbox' in sys.argv:
         inbox = collect_inbox([])
         print(f"Inbox: {len(inbox['deadlines'])} deadlines, {len(inbox['announcements'])} announcements")

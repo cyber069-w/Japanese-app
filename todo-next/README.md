@@ -17,9 +17,11 @@ testing I can't do, or the answer depends on a decision only the user can make.
 1. Merge `nihongo-update` → `main`, deploy to GitHub Pages, test offline + install on the phone/iPad.
 2. ~~Paste-back planning~~ done: Home → Your lessons → “Plan my week” (prompt → paste JSON → review → add; replaces the earlier pasted plan, keeps manual blocks).
 3. ~~Accept study blocks~~ done (Accept on suggested blocks; “Planned later” list). Planned blocks also show as an outer arc on the Focus day clock.
-4. Weekly-plan day window for "Your day" (waiting for the user's plan format).
-5. Outlook calendar sync (waiting for the Outlook key).
-6. Canvas rules review (BWL handouts) – needs the user.
+4. ~~Weekly-plan day window~~ replaced (22 Oct) by the **rolling plan**: today + tomorrow from weekly targets, deadlines/exams, lectures,
+   logged time and Apple Calendar busy times (`core/rollingPlan.ts`, Today → "Your plan"). Calendar: run `swift scripts/calendar/busy.swift`
+   once in Terminal to allow access, then load `scripts/calendar/com.maximilian.calendarbusy.plist` (every 15 min). On branch, not on main yet.
+5. ~~Outlook calendar sync~~ dropped (22 Oct): the user's mail and calendar are on Apple.
+6. ~~Canvas rules review (BWL handouts)~~ user checked 22 Oct: no problems; they report when a rule is needed.
 7. Brainstorm results from the user → turn the chosen ideas into tasks here.
 
 Background: `../FEATURES.md` (purpose and features), `../TODO.md` (history), `../HANDOVER*.md`.
