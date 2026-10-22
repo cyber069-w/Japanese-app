@@ -122,5 +122,7 @@
 :root[data-surface='apple'] .brand .seal { background: url(/icons/study-192.png) center / cover no-repeat; box-shadow: 0 4px 10px -3px rgba(0, 0, 0, 0.35); border-radius: 22%; width: 40px; height: 40px; }
 :root[data-surface='apple'] .brand .seal::after { display: none; }
 :root[data-surface='apple'] .brand .seal svg { display: none; }
+:root[data-surface='apple'] .seal.seal-logo { background: none; }
+:root[data-surface='apple'] .seal.seal-logo::after { display: none; }
 :root[data-surface='apple'] .topic-weight-bar i { background: var(--course-color, var(--accent)); }
 :root[data-surface='apple'] .topic-card h3 { min-height: 0; }

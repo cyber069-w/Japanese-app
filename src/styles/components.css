@@ -39,6 +39,10 @@
   font-size: 20px;
 }
 
+/* the CFA course shows its own logo instead of the book */
+.seal.seal-logo { background: none; padding: 0; overflow: hidden; border-radius: 22%; box-shadow: 0 4px 10px -3px rgba(0, 0, 0, 0.35); }
+.seal-logo img { width: 100%; height: 100%; display: block; }
+
 .brand-name { font-weight: 700; font-size: 1.08rem; letter-spacing: 0.01em; }
 .brand-sub { font-size: 0.75rem; color: var(--ink-3); }
 

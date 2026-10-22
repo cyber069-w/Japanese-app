@@ -9,6 +9,11 @@ import { Icon } from './Icon';
 import { Sheet } from './Sheet';
 
 export function CourseSeal({ course, small }: { course: CourseConfig; small?: boolean }) {
+  if (course.id === 'cfa') {
+    return (
+      <span className={`seal seal-logo${small ? ' seal-sm' : ''}`} aria-hidden="true"><img src="/icons/cfa-logo.svg" alt="" /></span>
+    );
+  }
   return (
     <span className={`seal${small ? ' seal-sm' : ''}`} aria-hidden="true" style={{ '--tile': `var(--subject-${course.id}, var(--accent))` } as React.CSSProperties}>
       <CourseGlyph course={course} />

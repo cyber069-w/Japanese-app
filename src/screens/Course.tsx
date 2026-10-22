@@ -1,6 +1,7 @@
 /** A course: its five areas – Study · Practice & Review · Exam Preparation · Imports · Tutor. */
 import { useEffect, useMemo } from 'react';
 import { getState, updateSettings, useApp } from '../core/store';
+import { useStored } from '../core/kv';
 import { useCtx, useDueCounts } from '../core/hooks';
 import { buildReviewQueue, buildWeakQueue, weakCardIds } from '../core/session';
 import { startSession } from '../core/sessionConfig';
@@ -13,7 +14,7 @@ import { ExamPanel } from '../components/ExamPanel';
 import { Icon } from '../components/Icon';
 import { TutorButton } from '../components/TutorButton';
 import { TutorNotes } from '../components/TutorNotes';
-import { CfaTopicLessons } from '../modules/cfa/TopicLessons';
+import { CFA_DONE_KEY, CfaTopicLessons } from '../modules/cfa/TopicLessons';
 
 const AREAS = [
   { id: 'study', label: 'Study' },
@@ -137,7 +138,8 @@ const TOPIC_ICONS: Record<string, string> = {
 };
 
 function TopicGrid({ course }: { course: CourseConfig }) {
-  const maxWeight = Math.max(...course.topics!.map((t) => t.weight[1]));
+  const lessons = useApp((s) => s.content.cfaLessons);
+  const [done] = useStored<string[]>(CFA_DONE_KEY, []);
   return (
     <div className="grid module-grid topic-grid" style={{ '--min': '240px' } as React.CSSProperties}>
       {course.topics!.map((t, i) => (
@@ -148,11 +150,21 @@ function TopicGrid({ course }: { course: CourseConfig }) {
             <span className="topic-no">Topic {i + 1}</span>
           </div>
           <h3>{t.name}</h3>
-          <div className="topic-weight" title={`Exam weight ${t.weight[0]}–${t.weight[1]} %`}>
-            <span className="topic-weight-bar"><i style={{ width: `${(t.weight[1] / maxWeight) * 100}%` }} /></span>
-            <b>{t.weight[0]}–{t.weight[1]}%</b>
-          </div>
-          <div className="meta"><span>{t.modules} learning modules · not started</span></div>
+          {(() => {
+            // Official modules you ticked as studied (a lesson beyond the official count, like the calculator guide, isn't one).
+            const mine = course.id === 'cfa' ? lessons.filter((l) => l.topic === t.id) : [];
+            const studied = new Set(mine.filter((l) => done.includes(l.id) && (l.module ?? 0) >= 1 && (l.module ?? 0) <= t.modules).map((l) => l.module)).size;
+            const pct = Math.round((studied / t.modules) * 100);
+            return (
+              <>
+                <div className="topic-weight" title={`${studied} of ${t.modules} learning modules ticked as studied`}>
+                  <span className="topic-weight-bar"><i style={{ width: `${pct}%` }} /></span>
+                  <b>{pct}%</b>
+                </div>
+                <div className="meta"><span>{studied}/{t.modules} studied · {t.weight[0]}–{t.weight[1]}% of the exam</span></div>
+              </>
+            );
+          })()}
         </a>
       ))}
     </div>

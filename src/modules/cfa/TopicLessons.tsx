@@ -1,14 +1,20 @@
 /** The lessons of one CFA topic – each row opens the lesson window (guided version + original PDF). */
 import { useEffect, useState } from 'react';
 import { useApp } from '../../core/store';
+import { useStored } from '../../core/kv';
 import { navigate } from '../../lib/router';
 import { Icon } from '../../components/Icon';
 import { loadLessonPacks } from './lessonPacks';
 import { rememberPdfPassphrase, savedKey } from './pdfs';
 
+/** Lesson ids you ticked as studied (also work done outside the app). Saved on this device. */
+export const CFA_DONE_KEY = 'cfa:done';
+
 export function CfaTopicLessons({ topicId }: { topicId: string }) {
   const lessons = useApp((s) => s.content.cfaLessons).filter((l) => l.topic === topicId).sort((a, b) => (a.module ?? 0) - (b.module ?? 0));
   const [locked, setLocked] = useState(false);
+  const [done, setDone] = useStored<string[]>(CFA_DONE_KEY, []);
+  const toggle = (id: string) => setDone(done.includes(id) ? done.filter((x) => x !== id) : [...done, id]);
   useEffect(() => {
     void savedKey().then((k) => setLocked(!k));
     void loadLessonPacks(); // repairs an older copy (e.g. from sync) as soon as you open the topic
@@ -27,7 +33,21 @@ export function CfaTopicLessons({ topicId }: { topicId: string }) {
               <b>{l.title}</b>
               <span className="faint small"> · {l.learn ? 'guided + PDF' : 'PDF'} · {l.questions.length} questions</span>
             </span>
-            <Icon name="right" size={18} />
+            <span className="row" style={{ gap: 10 }}>
+              <span
+                role="checkbox"
+                aria-checked={done.includes(l.id)}
+                aria-label={`Mark \"${l.title}\" as studied`}
+                title={done.includes(l.id) ? 'Studied – click to untick' : 'Mark as studied'}
+                tabIndex={0}
+                onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggle(l.id); }}
+                onKeyDown={(e) => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); e.stopPropagation(); toggle(l.id); } }}
+                style={{ width: 22, height: 22, borderRadius: 7, display: 'grid', placeItems: 'center', cursor: 'pointer', border: '2px solid var(--line-2)', ...(done.includes(l.id) ? { background: 'var(--accent)', borderColor: 'var(--accent)', color: 'var(--accent-ink)' } : {}) }}
+              >
+                {done.includes(l.id) && <Icon name="check" size={14} />}
+              </span>
+              <Icon name="right" size={18} />
+            </span>
           </a>
         ))}
       </div>

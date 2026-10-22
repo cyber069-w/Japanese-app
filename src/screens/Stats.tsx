@@ -12,6 +12,7 @@ import { courseModules } from '../courses';
 import { dayKey, daysUntil, formatDuration } from '../lib/date';
 import { Icon } from '../components/Icon';
 import { CourseBar } from '../components/CourseBar';
+import { TypingStats } from '../components/TypingStats';
 import { initFocus, useFocus } from '../core/focusStore';
 
 export function Stats() {
@@ -112,6 +113,8 @@ export function Stats() {
           )}
         </div>
       </div>
+
+      <TypingStats />
 
       <div className="section">
         <div className="section-head">

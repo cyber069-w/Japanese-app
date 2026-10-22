@@ -130,7 +130,11 @@ function Shell({ path, children }: { path: string; children: ReactNode }) {
     <div className="shell">
       <aside className="sidebar">
         <a className="brand" href="#/">
-          <span className="seal" aria-hidden="true"><Icon name="book" size={20} /></span>
+          {course.id === 'cfa' && path !== '/' && !path.startsWith('/focus') ? (
+            <span className="seal seal-logo" aria-hidden="true"><img src="/icons/cfa-logo.svg" alt="" /></span>
+          ) : (
+            <span className="seal" aria-hidden="true"><Icon name="book" size={20} /></span>
+          )}
           <span>
             <div className="brand-name">Study Desk</div>
             <div className="brand-sub">{path === '/' ? 'Choose a subject' : path.startsWith('/focus') ? 'Focus' : course.name}</div>
