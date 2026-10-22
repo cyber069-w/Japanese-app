@@ -1,4 +1,4 @@
-# Handover – CFA study packs and lesson window (and project state), updated 22 Oct 2026
+# Handover – CFA study packs and lesson window (and project state), updated 22 Oct 2026 (evening)
 
 For a **new chat / account** that continues this work. Read this file, then `todo-next/README.md` (rule: if you cannot deliver
 the quality asked, stop and ask the user about switching model / effort / splitting the task), `FEATURES.md` and `TODO.md`.
@@ -85,18 +85,41 @@ found, none unplaced in the browser) · plain-language meanings (`term.plain`) f
 
 ## 6 · Project state (short)
 
-Branch `nihongo-update` is merged into `main` (GitHub Pages deploy by Actions; user still has to confirm Actions/Pages are green).
+Branch `nihongo-update` = `main` (both at the same commit; GitHub Pages deploys `main` via Actions – not checked whether the last
+deploy is green). Fast-forward `main` with `git push origin nihongo-update:main` (don't switch branches).
 Built since the first handover: Today hub, connections/history, OneNote PDF notes, targets + weekly report, exam mode, Azure pronunciation,
 glass/Apple looks, shutdown, applications, interview prep, reading list + news, clubs, encrypted finance, quick capture, sync of the new stores,
 Mac-job extras (exam dates, Claude drafts and overnight grading – off by default). Details: `FEATURES.md`, `todo-next/FEATURE-QUEUE.md`,
 test list for the user: `TEST-CHECKLIST.md`.
 
-Environment: Node in `~/.local/node/bin` (`export PATH=$HOME/.local/node/bin:$PATH`), `npm test` (300 tests), `npm run build`, dev server `npm run dev`
-(port 5173; start it in the user's terminal or from the app folder, not from the parent folder). macOS has `swift` (PDFKit) – no poppler/pdftotext here.
+**Added 22 Oct (outside CFA):**
+- **Monkeytype stats** – `scripts/canvas/monkeytype.py` (daily Mac job, `/results` + `/users/stats` with the ApeKey) → inbox `typing`
+  → Focus "Typing" card (hidden until there is data). `private/monkeytype.json` exists with an empty `apeKey`; **the user fills it in
+  themselves** and switches the key to active on monkeytype.com. Tests: `python3 scripts/canvas/test_monkeytype.py`.
+- **Rolling plan** – `src/core/rollingPlan.ts` (+ tests), used in `components/todayData.ts`: blocks for the rest of today and tomorrow,
+  computed fresh from weekly targets (Focus → Targets, key `focus:targets`) minus this week's logged hours, deadlines/exams in the next
+  7 days, lectures, the running timer, fixed planned blocks and Apple Calendar busy times. Missed time = more open hours = higher
+  priority; what doesn't fit is listed. Today → "Your plan" (all blocks + why + tomorrow line), Home card shows the why. Without targets
+  the old two-suggestions behaviour stays. User's wish behind it: no fixed plan days ahead; short-notice changes (meeting, nap) just
+  re-plan from now; they say what they did by logging it in Focus. Not built yet (user mentioned it): marking lectures/exercises they
+  skip so they don't count as busy.
+- **Apple Calendar busy times** – `scripts/calendar/busy.swift` (EventKit, times + titles, now → end of the day after tomorrow) →
+  `canvas_sync.py` (daily job, and `--calendar` = only this part, writes inbox `busy` when it changed). LaunchAgent template
+  `scripts/calendar/com.maximilian.calendarbusy.plist` (every 15 min) is **not installed** – needs the user's OK. **Not run yet:** the user
+  must first run `swift scripts/calendar/busy.swift` once in Terminal to allow calendar access; whether the launchd job then also gets
+  access is untested.
+- **Device sync for the Mac job is not set up** (`private/sync-config.json` missing): inbox, news, Monkeytype and calendar data only reach
+  the Mac's local dev server, not iPhone/iPad/GitHub Pages. Next useful step together with the user.
+
+Environment: Node in `~/.local/node/bin` (`export PATH=$HOME/.local/node/bin:$PATH`), `npm test` (308 tests), `npm run build` (runs tsc first),
+dev server `npm run dev` (port 5173; start it in the user's terminal or from the app folder, not from the parent folder). macOS has `swift`
+(PDFKit, EventKit) – no poppler/pdftotext here.
 Not verified on real devices: microphone flows, Apple Calendar import, iA Writer path, GitHub sync, `claude -p` jobs (no `claude` on the Mac's PATH).
 
-Open decisions for the user: Monkeytype ApeKey (H2), Outlook key (calendar sync), weekly-plan day window, Canvas rules review (BWL handouts),
-API-key policy for an in-app tutor.
+Open for the user: ApeKey into `private/monkeytype.json`; allow calendar access (command above) and OK for the 15-min job; set weekly
+targets in Focus; device sync for the Mac job; API-key policy for an in-app tutor. Dropped 22 Oct: Outlook key (mail/calendar are on
+Apple); BWL handout rules reviewed by the user (no problems, they report when a rule is needed). **After that: brainstorm new ideas
+with the user** (they want to, once the current things work).
 
 ## 7 · The lesson window (built 21 Oct) – how it works
 
