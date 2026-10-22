@@ -310,7 +310,7 @@ function Runner({ cfg, restart }: { cfg: SessionConfig; restart: (c: SessionConf
             {(!outcome.correct || hintUsed) && shownHint && <HintPanel hint={shownHint} />}
             <div className="session-actions" style={{ justifyContent: 'flex-start' }}>
               <button className="btn btn-primary" onClick={next} autoFocus={!outcome.correct}>
-                Continue <kbd style={{ background: 'transparent', color: 'inherit', borderColor: 'currentColor' }}>Enter</kbd>
+                Continue <kbd className="key-hint" style={{ background: 'transparent', color: 'inherit', borderColor: 'currentColor' }}>Enter</kbd>
               </button>
             </div>
           </div>
