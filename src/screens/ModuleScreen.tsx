@@ -91,7 +91,7 @@ function ModuleView({ mod }: { mod: StudyModule }) {
           {due > 0 && (
             <button
               className="btn btn-primary"
-              onClick={() => startSession({ title: `${mod.name} · Review`, cards: buildReviewQueue(MODULES, ctx, cards, Date.now(), 50, mod.id), back: `/m/${mod.id}` })}
+              onClick={() => { const build = () => buildReviewQueue(MODULES, ctx, cards, Date.now(), 50, mod.id); startSession({ title: `${mod.name} · Review`, cards: build(), back: `/m/${mod.id}`, rebuild: build }); }}
             >
               <Icon name="review" size={18} /> Review {due}
             </button>
@@ -99,7 +99,7 @@ function ModuleView({ mod }: { mod: StudyModule }) {
           {weak > 0 && (
             <button
               className="btn"
-              onClick={() => startSession({ title: `${mod.name} · Weakest`, cards: buildWeakQueue(MODULES, ctx, cards, Date.now(), mod.id), back: `/m/${mod.id}` })}
+              onClick={() => { const build = () => buildWeakQueue(MODULES, ctx, cards, Date.now(), mod.id); startSession({ title: `${mod.name} · Weakest`, cards: build(), back: `/m/${mod.id}`, rebuild: build }); }}
             >
               <Icon name="zap" size={18} /> Weakest
             </button>

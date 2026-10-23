@@ -6,3 +6,4 @@ dev-dist
 # Copyrighted course material (Tofugu pictures, Minna no Nihongo vocab) – never commit or publish.
 # Only the encrypted public/pack.enc may be committed.
 private/
+dev-server.log

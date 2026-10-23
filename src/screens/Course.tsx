@@ -196,7 +196,7 @@ function PracticeCard({ course }: { course: CourseConfig }) {
         <button
           className="btn"
           disabled={!weak}
-          onClick={() => startSession({ title: `Weakest · ${course.name}`, cards: buildWeakQueue(mods, ctx, cards, Date.now(), ids), back: '/study' })}
+          onClick={() => { const build = () => buildWeakQueue(mods, ctx, cards, Date.now(), ids); startSession({ title: `Weakest · ${course.name}`, cards: build(), back: '/study', rebuild: build }); }}
         >
           <Icon name="zap" size={18} /> Weakest {Math.min(weak, 20) || ''}
         </button>

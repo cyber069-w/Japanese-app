@@ -97,7 +97,7 @@ export function Review() {
             <button
               className="btn"
               disabled={!weak}
-              onClick={() => startSession({ title: 'Weakest items', cards: buildWeakQueue(mods, ctx, cards, Date.now(), ids), back: '/review' })}
+              onClick={() => { const build = () => buildWeakQueue(mods, ctx, cards, Date.now(), ids); startSession({ title: 'Weakest items', cards: build(), back: '/review', rebuild: build }); }}
             >
               <Icon name="zap" size={18} /> Drill weakest
             </button>

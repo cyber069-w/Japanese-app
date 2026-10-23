@@ -1,7 +1,7 @@
 /**
  * Runs a study session: shows one question at a time, checks the answer,
  * records it in the SRS, and brings wrong items back a few cards later.
- * Fully keyboard driven: Enter = next, 1–6 = choose, Space = audio, ? = hint, Esc = exit.
+ * Fully keyboard driven: Enter = next, 1–6 = choose, Space = audio, Q or ? = hint, Esc = exit.
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { getSession, type SessionConfig } from '../core/sessionConfig';
@@ -179,6 +179,9 @@ function Runner({ cfg, restart }: { cfg: SessionConfig; restart: (c: SessionConf
       const typing = target.tagName === 'INPUT' && (target as HTMLInputElement).value !== '';
       if (e.key === 'Escape') { e.preventDefault(); exit(); return; }
       if (e.key === '?') { e.preventDefault(); toggleHint(); return; }
+      // Q = hint with one key; romaji/kana/number answers never need a q, free-text answers keep it as a letter
+      const freeText = question?.answer.type === 'typing' && question.answer.input === 'text';
+      if ((e.key === 'q' || e.key === 'Q') && !e.shiftKey && !e.isComposing && !freeText && phase === 'ask' && question?.hint) { e.preventDefault(); toggleHint(); return; }
       if (e.key === ' ' && e.shiftKey && question?.speak) { e.preventDefault(); playSlow(); return; }
       if (phase === 'done') {
         if (e.key === 'Enter' || e.key === 'ArrowRight') { e.preventDefault(); next(); }
@@ -245,7 +248,7 @@ function Runner({ cfg, restart }: { cfg: SessionConfig; restart: (c: SessionConf
             </button>
           )}
           {question.hint && phase === 'ask' && (
-            <button className={`icon-btn${hintOpen ? ' on' : ''}`} onClick={toggleHint} aria-label="Show hint" title="Hint (?)">
+            <button className={`icon-btn${hintOpen ? ' on' : ''}`} onClick={toggleHint} aria-label="Show hint" title="Hint (Q or ?)">
               <Icon name="bulb" />
             </button>
           )}
@@ -322,7 +325,7 @@ function Runner({ cfg, restart }: { cfg: SessionConfig; restart: (c: SessionConf
         {question.answer.type === 'choice' && <span><kbd>1</kbd>–<kbd>{question.answer.options.length}</kbd> choose</span>}
         {question.speak && <span><kbd>Space</kbd> audio</span>}
         {question.speak && audioFirst && <span><kbd>Shift</kbd>+<kbd>Space</kbd> slow</span>}
-        {question.hint && <span><kbd>?</kbd> hint</span>}
+        {question.hint && <span><kbd>Q</kbd> or <kbd>?</kbd> hint</span>}
         {question.answer.type === 'reveal' && question.answer.record && <span><kbd>R</kbd> record</span>}
         <span><kbd>Esc</kbd> quit</span>
       </div>
@@ -394,6 +397,16 @@ function Finish({ cfg, results, ms, restart }: { cfg: SessionConfig; results: Re
   const right = firsts.filter((r) => r.correct).length;
   const pct = firsts.length ? Math.round((right / firsts.length) * 100) : 0;
   const mistakes = firsts.filter((r) => !r.correct);
+  // Enter or Space starts the next round; ignored for the first half second so a double-tap on the last answer can't skip the result
+  const shownAt = useRef(Date.now());
+  const nextSession = () => { if (cfg.rebuild && Date.now() - shownAt.current > 500) restart({ ...cfg, cards: cfg.rebuild() }); };
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.key === 'Enter' || e.key === ' ') && !e.repeat && cfg.rebuild && !(e.target as HTMLElement).closest('button')) { e.preventDefault(); nextSession(); }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  });
   const mood = pct >= 90 ? 'Excellent!' : pct >= 70 ? 'Well done!' : pct >= 40 ? 'Keep going!' : 'One more round!';
 
   return (
@@ -426,7 +439,7 @@ function Finish({ cfg, results, ms, restart }: { cfg: SessionConfig; results: Re
         <div className="session-actions" style={{ marginTop: 26 }}>
           {mistakes.length > 0 && (
             <button
-              className="btn btn-primary"
+              className={cfg.rebuild ? 'btn' : 'btn btn-primary'}
               onClick={() =>
                 restart({
                   ...cfg,
@@ -440,8 +453,8 @@ function Finish({ cfg, results, ms, restart }: { cfg: SessionConfig; results: Re
             </button>
           )}
           {cfg.rebuild && (
-            <button className="btn" onClick={() => restart({ ...cfg, cards: cfg.rebuild!() })}>
-              Another round
+            <button className="btn btn-primary" onClick={nextSession} autoFocus>
+              Next session <kbd className="key-hint" style={{ background: 'transparent', color: 'inherit', borderColor: 'currentColor' }}>Enter</kbd> <kbd className="key-hint" style={{ background: 'transparent', color: 'inherit', borderColor: 'currentColor' }}>Space</kbd>
             </button>
           )}
           <button className="btn btn-ghost" onClick={() => navigate(cfg.back)}>
